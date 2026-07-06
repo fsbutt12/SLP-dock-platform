@@ -283,6 +283,7 @@
         </div>
     </div>
     <script>
+        /* CRITICAL: THIS IS THE CORRECT WEB APP LINK FROM YOUR SCREENSHOT */
         const API_URL = "https://script.google.com/macros/s/AKfycbymkkQ83eluzeBTKo_NEf6Bhebu007_OJS5Xz073tQcqqr_aspE5hgTiYrBOBW11w6NUQ/exec";
 
         document.getElementById('iqamaScanner').addEventListener('change', function(e) {
@@ -427,13 +428,13 @@
         }
 
         document.getElementById('testBtn').addEventListener('click', async () => {
-            alert("Testing connection to: " + API_URL + "\n\nChecking if your company network allows connections to Google Scripts...");
+            alert("Testing connection to updated URL...");
             try {
                 const res = await fetch(API_URL);
                 alert("Success! Google Sheet answered back smoothly.");
                 fetchLogs();
             } catch (e) {
-                alert("Connection Blocked!\n\nReason: Your company network firewall or browser is blocking connections to script.google.com.\n\nSolution: Try opening this website link on your personal smartphone (connected to mobile data, NOT corporate Wi-Fi) and it will work perfectly!");
+                alert("Connection Blocked!\n\nReason: Your corporate firewall is blocking connections to script.google.com.\n\nSolution: Use a personal device on mobile network data to load the dashboard!");
             }
         });
 
@@ -477,4 +478,3 @@
     </script>
 </body>
 </html>
- 
