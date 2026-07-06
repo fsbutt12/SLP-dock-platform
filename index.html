@@ -19,7 +19,7 @@
             color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden;
         }
         .sidebar {
-            width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color);
+            width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color);
             display: flex; flex-direction: column; padding: 1.5rem 1rem; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100; backdrop-filter: blur(12px);
         }
         .brand-section { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
@@ -520,6 +520,8 @@
         </div>
     </div>
 
+    <canvas id="preprocessCanvas" style="display:none;"></canvas>
+
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbx5hQYr4uvmEhds13c1-WonqNzRut1Ksj52vjH7ncX5uo3Hqis2nAcHDQD0wxE2Eqo9zQ/exec";
         let globalLogsCache = []; 
@@ -603,96 +605,115 @@
             }
         });
 
-        document.getElementById('driverPhotoInput').addEventListener('change', function() {
-            if(this.files.length > 0) {
-                document.getElementById('driverPhotoStatus').innerText = "✅ Photo Attached Successfully";
-                document.getElementById('driverPhotoStatus').style.color = "var(--success-color)";
-            }
-        });
+        /* --- PILOT OCR MATRIX WITH DYNAMIC CONTRAST PREPROCESSING --- */
+        function preprocessAndRecognize(file, statusElement, callback) {
+            const status = document.getElementById(statusElement);
+            status.innerHTML = "🌀 Preprocessing image matrix...";
+            status.style.color = "var(--accent-color)";
 
-        /* --- ADVANCED OCR ENGINE REWRITTEN FOR SAUDI IQAMAS & KSA PLATES --- */
-        function handleOCR(inputElement, statusElement, callback) {
-            document.getElementById(inputElement).addEventListener('change', e => {
-                const file = e.target.files[0]; if (!file) return;
-                const status = document.getElementById(statusElement); status.innerHTML = "🌀 Scanning..."; status.style.color = "var(--accent-color)";
-                Tesseract.recognize(file, 'eng').then(({ data: { text } }) => callback(text, status)).catch(() => { status.innerHTML = "❌ Failed"; status.style.color = "#ef4444"; });
-            });
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('preprocessCanvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Maintain standard scanning scale proportions
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+
+                    // Pull image bytes array mapping
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imgData.data;
+
+                    // High-contrast binarization threshold filter loop
+                    for (let i = 0; i < data.length; i += 4) {
+                        let brightness = 0.34 * data[i] + 0.5 * data[i + 1] + 0.16 * data[i + 2];
+                        let threshold = 122; // Midpoint luminance cut
+                        let v = (brightness > threshold) ? 255 : 0;
+                        data[i] = data[i + 1] = data[i + 2] = v; // Set gray tones directly
+                    }
+
+                    ctx.putImageData(imgData, 0, 0);
+                    status.innerHTML = "🌀 Extracting Latin data channels...";
+
+                    // Pass clean black-and-white canvas matrix to Tesseract engine
+                    Tesseract.recognize(canvas.toDataURL(), 'eng').then(({ data: { text } }) => {
+                        callback(text, status);
+                    }).catch(() => {
+                        status.innerHTML = "❌ Scanner failure.";
+                        status.style.color = "#ef4444";
+                    });
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
         }
 
-        handleOCR('iqamaScanner', 'iqamaStatus', (text, status) => {
-            status.innerHTML = "✅ Scanned"; status.style.color = "var(--success-color)";
-            const lines = text.split('\n');
-            let extractedName = "";
-            let extractedID = "";
+        // 1. Iqama ID Scanner Handler
+        document.getElementById('iqamaScanner').addEventListener('change', function(e) {
+            const file = e.target.files[0]; if (!file) return;
+            preprocessAndRecognize(file, 'iqamaStatus', (text, status) => {
+                status.innerHTML = "✅ Scanned"; status.style.color = "var(--success-color)";
+                const lines = text.split('\n');
+                let extractedName = "";
+                let extractedID = "";
 
-            // Loop to parse Latin character string line on Saudi Residence Permits
-            for (let line of lines) {
-                let cleaned = line.trim().toUpperCase();
-                
-                // Clear structural header/footer margins
-                if (/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NUMBER|DATE|FHFOF/i.test(cleaned)) {
-                    continue;
-                }
-                
-                // Match alphabetical rows containing 3 or more names (min 12 spaces long)
-                const nameMatch = cleaned.match(/\b[A-Z\s]{12,}\b/);
-                if (nameMatch) {
-                    extractedName = nameMatch[0].trim();
+                for (let line of lines) {
+                    let cleaned = line.trim().toUpperCase();
+                    if (/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NUMBER|DATE/i.test(cleaned)) continue;
+                    
+                    // Match legal name block rows
+                    const nameMatch = cleaned.match(/\b[A-Z\s]{12,}\b/);
+                    if (nameMatch) extractedName = nameMatch[0].trim();
+
+                    // Match 10-digit numerical national resident indexes
+                    const idMatch = cleaned.match(/\b[0-9]{10}\b/);
+                    if (idMatch) extractedID = idMatch[0].trim();
                 }
 
-                // Match 10-digit numerical structures matching standard resident indexes
-                const idMatch = cleaned.match(/\b[0-9]{10}\b/);
-                if (idMatch) {
-                    extractedID = idMatch[0].trim();
-                }
-            }
-
-            if (extractedName) document.getElementById('driverName').value = extractedName;
-            if (extractedID) document.getElementById('iqamaNumber').value = extractedID;
+                if (extractedName) document.getElementById('driverName').value = extractedName;
+                if (extractedID) document.getElementById('iqamaNumber').value = extractedID;
+            });
         });
 
-        handleOCR('officerScanner', 'officerStatus', (text, status) => {
-            status.innerHTML = "✅ Scanned"; status.style.color = "var(--success-color)";
-            let m = text.match(/LP\d+/i) || text.match(/[A-Z]{2}\d{4}\b/i);
-            if (m) { document.getElementById('securityNameId').value = m[0].toUpperCase(); document.getElementById('securityNameField').value = "Officer #" + m[0].toUpperCase(); }
-        });
-
-        // Separate, standalone listener for vehicle plate photos
+        // 2. Vehicle License Plate Box Scanner Handler
         document.getElementById('driverPhotoInput').addEventListener('change', function(e) {
             const file = e.target.files[0]; if (!file) return;
-            const status = document.getElementById('driverPhotoStatus');
-            status.innerHTML = "🌀 Processing Plate Layout...";
-            status.style.color = "var(--accent-color)";
-            
-            Tesseract.recognize(file, 'eng').then(({ data: { text } }) => {
-                status.innerHTML = "✅ Photo & Plate Processed";
-                status.style.color = "var(--success-color)";
-                
+            preprocessAndRecognize(file, 'driverPhotoStatus', (text, status) => {
+                status.innerHTML = "✅ Photo & Plate Processed"; status.style.color = "var(--success-color)";
                 const words = text.split(/\s+/);
                 let digits = "";
                 let letters = "";
 
-                // Advanced loop processing splitting KSA plate layouts (e.g., 9192 DRB)
                 words.forEach(word => {
                     let cleanWord = word.replace(/[^A-Z0-9]/gi, '').toUpperCase();
                     if (/OPENSOUQ|ELANTRA|HYUNDAI|KSA|SAUDI/i.test(cleanWord)) return;
                     
-                    // Extracts the numeric segment (3-4 digits long)
-                    if (/^\d{3,4}$/.test(cleanWord)) {
-                        digits = cleanWord;
-                    }
-                    // Extracts the character segment (exactly 3 capital letters long)
-                    if (/^[A-Z]{3}$/.test(cleanWord)) {
-                        letters = cleanWord;
-                    }
+                    if (/^\d{3,4}$/.test(cleanWord)) digits = cleanWord;
+                    if (/^[A-Z]{3}$/.test(cleanWord)) letters = cleanWord;
                 });
 
                 if (digits || letters) {
                     document.getElementById('plateNumber').value = (digits + " " + letters).trim();
                 }
-            }).catch(() => {
-                status.innerHTML = "⚠️ Photo saved. Manual input fallback.";
-                status.style.color = "var(--accent-color)";
+            });
+        });
+
+        // 3. Security Officer Scanner Handler
+        document.getElementById('officerScanner').addEventListener('change', function(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const status = document.getElementById('officerStatus');
+            status.innerHTML = "🌀 Scanning Badge..."; status.style.color = "var(--accent-color)";
+            
+            Tesseract.recognize(file, 'eng').then(({ data: { text } }) => {
+                status.innerHTML = "✅ Scanned"; status.style.color = "var(--success-color)";
+                let m = text.match(/LP\d+/i) || text.match(/[A-Z]{2}\d{4}\b/i);
+                if (m) { 
+                    document.getElementById('securityNameId').value = m[0].toUpperCase(); 
+                    document.getElementById('securityNameField').value = "Officer #" + m[0].toUpperCase(); 
+                }
             });
         });
 
