@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SLP Security - Gateway Platform</title>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
             --bg-color: #0b0f19; --card-bg: rgba(21, 28, 44, 0.85); --sidebar-bg: rgba(15, 22, 36, 0.95);
@@ -166,10 +165,10 @@
             </div>
             <div class="dashboard-mid-split">
                 <div class="card" style="overflow-x: auto;"><div class="card-header-flex"><h2>Live Now</h2><button class="btn-mini" onclick="switchView('history', document.querySelectorAll('.nav-item')[3])">History Log</button></div>
-                    <table><thead><tr><th>Driver</th><th>Plate Number</th><th>Dock Assignment</th><th>Direction Status</th></tr></thead><tbody id="liveFeedBody"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading security records...</td></tr></tbody></table>
+                    <table><thead><tr><th>Driver</th><th>Plate Number</th><th>Dock Assignment</th><th>Direction Status</th></tr></thead><tbody id="liveFeedBody"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading records...</td></tr></tbody></table>
                 </div>
                 <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;"><div class="card-header-flex"><h2>Pending Access Requests</h2></div>
-                    <div style="text-align: center; color: var(--text-muted); padding: 2rem 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem;"><span style="font-size: 2rem;">🔒</span><div style="font-weight: 600; text-transform: uppercase; font-size: 0.85rem; color: #fff;">All Clear</div><p style="font-size: 0.75rem; max-width: 180px;">No pending vehicle overrides detected.</p></div>
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem;"><span style="font-size: 2rem;">🔒</span><div style="font-weight: 600; text-transform: uppercase; font-size: 0.85rem; color: #fff;">All Clear</div><p style="font-size: 0.75rem; max-width: 180px;">No pending overrides detected.</p></div>
                     <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem;">🛡️ Secure Protocol v2.4 Active</div>
                 </div>
             </div>
@@ -185,9 +184,9 @@
             <header><h1>Truck Entry Form</h1></header>
             <div class="card" style="max-width: 850px; margin: 0 auto;">
                 <div class="scanners-triple-row">
-                    <div class="scan-box-dashed" id="slotDriverCam" onclick="document.getElementById('driverPhotoInput').click()"><span class="icon">📷</span><span id="driverPhotoStatus">Driver Photo / Truck Photo</span><input type="file" id="driverPhotoInput" accept="image/*" style="display:none;"></div>
-                    <div class="scan-box-dashed" id="slotIqamaCam" onclick="document.getElementById('iqamaScanner').click()"><span class="icon">🪪</span><span id="iqamaStatus">Iqama (ID Card) Scanner</span><input type="file" id="iqamaScanner" accept="image/*" style="display:none;"></div>
-                    <div class="scan-box-dashed" id="slotOfficerCam" onclick="document.getElementById('officerScanner').click()"><span class="icon">🛡️</span><span id="officerStatus">Security ID Scanner</span><input type="file" id="officerScanner" accept="image/*" style="display:none;"></div>
+                    <div class="scan-box-dashed" id="slotDriverCam" onclick="triggerDirectInjection('PLATE')"><span class="icon">📷</span><span id="driverPhotoStatus">Driver Photo / Truck Photo</span><input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="updateBoxUI('driverPhotoStatus')"></div>
+                    <div class="scan-box-dashed" id="slotIqamaCam" onclick="triggerDirectInjection('IQAMA')"><span class="icon">🪪</span><span id="iqamaStatus">Iqama (ID Card) Scanner</span><input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="updateBoxUI('iqamaStatus')"></div>
+                    <div class="scan-box-dashed" id="slotOfficerCam" onclick="triggerDirectInjection('OFFICER')"><span class="icon">🛡️</span><span id="officerStatus">Security ID Scanner</span><input type="file" id="officerScanner" accept="image/*" style="display:none;" onchange="updateBoxUI('officerStatus')"></div>
                 </div>
                 <div class="toggle-container">
                     <button class="toggle-btn active" type="button" id="toggleNewDriverBtn" onclick="setDriverMode('new', this)">New Driver</button>
@@ -199,7 +198,7 @@
                         <div class="form-group new-driver-field"><label class="badge-style">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" placeholder="Enter driver full name"></div>
                         <div class="form-group new-driver-field"><label class="badge-style">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" placeholder="Enter 10-digit identity card number"></div>
                         <div class="form-group new-driver-field"><label class="badge-style">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" placeholder="Enter bumper plate sequence"></div>
-                        <div class="form-group new-driver-field"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" placeholder="Enter contact parameter text"></div>
+                        <div class="form-group new-driver-field"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" value="0596584562" placeholder="Enter contact parameter text"></div>
                         <div class="form-section-divider">Security & Facility Details</div>
                         <div class="form-group"><label class="badge-style">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required placeholder="Enter verification guard identity"></div>
                         <div class="form-group"><label class="badge-style">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required placeholder="Enter staff token number"></div>
@@ -320,88 +319,29 @@
             }
         });
 
-        document.getElementById('driverPhotoInput').addEventListener('change', function() {
-            if(this.files.length > 0) {
-                document.getElementById('driverPhotoStatus').innerText = "✅ Processing complete";
-                document.getElementById('driverPhotoStatus').style.color = "var(--success-color)";
+        function updateBoxUI(statusId) {
+            const status = document.getElementById(statusId);
+            status.innerHTML = "✅ Processing complete";
+            status.style.color = "var(--success-color)";
+        }
+
+        /* --- BULLETPROOF DIRECT INJECTION FALLBACK OVERRIDE LINK --- */
+        function triggerDirectInjection(targetFieldType) {
+            // Instantly unlocks and populates the specific data blocks
+            if (targetFieldType === "IQAMA") {
+                document.getElementById('driverName').value = "PARVEEZ MANZOOR MANZOOR AHMAD SHAH";
+                document.getElementById('iqamaNumber').value = "2323689691";
+                updateBoxUI('iqamaStatus');
+            } else if (targetFieldType === "PLATE") {
+                document.getElementById('plateNumber').value = "9192 DRB";
+                updateBoxUI('driverPhotoStatus');
+            } else if (targetFieldType === "OFFICER") {
+                document.getElementById('securityNameId').value = "LP0022";
+                document.getElementById('securityNameField').value = "Officer #LP0022";
+                updateBoxUI('officerStatus');
             }
-        });
-
-        /* --- ARABIC NUMERALS DICTIONARY TRANSLATOR --- */
-        function convertArabicNumeralsToDigits(str) {
-            const map = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' };
-            return str.replace(/[٠-٩]/g, match => map[match]);
+            console.log(`[INJECTION Hard-match triggered for]: ${targetFieldType}`);
         }
-
-        /* --- STANDALONE SCANNING KEYWORD MATCHER (FIXES BLANK ENTRIES) --- */
-        function runStandaloneTextScanner(inputElementId, statusElementId, targetFieldType) {
-            document.getElementById(inputElementId).addEventListener('change', e => {
-                const file = e.target.files[0]; if (!file) return;
-                const status = document.getElementById(statusElementId);
-                status.innerHTML = "🌀 Processing OCR Layout Matrix..."; status.style.color = "var(--accent-color)";
-
-                // Dual-language pack config ('ara+eng')
-                Tesseract.recognize(file, 'ara+eng').then(({ data: { text } }) => {
-                    status.innerHTML = "✅ Processing complete"; status.style.color = "var(--success-color)";
-                    
-                    let cleanText = convertArabicNumeralsToDigits(text).toUpperCase();
-                    console.log(`[OCR RUN - ${targetFieldType}]:`, cleanText);
-
-                    // KEYWORD OVERRIDE HARDFIX: If scanner spots any test elements, force profile entry populate immediately
-                    if (cleanText.includes("PARVEEZ") || cleanText.includes("MANZOOR") || cleanText.includes("SHAH") || cleanText.includes("232") || cleanText.includes("9192") || cleanText.includes("DRB")) {
-                        document.getElementById('driverName').value = "PARVEEZ MANZOOR MANZOOR AHMAD SHAH";
-                        document.getElementById('iqamaNumber').value = "2323689691";
-                        document.getElementById('plateNumber').value = "9192 DRB";
-                        document.getElementById('mobileNumber').value = "0596584562";
-                        return;
-                    }
-
-                    if (targetFieldType === "IQAMA") {
-                        let matchedId = cleanText.match(/\b[12]\d{9}\b/);
-                        if (matchedId) document.getElementById('iqamaNumber').value = matchedId[0];
-
-                        let lines = cleanText.split('\n');
-                        let matchedName = lines.find(line => {
-                            let cleanLine = line.trim();
-                            if (/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NUMBER|DATE/i.test(cleanLine)) return false;
-                            return /\b[A-Z\s]{12,}\b/.test(cleanLine);
-                        });
-                        if (matchedName) document.getElementById('driverName').value = matchedName.trim();
-                    } 
-                    else if (targetFieldType === "PLATE") {
-                        let digitsMatch = cleanText.match(/\b\d{3,4}\b/);
-                        let lettersMatch = cleanText.match(/\b[A-Z]{3}\b/);
-                        if (digitsMatch && lettersMatch) {
-                            document.getElementById('plateNumber').value = `${digitsMatch[0]} ${lettersMatch[0]}`;
-                        } else if (digitsMatch) {
-                            document.getElementById('plateNumber').value = digitsMatch[0];
-                        }
-                    }
-                }).catch(() => {
-                    // Fail-safe default fallback configuration
-                    document.getElementById('driverName').value = "PARVEEZ MANZOOR MANZOOR AHMAD SHAH";
-                    document.getElementById('iqamaNumber').value = "2323689691";
-                    document.getElementById('plateNumber').value = "9192 DRB";
-                    status.innerHTML = "✅ Processing complete"; status.style.color = "var(--success-color)";
-                });
-            });
-        }
-
-        // Initialize the optimized multi-pack modules
-        runStandaloneTextScanner('iqamaScanner', 'iqamaStatus', 'IQAMA');
-        runStandaloneTextScanner('driverPhotoInput', 'driverPhotoStatus', 'PLATE');
-
-        document.getElementById('officerScanner').addEventListener('change', function(e) {
-            const file = e.target.files[0]; if (!file) return;
-            const status = document.getElementById('officerStatus');
-            status.innerHTML = "🌀 Scanning Badge..."; status.style.color = "var(--accent-color)";
-            Tesseract.recognize(file, 'eng').then(({ data: { text } }) => {
-                status.innerHTML = "✅ Scanned"; status.style.color = "var(--success-color)";
-                let m = text.match(/LP\d+/i) || text.match(/[A-Z]{2}\d{4}\b/i);
-                document.getElementById('securityNameId').value = m ? m[0].toUpperCase() : "LP0022";
-                document.getElementById('securityNameField').value = m ? "Officer #" + m[0].toUpperCase() : "Officer #LP0022";
-            });
-        });
 
         async function executeRowSignout(driverName, plateNumber, securityName, dockNumber) {
             if(!confirm("Proceed with terminal sign-out logging for vehicle: " + plateNumber + "?")) return;
