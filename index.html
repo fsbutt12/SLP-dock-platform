@@ -1,339 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SLP Security - Multi-Scan Dock Platform</title>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <style>
-        :root {
-            --bg-color: #0b0f19;
-            --card-bg: #151c2c;
-            --accent-color: #f59e0b; 
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --border-color: #1e293b;
-            --success-color: #10b981;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding: 2rem;
-        }
-
-        header {
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        header h1 {
-            font-size: 1.5rem;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        header h1 span {
-            color: var(--accent-color);
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 2rem;
-        }
-
-        @media (max-width: 900px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-        }
-
-        .card h2 {
-            font-size: 1.1rem;
-            margin-bottom: 1.5rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .metrics-bar {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            grid-column: 1 / -1;
-            margin-bottom: 1.5rem;
-        }
-
-        .metric-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-left: 4px solid var(--accent-color);
-            border-radius: 8px;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        .metric-card .num {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--text-main);
-        }
-
-        .metric-card .label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-top: 5px;
-        }
-
-        /* Interactive Scanner Grid Layout */
-        .scanners-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .scan-box {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px dashed var(--border-color);
-            border-radius: 8px;
-            padding: 0.75rem;
-            text-align: center;
-            transition: all 0.2s;
-        }
-
-        .scan-box:hover {
-            border-color: var(--accent-color);
-            background: rgba(245, 158, 11, 0.02);
-        }
-
-        .scan-box label {
-            display: block;
-            cursor: pointer;
-            color: var(--text-main);
-            font-weight: 600;
-            font-size: 0.85rem;
-        }
-
-        .scan-box label span {
-            color: var(--accent-color);
-        }
-
-        .scan-status {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 0.75rem;
-            border-radius: 6px;
-            font-size: 1rem;
-            outline: none;
-            transition: border 0.2s;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--accent-color);
-        }
-
-        button {
-            width: 100%;
-            background-color: var(--accent-color);
-            color: #000;
-            border: none;
-            padding: 0.75rem;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: opacity 0.2s;
-            text-transform: uppercase;
-        }
-
-        button:hover { opacity: 0.9; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-
-        th {
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.95rem;
-        }
-
-        tr:hover td { background-color: rgba(255,255,255,0.02); }
-
-        .badge {
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-        .badge.in { background-color: rgba(16, 185, 129, 0.2); color: var(--success-color); }
-        .badge.out { background-color: rgba(239, 68, 68, 0.2); color: #ef4444; }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1>SLP <span>Security Platform</span></h1>
-        <div style="color: var(--text-muted); font-size: 0.9rem;">Status: <span style="color: var(--success-color)">● Live Connection</span></div>
-    </header>
-
-    <div class="metrics-bar">
-        <div class="metric-card">
-            <div class="num" id="metric-total">0</div>
-            <div class="label">Total Check-Ins</div>
-        </div>
-        <div class="metric-card" style="border-left-color: #10b981;">
-            <div class="num" id="metric-inbound">0</div>
-            <div class="label">Active Inbound</div>
-        </div>
-        <div class="metric-card" style="border-left-color: #3b82f6;">
-            <div class="num" id="metric-docks">0</div>
-            <div class="label">Docks Utilized</div>
-        </div>
-    </div>
-
-    <div class="dashboard-grid">
-        
-        <div class="card">
-            <h2>Truck Entry Form</h2>
-
-            <div class="scanners-container">
-                <div class="scan-box">
-                    <label for="iqamaScanner">🪪 SCAN DRIVER <span>IQAMA</span> (NAME ONLY)</label>
-                    <input type="file" id="iqamaScanner" accept="image/*" capture="environment" style="display: none;">
-                    <div class="scan-status" id="iqamaStatus">Ready to scan driver card</div>
-                </div>
-
-                <div class="scan-box">
-                    <label for="plateScanner">🚘 SCAN VEHICLE <span>PLATE NUMBER</span></label>
-                    <input type="file" id="plateScanner" accept="image/*" capture="environment" style="display: none;">
-                    <div class="scan-status" id="plateStatus">Ready to scan back bumper plate</div>
-                </div>
-
-                <div class="scan-box">
-                    <label for="officerScanner">🛡️ SCAN OFFICER <span>BADGE ID</span></label>
-                    <input type="file" id="officerScanner" accept="image/*" capture="environment" style="display: none;">
-                    <div class="scan-status" id="officerStatus">Ready to scan staff badge</div>
-                </div>
-            </div>
-
-            <form id="entryForm">
-                <div class="form-group">
-                    <label>Driver Name</label>
-                    <input type="text" id="driverName" required placeholder="Awaiting Iqama scan or manual entry">
-                </div>
-                <div class="form-group">
-                    <label>Plate Number</label>
-                    <input type="text" id="plateNumber" required placeholder="Awaiting plate scan or manual entry">
-                </div>
-                <div class="form-group">
-                    <label>Security Officer ID</label>
-                    <input type="text" id="securityName" required placeholder="Awaiting badge scan or manual entry">
-                </div>
-                <div class="form-group">
-                    <label>Dock Assignment</label>
-                    <select id="dockNumber">
-                        <option value="Dock 1">Dock 1</option>
-                        <option value="Dock 2">Dock 2</option>
-                        <option value="Dock 3">Dock 3</option>
-                        <option value="Dock 4">Dock 4</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Direction</label>
-                    <select id="direction">
-                        <option value="Inbound">Inbound (Check-In)</option>
-                        <option value="Outbound">Outbound (Check-Out)</option>
-                    </select>
-                </div>
-                <button type="submit" id="submitBtn">Submit Log</button>
-            </form>
-        </div>
-
-        <div class="card" style="overflow-x: auto;">
-            <h2>Live Activity Feed</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Driver</th>
-                        <th>Plate</th>
-                        <th>Dock</th>
-                        <th>Direction</th>
-                        <th>Officer ID</th>
-                    </tr>
-                </thead>
-                <tbody id="liveFeedBody">
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: var(--text-muted);">Loading logs...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-    </div>
-
-    <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbymkkQ83eluzeBTKo_NEf6Bhebu007_OJS5Xz073tQcqqr_aspE5hgTiYrBOBW11w6NUQ/exec";
-
-        // Helper function to unify execution logs for troubleshooting
-        function debugOcr(label, text) {
-            console.log(`=== [DEBUG OCR: ${label}] ===`);
-            console.log(text);
-            console.log("==================================");
-        }
-
-        // ========================================================
-        // ENGINE 1: DRIVER IQAMA SCANNER (EXTRACTS ENGLISH NAME ONLY)
+// ========================================================
+        // ENGINE 1: DRIVER IQAMA SCANNER (FORGIVING NAME FILTER)
         // ========================================================
         document.getElementById('iqamaScanner').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -352,17 +18,17 @@
                 let extractedName = "";
 
                 for (let line of lines) {
-                    let cleaned = line.trim();
+                    let cleaned = line.trim().toUpperCase();
                     
-                    // Skip systemic headings seen on Saudi Iqama templates
-                    if (/kingdom|saudi|arabia|ministry|interior|residence|permit|identity|number/i.test(cleaned)) {
+                    // Filter out non-name lines common on card formats
+                    if (/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NUMBER|DATE/i.test(cleaned)) {
                         continue;
                     }
                     
-                    // Iqama structural logic: Pull long string matching uppercase names
-                    const nameMatch = cleaned.match(/\b[A-Z]{4,}\s[A-Z]{4,}(?:\s[A-Z]{4,})?(?:\s[A-Z]{4,})?\b/);
+                    // Smarter Match: Capture long sequences of English alphabetical characters, ignoring small misreads
+                    const nameMatch = cleaned.match(/\b[A-Z\s]{12,}\b/);
                     if (nameMatch) {
-                        extractedName = nameMatch[0];
+                        extractedName = nameMatch[0].trim();
                         break; 
                     }
                 }
@@ -370,7 +36,7 @@
                 if (extractedName) {
                     document.getElementById('driverName').value = extractedName;
                 } else {
-                    status.innerHTML = "⚠️ Name line not isolated. Try a clearer view.";
+                    status.innerHTML = "⚠️ Name line not isolated. Try a closer view.";
                     status.style.color = "var(--accent-color)";
                 }
             }).catch(err => {
@@ -380,7 +46,7 @@
         });
 
         // ========================================================
-        // ENGINE 2: LICENSE PLATE SCANNER (EXTRACTS ENGLISH TEXT BLOCKS)
+        // ENGINE 2: LICENSE PLATE SCANNER (ENGLISH ONLY FILTER)
         // ========================================================
         document.getElementById('plateScanner').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -395,18 +61,39 @@
                 status.innerHTML = "✅ Scan complete!";
                 status.style.color = "var(--success-color)";
 
-                // Saudi Plates feature alphanumeric strings (e.g. "9192 DRB")
-                // We extract alpha-numeric character sequences 3-4 chars in length
-                const blocks = text.match(/\b[A-Z0-9]{3,4}\b/gi) || [];
-                let filteredBlocks = blocks
-                    .map(b => b.toUpperCase())
-                    .filter(b => !/KSA|SAUDI|ELANTRA|HYUNDAI/i.test(b)); // Filter systemic car markers
+                const lines = text.split('\n');
+                let digits = "";
+                let letters = "";
 
-                if (filteredBlocks.length >= 2) {
-                    // Combine extracted numerical block and alphabetical code block
-                    document.getElementById('plateNumber').value = `${filteredBlocks[0]} ${filteredBlocks[1]}`;
-                } else if (filteredBlocks.length === 1) {
-                    document.getElementById('plateNumber').value = filteredBlocks[0];
+                lines.forEach(line => {
+                    let cleaned = line.replace(/[^A-Z0-9\s]/gi, '').toUpperCase().trim();
+                    
+                    // Filter out noisy peripheral words from the image background
+                    if (/OPENSOUQ|ELANTRA|HYUNDAI|KSA|SAUDI/i.test(cleaned)) return;
+
+                    // Separate numbers line from English character groups
+                    // Checks if line contains the standalone numerical code (like 9192)
+                    if (/^\d{3,4}$/.test(cleaned)) {
+                        digits = cleaned;
+                    }
+                    // Checks if line matches the pure English letter plate sequence (3 capitalized characters, e.g., DRB)
+                    else if (/^[A-Z]{3}$/.test(cleaned)) {
+                        letters = cleaned;
+                    }
+                });
+
+                // If standalone structural parsing missed it, pull via broad fallback keyword array
+                if (!digits || !letters) {
+                    const words = text.split(/\s+/);
+                    words.forEach(word => {
+                        let cleanWord = word.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+                        if (/^\d{4}$/.test(cleanWord)) digits = cleanWord;
+                        if (/^[A-Z]{3}$/.test(cleanWord) && !/KSA/i.test(cleanWord)) letters = cleanWord;
+                    });
+                }
+
+                if (digits || letters) {
+                    document.getElementById('plateNumber').value = `${digits} ${letters}`.trim();
                 } else {
                     status.innerHTML = "⚠️ Bumper markers blurred. Re-snap.";
                     status.style.color = "var(--accent-color)";
@@ -418,7 +105,7 @@
         });
 
         // ========================================================
-        // ENGINE 3: STAFF ID BADGE SCANNER (EXTRACTS THE ALPHA-NUMERIC USER ID)
+        // ENGINE 3: STAFF ID BADGE SCANNER (REMOVES # SYMBOLS)
         // ========================================================
         document.getElementById('officerScanner').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -433,17 +120,17 @@
                 status.innerHTML = "✅ Scan complete!";
                 status.style.color = "var(--success-color)";
 
-                // Looks for standard hash code configurations matching your sample template (e.g., "#LP0022")
-                const badgeMatch = text.match(/#?[A-Z]{2}\d{4}\b/i) || text.match(/LP\d+/i);
+                // Match layout structures containing identifier sequences (e.g., LP0022)
+                const badgeMatch = text.match(/LP\d+/i) || text.match(/[A-Z]{2}\d{4}\b/i);
                 
                 if (badgeMatch) {
-                    document.getElementById('securityName').value = badgeMatch[0].toUpperCase();
+                    // Force text to drop any remaining hashtag symbols cleanly
+                    document.getElementById('securityName').value = badgeMatch[0].replace('#', '').toUpperCase();
                 } else {
-                    // Fallback configuration check: scan for generic continuous digits/characters lines if symbol missing
                     const words = text.split(/\s+/);
                     let fallback = "";
                     for(let w of words) {
-                        let clean = w.replace(/[^A-Z0-9#]/gi, '');
+                        let clean = w.replace(/[^A-Z0-9]/gi, ''); // Strips hash natively here
                         if(clean.length >= 5 && /[0-9]/.test(clean)) {
                             fallback = clean.toUpperCase();
                             break;
@@ -462,95 +149,5 @@
             });
         });
 
-        // ========================================================
-        // GLOBAL TELEMETRY CORRECTIONS & CORE COMMUNICATIONS
-        // ========================================================
-        async function fetchLogs() {
-            try {
-                const response = await fetch(API_URL);
-                const data = await response.json();
-                
-                const tbody = document.getElementById('liveFeedBody');
-                tbody.innerHTML = ''; 
-                
-                if(data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No entries recorded today.</td></tr>`;
-                    return;
-                }
 
-                document.getElementById('metric-total').innerText = data.length;
-                let inboundCount = data.filter(item => item.direction === 'Inbound').length;
-                document.getElementById('metric-inbound').innerText = inboundCount;
-                
-                let uniqueDocks = [...new Set(data.map(item => item.dockNumber))].length;
-                document.getElementById('metric-docks').innerText = uniqueDocks;
-
-                data.reverse().forEach(row => {
-                    const tr = document.createElement('tr');
-                    const badgeClass = row.direction.toLowerCase() === 'inbound' ? 'in' : 'out';
-                    
-                    tr.innerHTML = `
-                        <td><strong>${row.driverName}</strong></td>
-                        <td>${row.plateNumber}</td>
-                        <td>${row.dockNumber}</td>
-                        <td><span class="badge ${badgeClass}">${row.direction}</span></td>
-                        <td style="color: var(--text-muted); font-size:0.85rem;">${row.securityName}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        }
-
-        document.getElementById('entryForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.innerText = "Processing...";
-            submitBtn.disabled = true;
-
-            const payload = {
-                driverName: document.getElementById('driverName').value,
-                plateNumber: document.getElementById('plateNumber').value,
-                securityName: document.getElementById('securityName').value,
-                dockNumber: document.getElementById('dockNumber').value,
-                direction: document.getElementById('direction').value
-            };
-
-            try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', 
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                document.getElementById('entryForm').reset();
-                
-                // Clear state widgets
-                document.getElementById('iqamaStatus').innerHTML = "Ready to scan driver card";
-                document.getElementById('iqamaStatus').style.color = "var(--text-muted)";
-                document.getElementById('plateStatus').innerHTML = "Ready to scan back bumper plate";
-                document.getElementById('plateStatus').style.color = "var(--text-muted)";
-                document.getElementById('officerStatus').innerHTML = "Ready to scan staff badge";
-                document.getElementById('officerStatus').style.color = "var(--text-muted)";
-                
-                submitBtn.innerText = "Submit Log";
-                submitBtn.disabled = false;
-                
-                setTimeout(fetchLogs, 1500);
-
-            } catch (error) {
-                alert("Error saving log. Check your setup.");
-                submitBtn.innerText = "Submit Log";
-                submitBtn.disabled = false;
-            }
-        });
-
-        fetchLogs();
-    </script>
-</body>
-</html>
-
-
+        
