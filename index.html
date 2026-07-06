@@ -259,7 +259,6 @@
                     </select>
                 </div>
                 <button type="submit" id="submitBtn">Submit Log</button>
-                <button type="button" id="testBtn" style="background-color: #3b82f6; color: #fff;">Test Database Connection</button>
             </form>
         </div>
         <div class="card" style="overflow-x: auto;">
@@ -283,8 +282,8 @@
         </div>
     </div>
     <script>
-        /* CRITICAL: THIS IS THE CORRECT WEB APP LINK FROM YOUR SCREENSHOT */
-        const API_URL = "https://script.google.com/macros/s/AKfycbymkkQ83eluzeBTKo_NEf6Bhebu007_OJS5Xz073tQcqqr_aspE5hgTiYrBOBW11w6NUQ/exec";
+        /* PLACED YOUR NEW LIVE GOOGLE MACRO WEB APP URL HERE */
+        const API_URL = "https://script.google.com/macros/s/AKfycby2PQVtjZiw2rF-KwVeR10wfzHhOg6RpkLOtu3fLN_Q9u-ThTTi0LnV41tfSO3a_yiAnA/exec";
 
         document.getElementById('iqamaScanner').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -315,7 +314,7 @@
                     status.style.color = "var(--accent-color)";
                 }
             }).catch(err => {
-                status.innerHTML = "❌ Scanner Error: Check network connection.";
+                status.innerHTML = "❌ Scanner Processing Failure.";
                 status.style.color = "#ef4444";
             });
         });
@@ -396,47 +395,40 @@
             });
         });
 
-        async function fetchLogs() {
+        /* JSONP TELEMETRY LOADER ROUTE */
+        window.handleLogsResponse = function(data) {
             const tbody = document.getElementById('liveFeedBody');
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-            try {
-                const response = await fetch(API_URL, { signal: controller.signal });
-                const data = await response.json();
-                clearTimeout(timeoutId);
-                tbody.innerHTML = ''; 
-                if(data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No entries recorded today.</td></tr>';
-                    return;
-                }
-                document.getElementById('metric-total').innerText = data.length;
-                let inboundCount = data.filter(item => item.direction === 'Inbound').length;
-                document.getElementById('metric-inbound').innerText = inboundCount;
-                let uniqueDocks = [...new Set(data.map(item => item.dockNumber))].length;
-                document.getElementById('metric-docks').innerText = uniqueDocks;
-                data.reverse().forEach(row => {
-                    const tr = document.createElement('tr');
-                    const badgeClass = row.direction.toLowerCase() === 'inbound' ? 'in' : 'out';
-                    tr.innerHTML = '<td><strong>' + row.driverName + '</strong></td><td>' + row.plateNumber + '</td><td>' + row.dockNumber + '</td><td><span class="badge ' + badgeClass + '">' + row.direction + '</span></td><td style="color: var(--text-muted); font-size:0.85rem;">' + row.securityName + '</td>';
-                    tbody.appendChild(tr);
-                });
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ef4444; font-weight: bold;">⚠️ Connection Offline / Corporate Blocked. (Scanners Unlocked)</td></tr>';
+            tbody.innerHTML = ''; 
+            
+            if(!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No entries recorded today.</td></tr>';
+                return;
             }
+            document.getElementById('metric-total').innerText = data.length;
+            let inboundCount = data.filter(item => item.direction === 'Inbound').length;
+            document.getElementById('metric-inbound').innerText = inboundCount;
+            let uniqueDocks = [...new Set(data.map(item => item.dockNumber))].length;
+            document.getElementById('metric-docks').innerText = uniqueDocks;
+            data.reverse().forEach(row => {
+                const tr = document.createElement('tr');
+                const badgeClass = row.direction.toLowerCase() === 'inbound' ? 'in' : 'out';
+                tr.innerHTML = '<td><strong>' + row.driverName + '</strong></td><td>' + row.plateNumber + '</td><td>' + row.dockNumber + '</td><td><span class="badge ' + badgeClass + '">' + row.direction + '</span></td><td style="color: var(--text-muted); font-size:0.85rem;">' + row.securityName + '</td>';
+                tbody.appendChild(tr);
+            });
+        };
+
+        function fetchLogs() {
+            const oldScript = document.getElementById('jsonp-fetcher');
+            if(oldScript) oldScript.remove();
+            
+            const script = document.createElement('script');
+            script.id = 'jsonp-fetcher';
+            script.src = API_URL + "?callback=handleLogsResponse&prefix=handleLogsResponse&_" + new Date().getTime();
+            script.onerror = function() {
+                document.getElementById('liveFeedBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ef4444; font-weight: bold;">⚠️ Database Connection Offline. Check Apps Script code setup.</td></tr>';
+            };
+            document.body.appendChild(script);
         }
-
-        document.getElementById('testBtn').addEventListener('click', async () => {
-            alert("Testing connection to updated URL...");
-            try {
-                const res = await fetch(API_URL);
-                alert("Success! Google Sheet answered back smoothly.");
-                fetchLogs();
-            } catch (e) {
-                alert("Connection Blocked!\n\nReason: Your corporate firewall is blocking connections to script.google.com.\n\nSolution: Use a personal device on mobile network data to load the dashboard!");
-            }
-        });
 
         document.getElementById('entryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -474,6 +466,7 @@
             }
         });
 
+        setInterval(fetchLogs, 15000);
         fetchLogs();
     </script>
 </body>
