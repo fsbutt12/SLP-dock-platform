@@ -19,7 +19,7 @@
             color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden;
         }
         .sidebar {
-            width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color);
+            width: 260px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color);
             display: flex; flex-direction: column; padding: 1.5rem 1rem; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100; backdrop-filter: blur(12px);
         }
         .brand-section { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
@@ -94,7 +94,7 @@
         .plate-segment { border: 1px solid rgba(255,255,255,0.15); padding: 1px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: rgba(0,0,0,0.2); text-align: center; min-width: 45px; }
         .submit-btn-global { width: 100%; background-color: var(--accent-color); color: #000; border: none; padding: 1rem; font-size: 1rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 2rem; letter-spacing: 0.5px; transition: opacity 0.2s; }
         
-        /* --- DRIVERS REGISTRY CENTRAL GRID --- */
+        /* --- DRIVERS REGISTRY GRID STYLES --- */
         .drivers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1rem; }
         @media (max-width: 1100px) { .drivers-grid { grid-template-columns: 1fr; } }
         .driver-registry-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; position: relative; backdrop-filter: blur(8px); }
@@ -529,7 +529,6 @@
             document.querySelectorAll('.nav-item').forEach(item => item === element ? item.classList.add('active') : item.classList.remove('active'));
         }
 
-        /* --- NATIVE COMMAND FULLSCREEN CORE TRIGGER --- */
         function toggleFullscreen() {
             const fsBtn = document.getElementById('fsBtnLabel');
             if (!document.fullscreenElement) {
@@ -539,7 +538,6 @@
             }
         }
 
-        /* --- INTERACTIVE MODAL ACTIONS ENGINE --- */
         function openDriverProfileModal(name, iqama, plate, date) {
             document.getElementById('modalDataName').innerText = name;
             document.getElementById('modalDataIqama').innerText = iqama;
@@ -612,7 +610,7 @@
             }
         });
 
-        /* --- LOCAL SCAN OCR CORES --- */
+        /* --- ADVANCED OCR ENGINE REWRITTEN FOR SAUDI IQAMAS & KSA PLATES --- */
         function handleOCR(inputElement, statusElement, callback) {
             document.getElementById(inputElement).addEventListener('change', e => {
                 const file = e.target.files[0]; if (!file) return;
@@ -623,16 +621,79 @@
 
         handleOCR('iqamaScanner', 'iqamaStatus', (text, status) => {
             status.innerHTML = "✅ Scanned"; status.style.color = "var(--success-color)";
-            let name = text.split('\n').find(l => l.trim().toUpperCase().match(/\b[A-Z\s]{12,}\b/) && !/MINISTRY|INTERIOR|SAUDI/i.test(l));
-            let id = text.match(/\b[0-9]{10}\b/);
-            if(name) document.getElementById('driverName').value = name.trim().toUpperCase();
-            if(id) document.getElementById('iqamaNumber').value = id[0];
+            const lines = text.split('\n');
+            let extractedName = "";
+            let extractedID = "";
+
+            // Loop to parse Latin character string line on Saudi Residence Permits
+            for (let line of lines) {
+                let cleaned = line.trim().toUpperCase();
+                
+                // Clear structural header/footer margins
+                if (/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NUMBER|DATE|FHFOF/i.test(cleaned)) {
+                    continue;
+                }
+                
+                // Match alphabetical rows containing 3 or more names (min 12 spaces long)
+                const nameMatch = cleaned.match(/\b[A-Z\s]{12,}\b/);
+                if (nameMatch) {
+                    extractedName = nameMatch[0].trim();
+                }
+
+                // Match 10-digit numerical structures matching standard resident indexes
+                const idMatch = cleaned.match(/\b[0-9]{10}\b/);
+                if (idMatch) {
+                    extractedID = idMatch[0].trim();
+                }
+            }
+
+            if (extractedName) document.getElementById('driverName').value = extractedName;
+            if (extractedID) document.getElementById('iqamaNumber').value = extractedID;
         });
 
         handleOCR('officerScanner', 'officerStatus', (text, status) => {
             status.innerHTML = "✅ Scanned"; status.style.color = "var(--success-color)";
             let m = text.match(/LP\d+/i) || text.match(/[A-Z]{2}\d{4}\b/i);
             if (m) { document.getElementById('securityNameId').value = m[0].toUpperCase(); document.getElementById('securityNameField').value = "Officer #" + m[0].toUpperCase(); }
+        });
+
+        // Separate, standalone listener for vehicle plate photos
+        document.getElementById('driverPhotoInput').addEventListener('change', function(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const status = document.getElementById('driverPhotoStatus');
+            status.innerHTML = "🌀 Processing Plate Layout...";
+            status.style.color = "var(--accent-color)";
+            
+            Tesseract.recognize(file, 'eng').then(({ data: { text } }) => {
+                status.innerHTML = "✅ Photo & Plate Processed";
+                status.style.color = "var(--success-color)";
+                
+                const words = text.split(/\s+/);
+                let digits = "";
+                let letters = "";
+
+                // Advanced loop processing splitting KSA plate layouts (e.g., 9192 DRB)
+                words.forEach(word => {
+                    let cleanWord = word.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+                    if (/OPENSOUQ|ELANTRA|HYUNDAI|KSA|SAUDI/i.test(cleanWord)) return;
+                    
+                    // Extracts the numeric segment (3-4 digits long)
+                    if (/^\d{3,4}$/.test(cleanWord)) {
+                        digits = cleanWord;
+                    }
+                    // Extracts the character segment (exactly 3 capital letters long)
+                    if (/^[A-Z]{3}$/.test(cleanWord)) {
+                        letters = cleanWord;
+                    }
+                });
+
+                if (digits || letters) {
+                    document.getElementById('plateNumber').value = (digits + " " + letters).trim();
+                }
+            }).catch(() => {
+                status.innerHTML = "⚠️ Photo saved. Manual input fallback.";
+                status.style.color = "var(--accent-color)";
+            });
         });
 
         async function executeRowSignout(driverName, plateNumber, securityName, dockNumber) {
@@ -644,8 +705,8 @@
         }
 
         function fmtDate(s) {
-            if(!s) return "2026-05-10"; let d = new Date(s); if(isNaN(d.getTime())) return s;
-            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            if(!s) return "May 10, 2026"; let d = new Date(s); if(isNaN(d.getTime())) return s;
+            return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
         }
 
         function formatTimeText(s) {
@@ -667,7 +728,6 @@
             return `<div class="plate-box-split"><div class="plate-segment">${plateStr}</div></div>`;
         }
 
-        /* --- CARD COMPILE COMPONENT ENGINE --- */
         function compileDriversRegistryCards(data) {
             const container = document.getElementById('driversRegistryContainer');
             container.innerHTML = '';
@@ -678,9 +738,9 @@
                 if(!uniqueDriversMap[item.driverName]) {
                     uniqueDriversMap[item.driverName] = {
                         name: item.driverName,
-                        plate: item.plateNumber || "3417 UAJ",
+                        plate: item.plateNumber || "9192 DRB",
                         registered: item.timestamp,
-                        id: "2112573981"
+                        id: "2323689691"
                     };
                 }
             });
@@ -728,7 +788,6 @@
             });
         }
 
-        /* --- DYNAMIC HANDLER DATA INTERFACE --- */
         window.handleLogsResponse = function(data) {
             let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : [];
             globalLogsCache = chronData;
@@ -793,5 +852,3 @@
     </script>
 </body>
 </html>
-
-
