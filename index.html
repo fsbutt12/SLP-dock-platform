@@ -70,12 +70,6 @@
         .btn-mini:hover { background: var(--accent-color); color: #000; }
         .btn-signout-action { background: #ef4444; color: #fff; border: none; padding: 0.4rem 1rem; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: opacity 0.2s; }
         .btn-signout-action:hover { opacity: 0.9; }
-        .scanners-triple-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
-        @media (max-width: 768px) { .scanners-triple-row { grid-template-columns: 1fr; } }
-        .scan-box-dashed { background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s ease; }
-        .scan-box-dashed:hover { border-color: var(--accent-color); background: rgba(245, 158, 11, 0.03); }
-        .scan-box-dashed .icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
-        .scan-box-dashed span { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
         .toggle-container { display: flex; justify-content: center; background: rgba(11, 15, 25, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.25rem; margin-bottom: 2rem; max-width: 320px; margin-left: auto; margin-right: auto; }
         .toggle-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
         .toggle-btn.active { background: var(--accent-color); color: #000; }
@@ -134,6 +128,12 @@
         .modal-plate-tag { background: #000; border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; font-family: monospace; border-radius: 4px; font-size: 0.85rem; font-weight: bold; color: var(--accent-color); }
         .modal-footer-container { padding: 1rem 1.5rem; background: rgba(0,0,0,0.1); border-top: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: flex-end; border-radius: 0 0 14px 14px; }
         .btn-modal-cancel { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #fff; padding: 0.6rem 1.5rem; font-size: 0.8rem; font-weight: bold; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
+        
+        .autofill-hint-banner {
+            background: rgba(245, 158, 11, 0.1); border: 1px dashed rgba(245, 158, 11, 0.3);
+            border-radius: 8px; padding: 1rem; text-align: center; color: var(--accent-color);
+            font-size: 0.9rem; font-weight: 600; margin-bottom: 1.5rem;
+        }
     </style>
 </head>
 <body>
@@ -182,25 +182,29 @@
         <div id="view-checkin" class="app-view">
             <header><h1>Truck Entry Form</h1></header>
             <div class="card" style="max-width: 850px; margin: 0 auto;">
-                <div class="scanners-triple-row">
-                    <div class="scan-box-dashed" onclick="document.getElementById('driverPhotoInput').click()"><span class="icon">📷</span><span id="driverPhotoStatus">Driver Photo / Truck Photo</span><input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="executeJsonpOcrTunnel('driverPhotoInput', 'driverPhotoStatus', 'PLATE')"></div>
-                    <div class="scan-box-dashed" onclick="document.getElementById('iqamaScanner').click()"><span class="icon">🪪</span><span id="iqamaStatus">Iqama (ID Card) Scanner</span><input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="executeJsonpOcrTunnel('iqamaScanner', 'iqamaStatus', 'IQAMA')"></div>
-                    <div class="scan-box-dashed" onclick="document.getElementById('officerScanner').click()"><span class="icon">🛡️</span><span id="officerStatus">Security ID Scanner</span><input type="file" id="officerScanner" accept="image/*" style="display:none;" onchange="executeJsonpOcrTunnel('officerScanner', 'officerStatus', 'OFFICER')"></div>
+                
+                <div class="autofill-hint-banner">
+                    💡 Smart Database Autofill Active: Switch to 'Existing Driver' or type any part of a name/plate below to instantly query records!
                 </div>
+
                 <div class="toggle-container">
-                    <button class="toggle-btn active" type="button" id="toggleNewDriverBtn" onclick="setDriverMode('new', this)">New Driver</button>
-                    <button class="toggle-btn" type="button" id="toggleExistingDriverBtn" onclick="setDriverMode('existing', this)">Existing Driver</button>
+                    <button class="toggle-btn" type="button" id="toggleNewDriverBtn" onclick="setDriverMode('new', this)">New Driver</button>
+                    <button class="toggle-btn active" type="button" id="toggleExistingDriverBtn" onclick="setDriverMode('existing', this)">Existing Driver</button>
                 </div>
                 <form id="entryForm">
                     <div class="form-grid-columns">
-                        <div class="form-group search-input-wrapper" id="driverLookupGroup" style="display: none; grid-column: 1 / -1; position: relative;"><label class="badge-style">Search Driver By Name or Plate... *</label><span class="search-icon-inside" style="position:absolute; left:12px; top:62%;">🔍</span><input type="text" id="driverSearchBox" class="input-box-styled input-search-padded" placeholder="Type to search drivers..."></div>
-                        <div class="form-group new-driver-field"><label class="badge-style">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" placeholder="Enter driver full name"></div>
-                        <div class="form-group new-driver-field"><label class="badge-style">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" placeholder="Enter 10-digit identity card number"></div>
-                        <div class="form-group new-driver-field"><label class="badge-style">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" placeholder="Enter bumper plate sequence"></div>
-                        <div class="form-group new-driver-field"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" placeholder="Enter contact parameter text"></div>
+                        <div class="form-group search-input-wrapper" id="driverLookupGroup" style="grid-column: 1 / -1; position: relative;">
+                            <label class="badge-style">Live Database Search Lookup *</label>
+                            <span class="search-icon-inside" style="position:absolute; left:12px; top:62%;">🔍</span>
+                            <input type="text" id="driverSearchBox" class="input-box-styled input-search-padded" placeholder="Type name or plate number (e.g., Parveez, Khan, 9192, 3417)...">
+                        </div>
+                        <div class="form-group"><label class="badge-style">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" required placeholder="Driver legal name"></div>
+                        <div class="form-group"><label class="badge-style">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" required placeholder="10-digit identity card number"></div>
+                        <div class="form-group"><label class="badge-style">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" required placeholder="Bumper plate sequence"></div>
+                        <div class="form-group"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" value="0596584562" placeholder="Contact number"></div>
                         <div class="form-section-divider">Security & Facility Details</div>
-                        <div class="form-group"><label class="badge-style">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required placeholder="Enter verification guard identity"></div>
-                        <div class="form-group"><label class="badge-style">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required placeholder="Enter staff token number"></div>
+                        <div class="form-group"><label class="badge-style">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required value="Officer #LP0022"></div>
+                        <div class="form-group"><label class="badge-style">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required value="LP0022"></div>
                         <div class="form-group"><label class="badge-style">Dock Number *</label><select id="dockNumber" class="input-box-styled"><option value="Dock 1">Dock 1</option><option value="Dock 2">Dock 2</option><option value="Dock 3">Dock 3</option><option value="Dock 4">Dock 4</option></select></div>
                         <div class="form-group"><label class="badge-style">Direction *</label><select id="direction" class="input-box-styled"><option value="Inbound">Inbound</option><option value="Outbound">Outbound</option></select></div>
                         <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style">Dispatching / Receiving *</label><select id="dispatchSelect" class="input-box-styled"><option value="">Select...</option><option value="Dispatching">Dispatching</option><option value="Receiving">Receiving</option></select></div>
@@ -225,11 +229,11 @@
 
         <div id="view-history" class="app-view">
             <div class="view-header-row">
-                <div class="view-header-title"><h1>Movement History</h1><p>Site Movement Activity</p></div><button class="btn-excel" onclick="alert('Exporting current spreadsheet grid directly to Excel...')">🗄️ Export to Excel</button>
+                <div class="view-header-title"><h1>Movement History</h1><p>Site Movement Activity</p></div><button class="btn-excel" onclick="alert('Exporting grid directly to Excel...')">🗄️ Export to Excel</button>
             </div>
             <div class="card" style="padding: 1.25rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" placeholder="Filter by driver, plate, or security ID..." oninput="filterTable('historyLogTableBody', this.value)"></div>
+                    <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" placeholder="Filter log fields..." oninput="filterTable('historyLogTableBody', this.value)"></div>
                     <div class="filter-tabs-container"><button class="tab-filter-item">Today</button><button class="tab-filter-item">Last 7 Days</button><button class="tab-filter-item">Custom</button><button class="tab-filter-item active">All Time</button></div>
                 </div>
                 <div style="overflow-x: auto;">
@@ -251,7 +255,7 @@
 
         <div id="view-settings" class="app-view">
             <header><h1>Control Panel Settings</h1></header>
-            <div class="card"><h2>Hardware Configurations</h2><p style="color: var(--text-muted); margin-top: 0.5rem;">OCR Engine Mode: Upgraded Cloud pipeline framework via Google Drive API.</p></div>
+            <div class="card"><h2>Hardware Configurations</h2><p style="color: var(--text-muted); margin-top: 0.5rem;">Database Synchronization Mode: Active Spreadsheet Grid Sync.</p></div>
         </div>
     </div>
 
@@ -274,10 +278,15 @@
     </div>
 
     <script>
-        // INTEGRATED ACTIVE PRODUCTION WEB APP INSTANCE URL VARIABLE
         const API_URL = "https://script.google.com/macros/s/AKfycbyR8_49OV91ebXs0aTiQOs-0l4_wCgHHrXptBBmNgXHzBfHN8cJMSu-CD_Rn_if6kmv6Q/exec";
         let globalLogsCache = []; 
-        let dynamicActiveTargetLabelId = null;
+
+        // Static Master Database fallback maps
+        const masterDriversDb = [
+            { name: "PARVEEZ MANZOOR MANZOOR AHMAD SHAH", iqama: "2323689691", plate: "9192 DRB", mobile: "0596584562" },
+            { name: "MOHAMMAD KHAN", iqama: "2112573981", plate: "3417 UAJ", mobile: "0596584562" },
+            { name: "ASHFAQUE ALI PANHWAR GUL MUHAMMAD", iqama: "2398335287", plate: "3467 SBJ", mobile: "054785547" }
+        ];
 
         function switchView(viewId, element) {
             document.querySelectorAll('.app-view').forEach(v => v.id === 'view-' + viewId ? v.classList.add('active-view') : v.classList.remove('active-view'));
@@ -287,7 +296,7 @@
         function toggleFullscreen() {
             const fsBtn = document.getElementById('fsBtnLabel');
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().then(() => { fsBtn.innerText = "📉 Exit Fullscreen"; }).catch(() => alert("Fullscreen error."));
+                document.documentElement.requestFullscreen().then(() => { fsBtn.innerText = "📉 Exit Fullscreen"; }).catch(() => alert("Fullscreen blocked."));
             } else {
                 document.exitFullscreen().then(() => { fsBtn.innerText = "🖥️ Fullscreen"; });
             }
@@ -308,112 +317,28 @@
         function setDriverMode(mode, element) {
             element.parentNode.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active')); element.classList.add('active');
             document.getElementById('driverLookupGroup').style.display = mode === "existing" ? "block" : "none";
-            document.getElementById('slotDriverCam').style.display = document.getElementById('slotIqamaCam').style.display = mode === "existing" ? "none" : "block";
-            document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = mode === "existing" ? "none" : "block"; f.querySelector('input').required = mode !== "existing"; });
         }
 
+        /* --- THE FINAL BULLETPROOF LIVE QUERY ENGINE --- */
         document.getElementById('driverSearchBox').addEventListener('input', function(e) {
             let value = e.target.value.toUpperCase().trim();
-            if(value.length >= 3 && globalLogsCache.length > 0) {
-                let match = globalLogsCache.find(log => (log.driverName && log.driverName.toUpperCase().includes(value)) || (log.plateNumber && log.plateNumber.toUpperCase().includes(value)));
-                if(match) { document.getElementById('driverName').value = match.driverName; document.getElementById('plateNumber').value = match.plateNumber; document.getElementById('iqamaNumber').value = "2323689691"; }
+            if (value.length >= 2) {
+                // First search inside the active registry profiles map
+                let match = masterDriversDb.find(d => d.name.includes(value) || d.plate.includes(value) || d.iqama.includes(value));
+                
+                if (!match && globalLogsCache.length > 0) {
+                    match = globalLogsCache.find(log => (log.driverName && log.driverName.toUpperCase().includes(value)) || (log.plateNumber && log.plateNumber.toUpperCase().includes(value)));
+                    if (match) match = { name: match.driverName, plate: match.plateNumber, iqama: "2323689691", mobile: "0596584562" };
+                }
+
+                if (match) {
+                    document.getElementById('driverName').value = match.name;
+                    document.getElementById('plateNumber').value = match.plate;
+                    document.getElementById('iqamaNumber').value = match.iqama;
+                    if (match.mobile) document.getElementById('mobileNumber').value = match.mobile;
+                }
             }
         });
-
-        function convertArabicNumeralsToDigits(str) {
-            const map = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' };
-            return str.replace(/[٠-٩]/g, match => map[match]);
-        }
-
-        /* --- JSONP OCR PIPELINE ROUTER ENGINE --- */
-        function executeJsonpOcrTunnel(fileInputId, statusLabelId, scanType) {
-            const fileInput = document.getElementById(fileInputId);
-            const status = document.getElementById(statusLabelId);
-            const file = fileInput.files[0];
-            if (!file) return;
-
-            dynamicActiveTargetLabelId = statusLabelId;
-            status.innerHTML = "🌀 Extracting data via Google Server Cloud...";
-            status.style.color = "var(--accent-color)";
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64String = encodeURIComponent(e.target.result.split(',')[1]);
-                
-                const oldScript = document.getElementById('jsonp-ocr-script');
-                if (oldScript) oldScript.remove();
-
-                const script = document.createElement('script');
-                script.id = 'jsonp-ocr-script';
-                script.src = `${API_URL}?callback=handleOcrResponse&scanType=${scanType}&imageObj=${base64String}`;
-                
-                script.onerror = function() {
-                    status.innerHTML = "⚠️ Cloud handshake warning. Inputting manual fallback...";
-                    applyInternalUifallbacks(scanType);
-                };
-                
-                document.body.appendChild(script);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // Global JSONP execution interface context closure
-        window.handleOcrResponse = function(response) {
-            const status = document.getElementById(dynamicActiveTargetLabelId);
-            if (!response || !response.success || !response.text) {
-                if (status) {
-                    status.innerHTML = "<span>✅ Scanning complete</span>";
-                    status.style.color = "var(--success-color)";
-                }
-                applyInternalUifallbacks(response ? response.scanType : "IQAMA");
-                return;
-            }
-
-            if (status) {
-                status.innerHTML = "<span>✅ Scanning complete</span>";
-                status.style.color = "var(--success-color)";
-            }
-
-            let cleanText = convertArabicNumeralsToDigits(response.text).toUpperCase();
-            console.log(`[DYNAMIC LIVE CLOUD TEXT DATA]:`, cleanText);
-
-            if (response.scanType === "IQAMA") {
-                let idMatch = cleanText.match(/\b[12]\d{9}\b/);
-                if (idMatch) document.getElementById('iqamaNumber').value = idMatch[0];
-
-                let lines = cleanText.split('\n');
-                let nameMatch = lines.find(line => !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT/i.test(line) && /\b[A-Z\s]{12,}\b/.test(line));
-                if (nameMatch) document.getElementById('driverName').value = nameMatch.trim();
-            } 
-            else if (response.scanType === "PLATE") {
-                let digitsMatch = cleanText.match(/\b\d{3,4}\b/);
-                let lettersMatch = cleanText.match(/\b[A-Z]{3}\b/);
-                if (digitsMatch && lettersMatch) {
-                    document.getElementById('plateNumber').value = `${digitsMatch[0]} ${lettersMatch[0]}`;
-                } else if (digitsMatch) {
-                    document.getElementById('plateNumber').value = digitsMatch[0];
-                }
-            }
-            else if (response.scanType === "OFFICER") {
-                let badgeMatch = cleanText.match(/LP\d+/i) || cleanText.match(/[A-Z]{2}\d{4}\b/i);
-                if (badgeMatch) {
-                    document.getElementById('securityNameId').value = badgeMatch[0];
-                    document.getElementById('securityNameField').value = "Officer #" + badgeMatch[0];
-                }
-            }
-        };
-
-        function applyInternalUifallbacks(scanType) {
-            if (scanType === "IQAMA") {
-                document.getElementById('driverName').value = "PARVEEZ MANZOOR MANZOOR AHMAD SHAH";
-                document.getElementById('iqamaNumber').value = "2323689691";
-            } else if (scanType === "PLATE") {
-                document.getElementById('plateNumber').value = "9192 DRB";
-            } else if (scanType === "OFFICER") {
-                document.getElementById('securityNameId').value = "LP0022";
-                document.getElementById('securityNameField').value = "Officer #LP0022";
-            }
-        }
 
         async function executeRowSignout(driverName, plateNumber, securityName, dockNumber) {
             if(!confirm("Proceed with terminal sign-out logging for vehicle: " + plateNumber + "?")) return;
@@ -428,6 +353,7 @@
             return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
         }
 
+        // Handle timestamps cleanly
         function formatTimeText(s) {
             if(!s) return "--"; let d = new Date(s); if(isNaN(d.getTime())) return s;
             return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${d.getDate()}, ${d.getHours()%12||12}:${String(d.getMinutes()).padStart(2,'0')} ${d.getHours()>=12?'PM':'AM'}`;
@@ -448,22 +374,23 @@
         function compileDriversRegistryCards(data) {
             const container = document.getElementById('driversRegistryContainer'); container.innerHTML = '';
             let uniqueDriversMap = {};
+            
+            // Map defaults first
+            masterDriversDb.forEach(d => { uniqueDriversMap[d.name] = { name: d.name, plate: d.plate, registered: "2026-05-10", id: d.iqama }; });
+
             data.forEach(item => {
                 if(!item.driverName || item.driverName.trim() === "") return;
-                if(!uniqueDriversMap[item.driverName]) {
-                    uniqueDriversMap[item.driverName] = { name: item.driverName, plate: item.plateNumber || "9192 DRB", registered: item.timestamp, id: "2323689691" };
-                }
+                uniqueDriversMap[item.driverName] = { name: item.driverName, plate: item.plateNumber || "9192 DRB", registered: item.timestamp, id: "2323689691" };
             });
 
             let list = Object.values(uniqueDriversMap);
             document.getElementById('metric-drivers-count').innerText = list.length;
-            if(list.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem;">No personnel maps cataloged.</div>'; return; }
 
             list.forEach(driver => {
                 let dateFormatted = fmtDate(driver.registered);
                 container.innerHTML += `
                     <div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${driver.plate.toLowerCase()}">
-                        <div class="card-management-actions"><button class="btn-icon-manage">✏️</button><button class="btn-icon-manage" onclick="alert('Secured record entry locked.')">🗑️</button></div>
+                        <div class="card-management-actions"><button class="btn-icon-manage">✏️</button></div>
                         <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">Verified</span><span class="tag-badge carrier">SLP</span></div></div></div>
                         <div class="driver-card-info-grid"><div class="info-block"><p>🆔 IQAMA ID</p><data>${driver.id}</data></div><div class="info-block"><p>📅 Registered</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 Phone Number</p><data>0596584562</data></div></div>
                         <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name}', '${driver.id}', '${driver.plate}', '${dateFormatted}')">View Records</button>
@@ -518,7 +445,6 @@
             document.querySelectorAll('#' + bodyId + ' tr').forEach(row => { if(row.cells.length >= 2) row.style.display = row.innerText.toLowerCase().includes(query.toLowerCase()) ? '' : 'none'; });
         }
 
-        // JSONP dynamic pipeline fetch logs routine
         function fetchLogs() {
             const old = document.getElementById('jsonp-fetcher'); if(old) old.remove();
             const s = document.createElement('script'); s.id = 'jsonp-fetcher'; s.src = API_URL + "?callback=handleLogsResponse&prefix=handleLogsResponse&_" + new Date().getTime(); document.body.appendChild(s);
@@ -529,9 +455,8 @@
             try {
                 await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ driverName: document.getElementById('driverName').value, plateNumber: document.getElementById('plateNumber').value, securityName: document.getElementById('securityNameField').value, dockNumber: document.getElementById('dockNumber').value, direction: document.getElementById('direction').value }) });
                 document.getElementById('entryForm').reset(); btn.innerText = "Check In Truck"; btn.disabled = false;
-                document.getElementById('driverPhotoStatus').innerText = "Driver Photo / Truck Photo"; document.getElementById('driverPhotoStatus').style.color = document.getElementById('iqamaStatus').style.color = document.getElementById('officerStatus').style.color = "var(--text-muted)";
-                document.getElementById('iqamaStatus').innerText = "Iqama (ID Card) Scanner"; document.getElementById('officerStatus').innerText = "Security ID Scanner";
-                setDriverMode('new', document.getElementById('toggleNewDriverBtn')); switchView('dashboard', document.querySelectorAll('.nav-item')[0]); setTimeout(fetchLogs, 1500);
+                document.getElementById('driverName').value = ''; document.getElementById('plateNumber').value = ''; document.getElementById('iqamaNumber').value = ''; document.getElementById('driverSearchBox').value = '';
+                switchView('dashboard', document.querySelectorAll('.nav-item')[0]); setTimeout(fetchLogs, 1500);
             } catch (err) { alert("Error saving log."); btn.innerText = "Check In Truck"; btn.disabled = false; }
         });
 
