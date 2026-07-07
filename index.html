@@ -252,7 +252,7 @@
 
         <div id="view-settings" class="app-view">
             <header><h1>Control Panel Settings</h1></header>
-            <div class="card"><h2>Hardware Configurations</h2><p style="color: var(--text-muted); margin-top: 0.5rem;">OCR Engine Mode: Upgraded Native cloud pipeline framework.</p></div>
+            <div class="card"><h2>Hardware Configurations</h2><p style="color: var(--text-muted); margin-top: 0.5rem;">OCR Engine Mode: Upgraded Cloud pipeline framework via Google Drive API.</p></div>
         </div>
     </div>
 
@@ -275,6 +275,7 @@
     </div>
 
     <script>
+        // Updated active Google Web App URL link parameter directly
         const API_URL = "https://script.google.com/macros/s/AKfycbx5hQYr4uvmEhds13c1-WonqNzRut1Ksj52vjH7ncX5uo3Hqis2nAcHDQD0wxE2Eqo9zQ/exec";
         let globalLogsCache = []; 
 
@@ -319,12 +320,12 @@
             }
         });
 
-        /* --- GOOGLE DRIVE SERVER-SIDE OCR LINK AGENT --- */
         function convertArabicNumeralsToDigits(str) {
             const map = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' };
             return str.replace(/[٠-٩]/g, match => map[match]);
         }
 
+        /* --- CLOUD BACKEND ADVANCED OCR PIPELINE ROUTER --- */
         function processServerSideOCR(fileInputId, statusLabelId, scanType) {
             const fileInput = document.getElementById(fileInputId);
             const status = document.getElementById(statusLabelId);
@@ -338,7 +339,6 @@
             reader.onload = function(e) {
                 const base64String = e.target.result.split(',')[1];
                 
-                // Pack raw binary stream over directly to your backend script
                 const payload = {
                     imageObj: base64String,
                     scanType: scanType,
@@ -357,14 +357,14 @@
                         status.style.color = "var(--success-color)";
                         
                         let cleanText = convertArabicNumeralsToDigits(response.text).toUpperCase();
-                        console.log(`[GOOGLE OCR RESULTS - ${scanType}]:`, cleanText);
+                        console.log(`[GOOGLE OCR INPUT MATRIX - ${scanType}]:`, cleanText);
 
                         if (scanType === "IQAMA") {
-                            // Extract 10-digit Saudi identity sequence
+                            // Extract 10-digit identity sequence
                             let idMatch = cleanText.match(/\b[12]\d{9}\b/);
                             if (idMatch) document.getElementById('iqamaNumber').value = idMatch[0];
 
-                            // Locate English name string row cleanly
+                            // Isolate the clean English name string row
                             let lines = cleanText.split('\n');
                             let nameMatch = lines.find(line => !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT/i.test(line) && /\b[A-Z\s]{12,}\b/.test(line));
                             if (nameMatch) document.getElementById('driverName').value = nameMatch.trim();
@@ -384,11 +384,11 @@
                             document.getElementById('securityNameField').value = badgeMatch ? "Officer #" + badgeMatch[0] : "Officer #LP0022";
                         }
                     } else {
-                        throw new Error(response.error || "Blank data returns");
+                        throw new Error(response.error || "OCR reading failed.");
                     }
                 })
                 .catch(err => {
-                    console.error("Cloud backend handshake disconnect fallback:", err);
+                    console.error("OCR Pipeline warning response:", err);
                     status.innerHTML = "⚠️ Processing warning. Input manually.";
                     status.style.color = "var(--accent-color)";
                 });
