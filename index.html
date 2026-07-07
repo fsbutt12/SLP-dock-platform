@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SLP Security - Gateway Platform</title>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
             --bg-color: #0b0f19; --card-bg: rgba(21, 28, 44, 0.85); --sidebar-bg: rgba(15, 22, 36, 0.95);
@@ -314,7 +313,7 @@
             let value = e.target.value.toUpperCase().trim();
             if(value.length >= 3 && globalLogsCache.length > 0) {
                 let match = globalLogsCache.find(log => (log.driverName && log.driverName.toUpperCase().includes(value)) || (log.plateNumber && log.plateNumber.toUpperCase().includes(value)));
-                if(match) { document.getElementById('driverName').value = match.driverName; document.getElementById('plateNumber').value = match.plateNumber; document.getElementById('iqamaNumber').value = "2323689691"; }
+                if(match) { document.getElementById('driverName').value = match.driverName; document.getElementById('plateNumber').value = match.plateNumber; document.getElementById('iqamaNumber').value = match.iqamaNumber || ""; }
             }
         });
 
@@ -323,72 +322,125 @@
             return str.replace(/[٠-٩]/g, match => map[match]);
         }
 
-        /* --- EXPLICIT PURE CLIENT-SIDE MULTI-LANGUAGE SCANNER ENGINE --- */
-        function runLocalOcrEngine(fileInputId, statusLabelId, scanType) {
+        /* --- REAL CLIENT-SIDE OCR ENGINE (no hardcoded profiles, no fake success) --- */
+
+        // Upscale + grayscale + boost contrast before sending the image for OCR.
+        // This also shrinks the base64 payload sent to the Apps Script backend.
+        function preprocessImageForOcr(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => {
+                    const targetWidth = 1600;
+                    const scale = img.width < targetWidth ? targetWidth / img.width : 1;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.round(img.width * scale);
+                    canvas.height = Math.round(img.height * scale);
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const d = imageData.data;
+                    const contrast = 45; // -100..100
+                    const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+                    for (let i = 0; i < d.length; i += 4) {
+                        let gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                        gray = factor * (gray - 128) + 128;
+                        gray = Math.min(255, Math.max(0, gray));
+                        d[i] = d[i + 1] = d[i + 2] = gray;
+                    }
+                    ctx.putImageData(imageData, 0, 0);
+                    canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('canvas toBlob failed')), 'image/png');
+                };
+                img.onerror = () => reject(new Error('image failed to load'));
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // Deploy ocr-backend.gs as its own Web App and paste its /exec URL here.
+        const OCR_API_URL = "https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
+
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = () => reject(new Error('failed to read blob'));
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function runLocalOcrEngine(fileInputId, statusLabelId, scanType) {
             const fileInput = document.getElementById(fileInputId);
             const status = document.getElementById(statusLabelId);
             const file = fileInput.files[0];
             if (!file) return;
 
-            status.innerHTML = "🌀 Processing OCR Local Matrices...";
+            status.innerHTML = "🌀 Preparing image...";
             status.style.color = "var(--accent-color)";
 
-            // Forces language package arrays to load 'eng' and 'ara' simultaneously
-            Tesseract.recognize(file, 'ara+eng').then(({ data: { text } }) => {
-                status.innerHTML = "✅ Processing complete";
-                status.style.color = "var(--success-color)";
-                
-                let cleanText = convertArabicNumeralsToDigits(text).toUpperCase();
-                console.log(`[LOCAL OCR ENGINE PARSED - ${scanType}]:`, cleanText);
+            try {
+                const processedBlob = await preprocessImageForOcr(file);
+                const base64Data = await blobToBase64(processedBlob);
 
-                // KEYWORD CROSS-REFERENCE CONTROLLER: Instantly matches input clues to profiles
-                if (cleanText.includes("PARVEEZ") || cleanText.includes("MANZOOR") || cleanText.includes("9192") || cleanText.includes("DRB") || cleanText.includes("ELANTRA")) {
-                    document.getElementById('driverName').value = "PARVEEZ MANZOOR MANZOOR AHMAD SHAH";
-                    document.getElementById('iqamaNumber').value = "2323689691";
-                    document.getElementById('plateNumber').value = "9192 DRB";
-                    return;
-                }
-                if (cleanText.includes("MOHAMMAD") || cleanText.includes("KHAN") || cleanText.includes("3417") || cleanText.includes("UAJ")) {
-                    document.getElementById('driverName').value = "MOHAMMAD KHAN";
-                    document.getElementById('iqamaNumber').value = "2112573981";
-                    document.getElementById('plateNumber').value = "3417 UAJ";
-                    return;
-                }
-                if (cleanText.includes("ASHFAQUE") || cleanText.includes("PANHWAR") || cleanText.includes("3467") || cleanText.includes("SBJ")) {
-                    document.getElementById('driverName').value = "ASHFAQUE ALI PANHWAR GUL MUHAMMAD";
-                    document.getElementById('iqamaNumber').value = "2398335287";
-                    document.getElementById('plateNumber').value = "3467 SBJ";
-                    return;
-                }
+                status.innerHTML = "🌀 Reading with Google OCR (a few seconds)...";
 
-                // Standard extraction loops if an entirely unmapped image is uploaded
+                // Content-Type text/plain avoids a CORS preflight that Apps Script
+                // web apps don't handle; the server still JSON.parses the body itself.
+                const response = await fetch(OCR_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ scanType: scanType, imageObj: base64Data })
+                });
+
+                if (!response.ok) throw new Error('Network error: ' + response.status);
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error || 'OCR backend returned an error');
+
+                let cleanText = convertArabicNumeralsToDigits(result.text || "").toUpperCase();
+                console.log(`[OCR RAW TEXT - ${scanType}]:`, cleanText);
+
+                let matched = false;
+
                 if (scanType === "IQAMA") {
                     let idMatch = cleanText.match(/\b[12]\d{9}\b/);
-                    if (idMatch) document.getElementById('iqamaNumber').value = idMatch[0];
-                    let lines = cleanText.split('\n');
-                    let nameMatch = lines.find(line => !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT/i.test(line) && /\b[A-Z\s]{12,}\b/.test(line));
-                    if (nameMatch) document.getElementById('driverName').value = nameMatch.trim();
-                } 
+                    if (idMatch) { document.getElementById('iqamaNumber').value = idMatch[0]; matched = true; }
+
+                    let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
+                    let nameMatch = lines.find(line =>
+                        /^[A-Z][A-Z\s.']{7,45}$/.test(line) &&
+                        !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line)
+                    );
+                    if (nameMatch) { document.getElementById('driverName').value = nameMatch; matched = true; }
+                }
                 else if (scanType === "PLATE") {
                     let digitsMatch = cleanText.match(/\b\d{3,4}\b/);
                     let lettersMatch = cleanText.match(/\b[A-Z]{3}\b/);
-                    if (digitsMatch && lettersMatch) document.getElementById('plateNumber').value = `${digitsMatch[0]} ${lettersMatch[0]}`;
+                    if (digitsMatch && lettersMatch) {
+                        document.getElementById('plateNumber').value = `${digitsMatch[0]} ${lettersMatch[0]}`;
+                        matched = true;
+                    }
                 }
                 else if (scanType === "OFFICER") {
                     let badgeMatch = cleanText.match(/LP\d+/i) || cleanText.match(/[A-Z]{2}\d{4}\b/i);
                     if (badgeMatch) {
                         document.getElementById('securityNameId').value = badgeMatch[0];
                         document.getElementById('securityNameField').value = "Officer #" + badgeMatch[0];
+                        matched = true;
                     }
                 }
-            }).catch(() => {
-                // Default fallback pattern if system blocks text reading parameters
-                document.getElementById('driverName').value = "PARVEEZ MANZOOR MANZOOR AHMAD SHAH";
-                document.getElementById('iqamaNumber').value = "2323689691";
-                document.getElementById('plateNumber').value = "9192 DRB";
-                status.innerHTML = "✅ Processing complete";
-                status.style.color = "var(--success-color)";
-            });
+
+                if (matched) {
+                    status.innerHTML = "✅ Extracted — please double-check the fields";
+                    status.style.color = "var(--success-color)";
+                } else {
+                    status.innerHTML = "⚠️ Couldn't confidently read this image — enter details manually";
+                    status.style.color = "#ef4444";
+                }
+
+            } catch (err) {
+                console.error("OCR engine error:", err);
+                status.innerHTML = "❌ OCR failed — enter details manually";
+                status.style.color = "#ef4444";
+            }
         }
 
         async function executeRowSignout(driverName, plateNumber, securityName, dockNumber) {
@@ -427,7 +479,7 @@
             data.forEach(item => {
                 if(!item.driverName || item.driverName.trim() === "") return;
                 if(!uniqueDriversMap[item.driverName]) {
-                    uniqueDriversMap[item.driverName] = { name: item.driverName, plate: item.plateNumber || "9192 DRB", registered: item.timestamp, id: "2323689691" };
+                    uniqueDriversMap[item.driverName] = { name: item.driverName, plate: item.plateNumber || "--", registered: item.timestamp, id: item.iqamaNumber || "--" };
                 }
             });
 
@@ -502,7 +554,7 @@
         document.getElementById('entryForm').addEventListener('submit', async e => {
             e.preventDefault(); const btn = document.querySelector('.submit-btn-global'); btn.innerText = "Processing Check In..."; btn.disabled = true;
             try {
-                await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ driverName: document.getElementById('driverName').value, plateNumber: document.getElementById('plateNumber').value, securityName: document.getElementById('securityNameField').value, dockNumber: document.getElementById('dockNumber').value, direction: document.getElementById('direction').value }) });
+                await fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ driverName: document.getElementById('driverName').value, iqamaNumber: document.getElementById('iqamaNumber').value, plateNumber: document.getElementById('plateNumber').value, securityName: document.getElementById('securityNameField').value, dockNumber: document.getElementById('dockNumber').value, direction: document.getElementById('direction').value }) });
                 document.getElementById('entryForm').reset(); btn.innerText = "Check In Truck"; btn.disabled = false;
                 document.getElementById('driverPhotoStatus').innerText = "Driver Photo / Truck Photo"; document.getElementById('driverPhotoStatus').style.color = document.getElementById('iqamaStatus').style.color = document.getElementById('officerStatus').style.color = "var(--text-muted)";
                 document.getElementById('iqamaStatus').innerText = "Iqama (ID Card) Scanner"; document.getElementById('officerStatus').innerText = "Security ID Scanner";
@@ -514,3 +566,5 @@
     </script>
 </body>
 </html>
+
+
