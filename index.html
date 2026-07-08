@@ -1,860 +1,861 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SLP Security - Gateway Platform</title>
-<style>
-:root {
---bg-color: #0b0f19; --card-bg: rgba(21, 28, 44, 0.85); --sidebar-bg: rgba(15, 22, 36, 0.95);
---accent-color: #f59e0b; --text-main: #f3f4f6; --text-muted: #9ca3af;
---border-color: rgba(30, 41, 59, 0.8); --success-color: #10b981; --nav-hover: rgba(245, 158, 11, 0.1);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-body {
-background-color: var(--bg-color);
-background-image: linear-gradient(rgba(11, 15, 25, 0.9), rgba(11, 15, 25, 0.9)), url('background.jpg');
-background-size: cover; background-position: center; background-attachment: fixed;
-color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden;
-}
-.sidebar {
-width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color);
-display: flex; flex-direction: column; padding: 1.5rem 1rem; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100; backdrop-filter: blur(12px);
-}
-.brand-section { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
-.brand-logo { height: 42px; width: auto; border-radius: 6px; }
-.brand-text h2 { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.5px; color: #fff; }
-.brand-text p { font-size: 0.75rem; color: var(--accent-color); font-weight: 600; text-transform: uppercase; }
-.nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1; }
-.nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.75rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s ease; }
-.nav-item:hover { background-color: var(--nav-hover); color: #fff; }
-.nav-item.active { background-color: rgba(245, 158, 11, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
-.sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
-.system-health { background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-bottom: 0.5rem; }
-.health-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 8px var(--success-color); }
-.main-content { margin-left: 260px; flex-grow: 1; padding: 2rem; width: calc(100% - 260px); }
-@media (max-width: 900px) {
-.sidebar { width: 70px; padding: 1.5rem 0.5rem; } .brand-text, .system-health, .nav-item span { display: none; }
-.main-content { margin-left: 70px; width: calc(100% - 70px); }
-}
-.app-view { display: none; } .app-view.active-view { display: block; }
-.metrics-bar-four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
-@media (max-width: 1200px) { .metrics-bar-four { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) { .metrics-bar-four { grid-template-columns: 1fr; } }
-.metric-card-slate { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; text-align: left; position: relative; backdrop-filter: blur(8px); }
-.metric-card-slate .card-icon { font-size: 1.2rem; color: var(--accent-color); margin-bottom: 0.75rem; opacity: 0.8; }
-.metric-card-slate .num { font-size: 2rem; font-weight: 700; color: #fff; line-height: 1.1; }
-.metric-card-slate .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-.metric-accent-line { position: absolute; top: 15px; right: 15px; width: 30px; height: 3px; background-color: var(--accent-color); border-radius: 2px; }
-.dashboard-mid-split, .dashboard-bottom-split { display: grid; grid-template-columns: 1.8fr 1fr; gap: 2rem; margin-bottom: 2rem; }
-.dashboard-bottom-split { grid-template-columns: 2fr 1fr; }
-@media (max-width: 1100px) { .dashboard-mid-split, .dashboard-bottom-split { grid-template-columns: 1fr; } }
-.card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); backdrop-filter: blur(8px); }
-.card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.75rem; }
-.card h2 { font-size: 1.1rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; }
-.card h2::before { content: '●'; color: var(--success-color); font-size: 0.8rem; }
-.view-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
-.view-header-title h1 { font-size: 1.75rem; font-weight: 700; color: #fff; }
-.view-header-title p { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-.counter-badge-orange { display: inline-block; background: rgba(245, 158, 11, 0.15); color: var(--accent-color); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.7rem; font-weight: bold; padding: 0.15rem 0.5rem; border-radius: 4px; margin-top: 4px; }
-.filter-tabs-container { display: flex; gap: 0.5rem; background: rgba(11, 15, 25, 0.5); padding: 0.25rem; border-radius: 6px; border: 1px solid var(--border-color); }
-.tab-filter-item { background: transparent; border: none; color: var(--text-muted); font-size: 0.7rem; font-weight: bold; padding: 0.4rem 0.85rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
-.tab-filter-item.active { background: var(--accent-color); color: #000; }
-.btn-excel { background-color: var(--accent-color); color: #000; border: none; padding: 0.5rem 1.25rem; font-size: 0.8rem; font-weight: bold; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
-table { width: 100%; border-collapse: collapse; text-align: left; }
-th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; padding: 0.85rem; border-bottom: 1px solid var(--border-color); letter-spacing: 0.5px; }
-td { padding: 1rem 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem; }
-tr:last-child td { border-bottom: none; }
-tr:hover td { background-color: rgba(255,255,255,0.02); }
-.btn-mini { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.25rem 0.75rem; font-size: 0.75rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; font-weight: 600; }
-.btn-mini:hover { background: var(--accent-color); color: #000; }
-.btn-signout-action { background: #ef4444; color: #fff; border: none; padding: 0.4rem 1rem; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: opacity 0.2s; }
-.btn-signout-action:hover { opacity: 0.9; }
-.scanners-triple-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
-@media (max-width: 768px) { .scanners-triple-row { grid-template-columns: 1fr; } }
-.scan-box-dashed { background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; }
-.scan-box-dashed:hover { border-color: var(--accent-color); background: rgba(245, 158, 11, 0.03); }
-.scan-box-dashed .icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
-.scan-box-dashed span.label-text { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
-.camera-btn-inline { display: inline-flex; align-items: center; justify-content: center; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--accent-color); font-size: 0.7rem; font-weight: bold; text-transform: uppercase; padding: 0.3rem 0.6rem; border-radius: 5px; cursor: pointer; }
-.camera-btn-inline:hover { background: var(--accent-color); color: #000; }
-.toggle-container { display: flex; justify-content: center; background: rgba(11, 15, 25, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.25rem; margin-bottom: 2rem; max-width: 320px; margin-left: auto; margin-right: auto; }
-.toggle-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
-.toggle-btn.active { background: var(--accent-color); color: #000; }
-.form-grid-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem 2rem; }
-@media (max-width: 768px) { .form-grid-columns { grid-template-columns: 1fr; } }
-.form-section-divider { grid-column: 1 / -1; background: #1e3a8a; color: #fff; padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; border-radius: 4px; margin-top: 1rem; margin-bottom: 0.5rem; letter-spacing: 0.5px; max-width: fit-content; }
-.badge-style { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.4rem; font-weight: 600; letter-spacing: 0.5px; }
-.input-box-styled { width: 100%; background-color: rgba(11, 15, 25, 0.7); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.85rem; border-radius: 6px; font-size: 0.95rem; outline: none; transition: border 0.2s; }
-.input-box-styled:focus { border-color: var(--accent-color); }
-.header-search-box-container { position: relative; width: 280px; }
-.header-search-box-container span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; }
-.header-search-input { width: 100%; background: rgba(11, 15, 25, 0.5); border: 1px solid var(--border-color); color: #fff; padding: 0.6rem 1rem 0.6rem 2.25rem; border-radius: 8px; font-size: 0.85rem; outline: none; }
-.header-search-input:focus { border-color: var(--accent-color); }
-.plate-box-split { display: inline-flex; flex-direction: column; gap: 2px; }
-.plate-segment { border: 1px solid rgba(255,255,255,0.15); padding: 1px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: rgba(0,0,0,0.2); text-align: center; min-width: 45px; }
-.submit-btn-global { width: 100%; background-color: var(--accent-color); color: #000; border: none; padding: 1rem; font-size: 1rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 2rem; letter-spacing: 0.5px; transition: opacity 0.2s; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLP Security - Gateway Platform</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19; --card-bg: rgba(21, 28, 44, 0.85); --sidebar-bg: rgba(15, 22, 36, 0.95);
+            --accent-color: #f59e0b; --text-main: #f3f4f6; --text-muted: #9ca3af;
+            --border-color: rgba(30, 41, 59, 0.8); --success-color: #10b981; --nav-hover: rgba(245, 158, 11, 0.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body {
+            background-color: var(--bg-color);
+            background-image: linear-gradient(rgba(11, 15, 25, 0.9), rgba(11, 15, 25, 0.9)), url('background.jpg');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden;
+        }
+        .sidebar {
+            width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; padding: 1.5rem 1rem; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100; backdrop-filter: blur(12px);
+        }
+        .brand-section { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
+        .brand-logo { height: 42px; width: auto; border-radius: 6px; }
+        .brand-text h2 { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.5px; color: #fff; }
+        .brand-text p { font-size: 0.75rem; color: var(--accent-color); font-weight: 600; text-transform: uppercase; }
+        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1; }
+        .nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.75rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s ease; }
+        .nav-item:hover { background-color: var(--nav-hover); color: #fff; }
+        .nav-item.active { background-color: rgba(245, 158, 11, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
+        .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
+        .system-health { background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-bottom: 0.5rem; }
+        .health-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 8px var(--success-color); }
+        .main-content { margin-left: 260px; flex-grow: 1; padding: 2rem; width: calc(100% - 260px); }
+        @media (max-width: 900px) {
+            .sidebar { width: 70px; padding: 1.5rem 0.5rem; } .brand-text, .system-health, .nav-item span { display: none; }
+            .main-content { margin-left: 70px; width: calc(100% - 70px); }
+        }
+        .app-view { display: none; } .app-view.active-view { display: block; }
+        .metrics-bar-four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
+        @media (max-width: 1200px) { .metrics-bar-four { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .metrics-bar-four { grid-template-columns: 1fr; } }
+        .metric-card-slate { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; text-align: left; position: relative; backdrop-filter: blur(8px); }
+        .metric-card-slate .card-icon { font-size: 1.2rem; color: var(--accent-color); margin-bottom: 0.75rem; opacity: 0.8; }
+        .metric-card-slate .num { font-size: 2rem; font-weight: 700; color: #fff; line-height: 1.1; }
+        .metric-card-slate .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+        .metric-accent-line { position: absolute; top: 15px; right: 15px; width: 30px; height: 3px; background-color: var(--accent-color); border-radius: 2px; }
+        .dashboard-mid-split, .dashboard-bottom-split { display: grid; grid-template-columns: 1.8fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+        .dashboard-bottom-split { grid-template-columns: 2fr 1fr; }
+        @media (max-width: 1100px) { .dashboard-mid-split, .dashboard-bottom-split { grid-template-columns: 1fr; } }
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); backdrop-filter: blur(8px); }
+        .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.75rem; }
+        .card h2 { font-size: 1.1rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; }
+        .card h2::before { content: '●'; color: var(--success-color); font-size: 0.8rem; }
+        .view-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+        .view-header-title h1 { font-size: 1.75rem; font-weight: 700; color: #fff; }
+        .view-header-title p { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+        .counter-badge-orange { display: inline-block; background: rgba(245, 158, 11, 0.15); color: var(--accent-color); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.7rem; font-weight: bold; padding: 0.15rem 0.5rem; border-radius: 4px; margin-top: 4px; }
+        .filter-tabs-container { display: flex; gap: 0.5rem; background: rgba(11, 15, 25, 0.5); padding: 0.25rem; border-radius: 6px; border: 1px solid var(--border-color); }
+        .tab-filter-item { background: transparent; border: none; color: var(--text-muted); font-size: 0.7rem; font-weight: bold; padding: 0.4rem 0.85rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
+        .tab-filter-item.active { background: var(--accent-color); color: #000; }
+        .btn-excel { background-color: var(--accent-color); color: #000; border: none; padding: 0.5rem 1.25rem; font-size: 0.8rem; font-weight: bold; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; padding: 0.85rem; border-bottom: 1px solid var(--border-color); letter-spacing: 0.5px; }
+        td { padding: 1rem 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: rgba(255,255,255,0.02); }
+        .btn-mini { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.25rem 0.75rem; font-size: 0.75rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; font-weight: 600; }
+        .btn-mini:hover { background: var(--accent-color); color: #000; }
+        .btn-signout-action { background: #ef4444; color: #fff; border: none; padding: 0.4rem 1rem; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: opacity 0.2s; }
+        .btn-signout-action:hover { opacity: 0.9; }
+        .scanners-triple-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
+        @media (max-width: 768px) { .scanners-triple-row { grid-template-columns: 1fr; } }
+        .scan-box-dashed { background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; }
+        .scan-box-dashed:hover { border-color: var(--accent-color); background: rgba(245, 158, 11, 0.03); }
+        .scan-box-dashed .icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
+        .scan-box-dashed span.label-text { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+        .camera-btn-inline { display: inline-flex; align-items: center; justify-content: center; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--accent-color); font-size: 0.7rem; font-weight: bold; text-transform: uppercase; padding: 0.3rem 0.6rem; border-radius: 5px; cursor: pointer; }
+        .camera-btn-inline:hover { background: var(--accent-color); color: #000; }
+        .toggle-container { display: flex; justify-content: center; background: rgba(11, 15, 25, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.25rem; margin-bottom: 2rem; max-width: 320px; margin-left: auto; margin-right: auto; }
+        .toggle-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .toggle-btn.active { background: var(--accent-color); color: #000; }
+        .form-grid-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem 2rem; }
+        @media (max-width: 768px) { .form-grid-columns { grid-template-columns: 1fr; } }
+        .form-section-divider { grid-column: 1 / -1; background: #1e3a8a; color: #fff; padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; border-radius: 4px; margin-top: 1rem; margin-bottom: 0.5rem; letter-spacing: 0.5px; max-width: fit-content; }
+        .badge-style { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.4rem; font-weight: 600; letter-spacing: 0.5px; }
+        .input-box-styled { width: 100%; background-color: rgba(11, 15, 25, 0.7); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.85rem; border-radius: 6px; font-size: 0.95rem; outline: none; transition: border 0.2s; }
+        .input-box-styled:focus { border-color: var(--accent-color); }
+        .header-search-box-container { position: relative; width: 280px; }
+        .header-search-box-container span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; }
+        .header-search-input { width: 100%; background: rgba(11, 15, 25, 0.5); border: 1px solid var(--border-color); color: #fff; padding: 0.6rem 1rem 0.6rem 2.25rem; border-radius: 8px; font-size: 0.85rem; outline: none; }
+        .header-search-input:focus { border-color: var(--accent-color); }
+        .plate-box-split { display: inline-flex; flex-direction: column; gap: 2px; }
+        .plate-segment { border: 1px solid rgba(255,255,255,0.15); padding: 1px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: rgba(0,0,0,0.2); text-align: center; min-width: 45px; }
+        .submit-btn-global { width: 100%; background-color: var(--accent-color); color: #000; border: none; padding: 1rem; font-size: 1rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 2rem; letter-spacing: 0.5px; transition: opacity 0.2s; }
 
-.drivers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1rem; }
-@media (max-width: 1100px) { .drivers-grid { grid-template-columns: 1fr; } }
-.driver-registry-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; position: relative; backdrop-filter: blur(8px); }
-.driver-card-header { display: flex; align-items: center; gap: 1rem; }
-.driver-avatar-img { width: 56px; height: 56px; border-radius: 50%; background: rgba(0,0,0,0.3); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-.driver-meta h3 { font-size: 1.1rem; color: #fff; font-weight: 700; text-transform: uppercase; }
-.driver-badges { display: flex; gap: 0.5rem; margin-top: 4px; }
-.tag-badge { font-size: 0.65rem; font-weight: bold; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; }
-.tag-badge.verified { background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3); }
-.tag-badge.carrier { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
-.driver-card-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.02); }
-.info-block p { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
-.info-block data { font-size: 0.95rem; color: #fff; font-weight: bold; font-family: monospace; }
-.btn-card-action { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--accent-color); padding: 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: all 0.2s; text-align: center; width: 100%; }
-.btn-card-action:hover { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
-.card-management-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
-.btn-icon-manage { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-muted); width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; }
+        .drivers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1rem; }
+        @media (max-width: 1100px) { .drivers-grid { grid-template-columns: 1fr; } }
+        .driver-registry-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; position: relative; backdrop-filter: blur(8px); }
+        .driver-card-header { display: flex; align-items: center; gap: 1rem; }
+        .driver-avatar-img { width: 56px; height: 56px; border-radius: 50%; background: rgba(0,0,0,0.3); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .driver-meta h3 { font-size: 1.1rem; color: #fff; font-weight: 700; text-transform: uppercase; }
+        .driver-badges { display: flex; gap: 0.5rem; margin-top: 4px; }
+        .tag-badge { font-size: 0.65rem; font-weight: bold; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; }
+        .tag-badge.verified { background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .tag-badge.carrier { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .driver-card-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.02); }
+        .info-block p { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .info-block data { font-size: 0.95rem; color: #fff; font-weight: bold; font-family: monospace; }
+        .btn-card-action { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--accent-color); padding: 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: all 0.2s; text-align: center; width: 100%; }
+        .btn-card-action:hover { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
+        .card-management-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
+        .btn-icon-manage { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-muted); width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; }
 
-.modal-overlay {
-position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(10px);
-display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;
-}
-.modal-overlay.modal-active { display: flex; }
-.modal-window {
-background: #111625; border: 1px solid var(--border-color); border-radius: 14px; width: 100%; max-width: 580px;
-box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column;
-}
-.modal-header-container { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.modal-header-container h2 { font-size: 1.2rem; color: #fff; font-weight: 700; }
-.btn-modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
-.modal-body-content { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
-.modal-media-viewport { width: 100%; height: 210px; border-radius: 8px; background: #1a2236 url('https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800') center/cover no-repeat; border: 1px solid rgba(255,255,255,0.05); }
-.modal-data-blocks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.modal-slate-cell { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); padding: 0.85rem 1rem; border-radius: 8px; }
-.modal-slate-cell span { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 4px; }
-.modal-slate-cell p { font-size: 1rem; color: #fff; font-weight: bold; }
-.modal-plate-capsules { display: flex; gap: 0.35rem; margin-top: 4px; }
-.modal-plate-tag { background: #000; border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; font-family: monospace; border-radius: 4px; font-size: 0.85rem; font-weight: bold; color: var(--accent-color); }
-.modal-footer-container { padding: 1rem 1.5rem; background: rgba(0,0,0,0.1); border-top: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: flex-end; border-radius: 0 0 14px 14px; }
-.btn-modal-cancel { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #fff; padding: 0.6rem 1.5rem; font-size: 0.8rem; font-weight: bold; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(10px);
+            display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;
+        }
+        .modal-overlay.modal-active { display: flex; }
+        .modal-window {
+            background: #111625; border: 1px solid var(--border-color); border-radius: 14px; width: 100%; max-width: 580px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column;
+        }
+        .modal-header-container { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .modal-header-container h2 { font-size: 1.2rem; color: #fff; font-weight: 700; }
+        .btn-modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
+        .modal-body-content { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+        .modal-media-viewport { width: 100%; height: 210px; border-radius: 8px; background: #1a2236 url('https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800') center/cover no-repeat; border: 1px solid rgba(255,255,255,0.05); }
+        .modal-data-blocks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .modal-slate-cell { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); padding: 0.85rem 1rem; border-radius: 8px; }
+        .modal-slate-cell span { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 4px; }
+        .modal-slate-cell p { font-size: 1rem; color: #fff; font-weight: bold; }
+        .modal-plate-capsules { display: flex; gap: 0.35rem; margin-top: 4px; }
+        .modal-plate-tag { background: #000; border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; font-family: monospace; border-radius: 4px; font-size: 0.85rem; font-weight: bold; color: var(--accent-color); }
+        .modal-footer-container { padding: 1rem 1.5rem; background: rgba(0,0,0,0.1); border-top: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: flex-end; border-radius: 0 0 14px 14px; }
+        .btn-modal-cancel { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #fff; padding: 0.6rem 1.5rem; font-size: 0.8rem; font-weight: bold; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
 
-.suggestions-dropdown {
-position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
-background: #111625; border: 1px solid var(--border-color); border-radius: 8px;
-max-height: 220px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-}
-.suggestions-dropdown.open { display: block; }
-.suggestion-item { padding: 0.65rem 1rem; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
-.suggestion-item:last-child { border-bottom: none; }
-.suggestion-item:hover { background: rgba(245, 158, 11, 0.1); }
-.suggestion-item small { display: block; color: var(--text-muted); font-size: 0.7rem; margin-top: 2px; }
+        .suggestions-dropdown {
+            position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
+            background: #111625; border: 1px solid var(--border-color); border-radius: 8px;
+            max-height: 220px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .suggestions-dropdown.open { display: block; }
+        .suggestion-item { padding: 0.65rem 1rem; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover { background: rgba(245, 158, 11, 0.1); }
+        .suggestion-item small { display: block; color: var(--text-muted); font-size: 0.7rem; margin-top: 2px; }
 
-.camera-overlay {
-position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000;
-display: none; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; padding: 1rem;
-}
-.camera-overlay.open { display: flex; }
-.camera-overlay video, .camera-overlay canvas { max-width: 100%; max-height: 65vh; border-radius: 10px; border: 2px solid var(--accent-color); }
-.camera-controls { display: flex; gap: 1rem; }
-.camera-controls button { padding: 0.7rem 1.5rem; border-radius: 8px; border: none; font-weight: bold; text-transform: uppercase; cursor: pointer; font-size: 0.8rem; }
-.btn-capture { background: var(--accent-color); color: #000; }
-.btn-cancel-cam { background: #ef4444; color: #fff; }
+        .camera-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000;
+            display: none; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; padding: 1rem;
+        }
+        .camera-overlay.open { display: flex; }
+        .camera-overlay video, .camera-overlay canvas { max-width: 100%; max-height: 65vh; border-radius: 10px; border: 2px solid var(--accent-color); }
+        .camera-controls { display: flex; gap: 1rem; }
+        .camera-controls button { padding: 0.7rem 1.5rem; border-radius: 8px; border: none; font-weight: bold; text-transform: uppercase; cursor: pointer; font-size: 0.8rem; }
+        .btn-capture { background: var(--accent-color); color: #000; }
+        .btn-cancel-cam { background: #ef4444; color: #fff; }
 
-.custom-date-row { display: none; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
-.custom-date-row.open { display: flex; }
-.custom-date-row input[type="date"] { background: rgba(11,15,25,0.7); border: 1px solid var(--border-color); color: #fff; padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.8rem; }
-.custom-date-row button { background: var(--accent-color); color: #000; border: none; padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-</style>
+        .custom-date-row { display: none; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
+        .custom-date-row.open { display: flex; }
+        .custom-date-row input[type="date"] { background: rgba(11,15,25,0.7); border: 1px solid var(--border-color); color: #fff; padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.8rem; }
+        .custom-date-row button { background: var(--accent-color); color: #000; border: none; padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+    </style>
 </head>
 <body>
 
-<div class="sidebar">
-<div class="brand-section"><img class="brand-logo" src="logo.png" alt="Logo"><div class="brand-text"><h2>Gateway <span>SLP</span></h2><p>Security Hub</p></div></div>
-<ul class="nav-links">
-<li class="nav-item active" onclick="switchView('dashboard', this)"><span>📊 Dashboard</span></li>
-<li class="nav-item" onclick="switchView('checkin', this)"><span>🚛 Check-in Truck</span></li>
-<li class="nav-item" onclick="switchView('active-trucks', this)"><span>⏱️ Active Trucks</span></li>
-<li class="nav-item" onclick="switchView('history', this)"><span>📜 History Log</span></li>
-<li class="nav-item" onclick="switchView('drivers', this)"><span>🪪 Drivers Database</span></li>
-<li class="nav-item" onclick="switchView('settings', this)"><span>⚙️ Settings</span></li>
-</ul>
-<div class="sidebar-footer">
-<div class="system-health"><div><span>System Health</span><div style="font-weight:bold; color:var(--success-color); margin-top:2px;">Operational</div></div><div class="health-dot"></div></div>
-<div class="nav-item" onclick="toggleFullscreen()"><span id="fsBtnLabel">🖥️ Fullscreen</span></div>
-</div>
-</div>
-
-<div class="main-content">
-<div id="view-dashboard" class="app-view active-view">
-<div class="metrics-bar-four">
-<div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="metric-active-now">0</div><div class="label">Active Now</div><div class="metric-accent-line"></div></div>
-<div class="metric-card-slate"><div class="card-icon">✅</div><div class="num" id="metric-completed-today">0</div><div class="label">Completed Today</div><div class="metric-accent-line" style="background-color: var(--success-color);"></div></div>
-<div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label">Total Check-Ins</div><div class="metric-accent-line" style="background-color: #3b82f6;"></div></div>
-<div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label">Drivers Database</div><div class="metric-accent-line"></div></div>
-</div>
-<div class="dashboard-mid-split">
-<div class="card" style="overflow-x: auto;"><div class="card-header-flex"><h2>Live Now</h2><button class="btn-mini" onclick="switchView('history', document.querySelectorAll('.nav-item')[3])">History Log</button></div>
-<table><thead><tr><th>Driver</th><th>Plate Number</th><th>Dock Assignment</th><th>Direction Status</th></tr></thead><tbody id="liveFeedBody"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading security records...</td></tr></tbody></table>
-</div>
-<div class="card" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;"><div class="card-header-flex"><h2>Pending Access Requests</h2></div>
-<div style="text-align: center; color: var(--text-muted); padding: 2rem 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem;"><span style="font-size: 2rem;">🔒</span><div style="font-weight: 600; text-transform: uppercase; font-size: 0.85rem; color: #fff;">All Clear</div><p style="font-size: 0.75rem; max-width: 180px;">No pending vehicle overrides detected.</p></div>
-<div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem;">🛡️ Secure Protocol v2.4 Active</div>
-</div>
-</div>
-<div class="dashboard-bottom-split">
-<div class="card"><div class="card-header-flex"><h2>Recent Login Activity</h2></div>
-<table><thead><tr><th>User ID</th><th>Email Routing</th><th>Location Branch</th><th>Timestamp</th></tr></thead><tbody><tr><td><strong>Farman Shahid Butt</strong></td><td style="color: var(--text-muted);">fsbutt@noon.com</td><td>🇸🇦 Saudi Arabia</td><td style="font-size: 0.85rem;">1:36:59 PM<br><span style="color:var(--text-muted)">7/6/2026</span></td></tr><tr><td><strong>Farman Shahid Butt</strong></td><td style="color: var(--text-muted);">fsbutt@noon.com</td><td>🇸🇦 Saudi Arabia</td><td style="font-size: 0.85rem;">9:15:22 AM<br><span style="color:var(--text-muted)">7/6/2026</span></td></tr></tbody></table>
-</div>
-<div class="card"><div class="card-header-flex"><h2>Users Active</h2></div><div class="user-activity-row"><div class="user-avatar">FB</div><div class="user-details"><h4>Farman Shahid Butt</h4><p>fsbutt@noon.com</p></div></div><div style="margin-top: 1.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 8px; font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem;"><span>⏱️</span><div><span style="color: var(--text-muted)">System Uptime:</span> <strong>98.5%</strong></div></div></div>
-</div>
-</div>
-
-<div id="view-checkin" class="app-view">
-<header><h1>Truck Entry Form</h1></header>
-<div class="card" style="max-width: 850px; margin: 0 auto;">
-<div class="scanners-triple-row">
-<div class="scan-box-dashed" onclick="document.getElementById('driverPhotoInput').click()">
-<div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus">Driver Photo / Truck Photo</span></div>
-<input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatus', 'PLATE')">
-<div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 Use Camera</div>
-</div>
-<div class="scan-box-dashed" onclick="document.getElementById('iqamaScanner').click()">
-<div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus">Iqama (ID Card) Scanner</span></div>
-<input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')">
-<div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 Use Camera</div>
-</div>
-<div class="scan-box-dashed" onclick="document.getElementById('officerScanner').click()">
-<div><span class="icon">🛡️</span><span class="label-text" id="officerStatus">Security ID Scanner</span></div>
-<input type="file" id="officerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'officerStatus', 'OFFICER')">
-<div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('officerStatus', 'OFFICER')">📸 Use Camera</div>
-</div>
-</div>
-<div class="toggle-container">
-<button class="toggle-btn active" type="button" id="toggleNewDriverBtn" onclick="setDriverMode('new', this)">New Driver</button>
-<button class="toggle-btn" type="button" id="toggleExistingDriverBtn" onclick="setDriverMode('existing', this)">Existing Driver</button>
-</div>
-<form id="entryForm">
-<div class="form-grid-columns">
-<div class="form-group search-input-wrapper" id="driverLookupGroup" style="display: none; grid-column: 1 / -1; position: relative;">
-<label class="badge-style">Search Driver By Name or Plate... *</label>
-<span class="search-icon-inside" style="position:absolute; left:12px; top:62%;">🔍</span>
-<input type="text" id="driverSearchBox" class="input-box-styled input-search-padded" placeholder="Type to search drivers..." autocomplete="off">
-<div id="driverSuggestionsList" class="suggestions-dropdown"></div>
-</div>
-<div class="form-group new-driver-field"><label class="badge-style">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" placeholder="Enter driver full name"></div>
-<div class="form-group new-driver-field"><label class="badge-style">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" placeholder="Enter 10-digit identity card number"></div>
-<div class="form-group new-driver-field"><label class="badge-style">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" placeholder="Enter bumper plate sequence"></div>
-<div class="form-group new-driver-field"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" value="0596584562" placeholder="Enter contact parameter text"></div>
-<div class="form-section-divider">Security & Facility Details</div>
-<div class="form-group"><label class="badge-style">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required placeholder="Enter verification guard identity"></div>
-<div class="form-group"><label class="badge-style">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required placeholder="Enter staff token number"></div>
-<div class="form-group"><label class="badge-style">Dock Number *</label><select id="dockNumber" class="input-box-styled"><option value="Dock 1">Dock 1</option><option value="Dock 2">Dock 2</option><option value="Dock 3">Dock 3</option><option value="Dock 4">Dock 4</option></select></div>
-<div class="form-group"><label class="badge-style">Direction *</label><select id="direction" class="input-box-styled"><option value="Inbound">Inbound</option><option value="Outbound">Outbound</option></select></div>
-<div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style">Dispatching / Receiving *</label><select id="dispatchSelect" class="input-box-styled"><option value="">Select...</option><option value="Dispatching">Dispatching</option><option value="Receiving">Receiving</option></select></div>
-</div>
-<button type="submit" class="submit-btn-global">Check In Truck</button>
-</form>
-</div>
-</div>
-
-<div id="view-active-trucks" class="app-view">
-<div class="view-header-row">
-<div class="view-header-title"><h1>Active Trucks in Facility</h1><p>Currently Checked-In Vehicles</p><div class="counter-badge-orange">⏳ Total Inside: <span id="activeYardCounter">0</span></div></div>
-<div class="header-search-box-container"><span>🔍</span><input type="text" id="yardSearchQuery" class="header-search-input" placeholder="Search records..." oninput="filterTable('activeYardTableBody', this.value)"></div>
-</div>
-<div class="card" style="overflow-x: auto; padding: 0.5rem;">
-<table id="activeYardTable">
-<thead><tr><th>Driver</th><th>Plate</th><th>Direction</th><th>Type</th><th>Seal Number</th><th>Dock</th><th>Check-In Time</th><th>Duration</th><th>Security</th><th style="text-align: right; padding-right: 1.5rem;">Action</th></tr></thead>
-<tbody id="activeYardTableBody"><tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr></tbody>
-</table>
-</div>
-</div>
-
-<div id="view-history" class="app-view">
-<div class="view-header-row">
-<div class="view-header-title"><h1>Movement History</h1><p>Site Movement Activity</p></div><button class="btn-excel" onclick="exportHistoryToExcel()">🗄️ Export to Excel</button>
-</div>
-<div class="card" style="padding: 1.25rem;">
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.75rem;">
-<div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" placeholder="Filter by driver, plate, or security ID..." oninput="filterTable('historyLogTableBody', this.value)"></div>
-<div class="filter-tabs-container">
-<button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)">Today</button>
-<button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)">Last 7 Days</button>
-<button class="tab-filter-item" data-range="custom" onclick="setHistoryDateFilter('custom', this)">Custom</button>
-<button class="tab-filter-item active" data-range="all" onclick="setHistoryDateFilter('all', this)">All Time</button>
-</div>
-</div>
-<div class="custom-date-row" id="customDateRow">
-<input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem;">to</span> <input type="date" id="customDateTo">
-<button onclick="applyCustomDateFilter()">Apply</button>
-</div>
-<div style="overflow-x: auto; margin-top: 1rem;">
-<table id="historyLogTable">
-<thead><tr><th>Driver</th><th>Plate</th><th>Direction</th><th>Dock</th><th>Seal Number</th><th>Check In Truck</th><th>Check Out</th><th>Duration</th><th>Security</th></tr></thead>
-<tbody id="historyLogTableBody"><tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic;">No historical logs parsed inside database.</td></tr></tbody>
-</table>
-</div>
-</div>
-</div>
-
-<div id="view-drivers" class="app-view">
-<div class="view-header-row">
-<div class="view-header-title"><h1>Drivers Registry</h1><p>Centralized database of authorized personnel.</p></div>
-<div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="driverRegistrySearch" class="header-search-input" placeholder="Search records..." oninput="filterRegistryCards()"></div>
-</div>
-<div class="drivers-grid" id="driversRegistryContainer"></div>
-</div>
-
-<div id="view-settings" class="app-view">
-<header><h1>Control Panel Settings</h1></header>
-<div class="card"><h2>Hardware Configurations</h2><p style="color: var(--text-muted); margin-top: 0.5rem;">OCR Engine Mode: Dynamic Client-Side Recognition Engine.</p></div>
-</div>
-</div>
-
-<div class="modal-overlay" id="driverProfileModal">
-<div class="modal-window">
-<div class="modal-header-container"><h2 id="modalTitleName">Driver Details</h2><button class="btn-modal-close" onclick="closeDriverProfileModal()">✕</button></div>
-<div class="modal-body-content">
-<div class="modal-media-viewport"></div>
-<div class="modal-data-blocks-grid">
-<div class="modal-slate-cell"><span>Full Legal Name</span><p id="modalDataName">--</p></div>
-<div class="modal-slate-cell"><span>Iqama/National ID</span><p id="modalDataIqama">--</p></div>
-<div class="modal-slate-cell"><span>Primary Vehicle Plate</span><div class="modal-plate-capsules" id="modalDataPlate"><div class="modal-plate-tag">--</div></div></div>
-<div class="modal-slate-cell"><span>Mobile Number</span><p id="modalDataMobile">0596584562</p></div>
-<div class="modal-slate-cell"><span>Registered Date</span><p id="modalDataDate">--</p></div>
-<div class="modal-slate-cell"><span>ID Token Reference</span><p style="font-family: monospace; font-size: 0.85rem; color: var(--accent-color);">d-k4v21l788</p></div>
-</div>
-</div>
-<div class="modal-footer-container"><button class="btn-modal-cancel" onclick="closeDriverProfileModal()">Cancel</button></div>
-</div>
-</div>
-
-<div class="camera-overlay" id="cameraOverlay">
-<video id="cameraVideo" autoplay playsinline muted></video>
-<canvas id="cameraCanvas" style="display:none;"></canvas>
-<div class="camera-controls">
-<button class="btn-capture" onclick="captureCameraFrame()">📸 Capture</button>
-<button class="btn-cancel-cam" onclick="closeCamera()">Cancel</button>
-</div>
-</div>
-
-<script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyR8_49OV91ebXs0aTiQOs-0l4_wCgHHrXptBBmNgXHzBfHN8cJMSu-CD_Rn_if6kmv6Q/exec";
-const OCR_API_URL = "https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
-let globalLogsCache = [];
-let driversRegistryList = [];
-let globalHistoryListCache = [];
-let currentHistoryDateRange = 'all';
-
-function switchView(viewId, element) {
-document.querySelectorAll('.app-view').forEach(v => v.id === 'view-' + viewId ? v.classList.add('active-view') : v.classList.remove('active-view'));
-document.querySelectorAll('.nav-item').forEach(item => item === element ? item.classList.add('active') : item.classList.remove('active'));
-}
-
-function toggleFullscreen() {
-const fsBtn = document.getElementById('fsBtnLabel');
-if (!document.fullscreenElement) {
-document.documentElement.requestFullscreen().then(() => { fsBtn.innerText = "📉 Exit Fullscreen"; }).catch(() => alert("Fullscreen error."));
-} else {
-document.exitFullscreen().then(() => { fsBtn.innerText = "🖥️ Fullscreen"; });
-}
-}
-
-function openDriverProfileModal(name, iqama, plate, date) {
-document.getElementById('modalDataName').innerText = name;
-document.getElementById('modalDataIqama').innerText = iqama;
-document.getElementById('modalDataDate').innerText = date;
-let plateBox = document.getElementById('modalDataPlate'); plateBox.innerHTML = '';
-let segments = plate ? plate.split(' ') : ['--'];
-segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
-document.getElementById('driverProfileModal').classList.add('modal-active');
-}
-
-function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
-
-function setDriverMode(mode, element) {
-element.parentNode.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active')); element.classList.add('active');
-document.getElementById('driverLookupGroup').style.display = mode === "existing" ? "block" : "none";
-document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = mode === "existing" ? "none" : "block"; f.querySelector('input').required = mode !== "existing"; });
-}
-
-/* ---------------- Existing-driver autocomplete (Issue 5) ---------------- */
-const driverSearchBoxEl = document.getElementById('driverSearchBox');
-const suggestionsListEl = document.getElementById('driverSuggestionsList');
-
-driverSearchBoxEl.addEventListener('input', function(e) {
-let value = e.target.value.toUpperCase().trim();
-suggestionsListEl.innerHTML = '';
-if (value.length < 1 || driversRegistryList.length === 0) { suggestionsListEl.classList.remove('open'); return; }
-
-let matches = driversRegistryList.filter(d => d.name.toUpperCase().includes(value) || (d.plate || '').toUpperCase().includes(value)).slice(0, 8);
-if (matches.length === 0) { suggestionsListEl.classList.remove('open'); return; }
-
-matches.forEach(d => {
-const item = document.createElement('div');
-item.className = 'suggestion-item';
-item.innerHTML = `${d.name}<small>Plate: ${d.plate || '--'} · Iqama: ${d.id || '--'}</small>`;
-item.addEventListener('click', () => {
-driverSearchBoxEl.value = d.name;
-document.getElementById('driverName').value = d.name;
-document.getElementById('plateNumber').value = d.plate || '';
-document.getElementById('iqamaNumber').value = d.id || '';
-suggestionsListEl.classList.remove('open');
-});
-suggestionsListEl.appendChild(item);
-});
-suggestionsListEl.classList.add('open');
-});
-
-document.addEventListener('click', function(e) {
-if (!e.target.closest('.search-input-wrapper')) suggestionsListEl.classList.remove('open');
-});
-
-function convertArabicNumeralsToDigits(str) {
-const map = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' };
-return str.replace(/[٠-٩]/g, match => map[match]);
-}
-
-/* ---------------- Image preprocessing (Issues 2 & 3) ---------------- */
-function isLikelyHeic(file) {
-const type = (file.type || '').toLowerCase();
-const name = (file.name || '').toLowerCase();
-return type.includes('heic') || type.includes('heif') || name.endsWith('.heic') || name.endsWith('.heif');
-}
-
-// Loads a File into an <img>. Tries a blob: URL first (fastest); if the browser
-// can't decode it (wrong/unsupported format, some mobile browser quirks), falls
-// back to a data: URL via FileReader, which is more broadly supported.
-function loadImageRobust(file) {
-return new Promise((resolve, reject) => {
-if (isLikelyHeic(file)) {
-reject(new Error('HEIC_UNSUPPORTED'));
-return;
-}
-const img = new Image();
-let triedFallback = false;
-
-function fallbackToDataUrl() {
-if (triedFallback) { reject(new Error('image failed to load — try a JPG or PNG instead')); return; }
-triedFallback = true;
-const reader = new FileReader();
-reader.onload = () => {
-img.onerror = () => reject(new Error('image failed to load — try a JPG or PNG instead'));
-img.onload = () => resolve(img);
-img.src = reader.result;
-};
-reader.onerror = () => reject(new Error('could not read the selected file'));
-reader.readAsDataURL(file);
-}
-
-img.onload = () => resolve(img);
-img.onerror = fallbackToDataUrl;
-try {
-img.src = URL.createObjectURL(file);
-} catch (e) {
-fallbackToDataUrl();
-}
-});
-}
-
-// scanType PLATE gets a bottom-center crop first, since on a "front of truck/car"
-// photo the plate is reliably in that region — this cuts out background signage
-// and badge noise that was confusing the regex matching, and also means we only
-// need to upscale a small, already-zoomed region instead of the whole photo.
-async function preprocessImageForOcr(file, scanType) {
-const img = await loadImageRobust(file);
-
-let sx = 0, sy = 0, sw = img.width, sh = img.height;
-
-if (scanType === 'PLATE') {
-sw = img.width * 0.7;
-sh = img.height * 0.42;
-sx = (img.width - sw) / 2;
-sy = img.height * 0.52;
-}
-
-const targetWidth = scanType === 'PLATE' ? 1100 : 1400;
-const scale = sw < targetWidth ? targetWidth / sw : 1;
-const canvas = document.createElement('canvas');
-canvas.width = Math.round(sw * scale);
-canvas.height = Math.round(sh * scale);
-const ctx = canvas.getContext('2d');
-ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-
-const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-const d = imageData.data;
-const contrast = 50;
-const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
-for (let i = 0; i < d.length; i += 4) {
-let gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-gray = factor * (gray - 128) + 128;
-gray = Math.min(255, Math.max(0, gray));
-d[i] = d[i + 1] = d[i + 2] = gray;
-}
-ctx.putImageData(imageData, 0, 0);
-
-return new Promise((resolve, reject) => {
-// JPEG instead of PNG: much smaller payload -> faster upload + faster
-// Drive-side processing, with no real accuracy loss for OCR text.
-canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('canvas toBlob failed')), 'image/jpeg', 0.85);
-});
-}
-
-function blobToBase64(blob) {
-return new Promise((resolve, reject) => {
-const reader = new FileReader();
-reader.onloadend = () => resolve(reader.result.split(',')[1]);
-reader.onerror = () => reject(new Error('failed to read blob'));
-reader.readAsDataURL(blob);
-});
-}
-
-/* ---------------- Camera capture (Issue 3 suggestion) ---------------- */
-let cameraStream = null;
-let cameraTargetStatusId = null;
-let cameraTargetScanType = null;
-
-async function openCamera(statusLabelId, scanType) {
-cameraTargetStatusId = statusLabelId;
-cameraTargetScanType = scanType;
-const overlay = document.getElementById('cameraOverlay');
-const video = document.getElementById('cameraVideo');
-overlay.classList.add('open');
-try {
-cameraStream = await navigator.mediaDevices.getUserMedia({
-video: { facingMode: 'environment', width: { ideal: 960 }, height: { ideal: 720 } }
-});
-video.srcObject = cameraStream;
-} catch (err) {
-alert('Could not access camera: ' + err.message);
-closeCamera();
-}
-}
-
-function closeCamera() {
-const overlay = document.getElementById('cameraOverlay');
-overlay.classList.remove('open');
-if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
-}
-
-function captureCameraFrame() {
-const video = document.getElementById('cameraVideo');
-const canvas = document.getElementById('cameraCanvas');
-canvas.width = video.videoWidth;
-canvas.height = video.videoHeight;
-canvas.getContext('2d').drawImage(video, 0, 0);
-canvas.toBlob(blob => {
-const file = new File([blob], 'camera_capture.jpg', { type: 'image/jpeg' });
-closeCamera();
-runLocalOcrEngine(file, cameraTargetStatusId, cameraTargetScanType);
-}, 'image/jpeg', 0.85);
-}
-
-function handleFileSelected(inputEl, statusLabelId, scanType) {
-const file = inputEl.files[0];
-if (!file) return;
-runLocalOcrEngine(file, statusLabelId, scanType);
-}
-
-/* ---------------- OCR engine (real Drive OCR backend, no hardcoding) ---------------- */
-async function runLocalOcrEngine(file, statusLabelId, scanType) {
-const status = document.getElementById(statusLabelId);
-status.innerHTML = "🌀 Preparing image...";
-status.style.color = "var(--accent-color)";
-
-try {
-const processedBlob = await preprocessImageForOcr(file, scanType);
-const base64Data = await blobToBase64(processedBlob);
-
-status.innerHTML = "🌀 Reading with Google OCR...";
-
-const response = await fetch(OCR_API_URL, {
-method: 'POST',
-headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-body: JSON.stringify({ scanType: scanType, imageObj: base64Data })
-});
-
-if (!response.ok) throw new Error('Network error: ' + response.status);
-const result = await response.json();
-if (!result.success) throw new Error(result.error || 'OCR backend returned an error');
-
-let cleanText = convertArabicNumeralsToDigits(result.text || "").toUpperCase();
-console.log(`[OCR RAW TEXT - ${scanType}]:`, cleanText);
-
-let matched = false;
-
-if (scanType === "IQAMA") {
-let idMatch = cleanText.match(/\b[12]\d{9}\b/);
-if (idMatch) { document.getElementById('iqamaNumber').value = idMatch[0]; matched = true; }
-
-let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
-let nameMatch = lines.find(line =>
-/^[A-Z][A-Z\s.']{7,45}$/.test(line) &&
-!/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line)
-);
-if (nameMatch) { document.getElementById('driverName').value = nameMatch; matched = true; }
-}
-else if (scanType === "PLATE") {
-let digitsMatch = cleanText.match(/\b\d{3,4}\b/);
-let lettersMatch = cleanText.match(/\b[A-Z]{3}\b/);
-if (digitsMatch && lettersMatch) {
-document.getElementById('plateNumber').value = `${digitsMatch[0]} ${lettersMatch[0]}`;
-matched = true;
-}
-}
-else if (scanType === "OFFICER") {
-let badgeMatch = cleanText.match(/LP\d+/i) || cleanText.match(/[A-Z]{2}\d{4}\b/i);
-if (badgeMatch) {
-document.getElementById('securityNameId').value = badgeMatch[0];
-matched = true;
-}
-
-let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
-let nameMatch = lines.find(line =>
-/^[A-Z][A-Z\s.']{2,25}$/i.test(line) &&
-!/LP|ASSOCIATE|EVERY|DOORBELL|DAY|AL\s+ABEER|SAUDI|SECURITY|GATEWAY/i.test(line)
-);
-
-if (nameMatch) {
-document.getElementById('securityNameField').value = nameMatch;
-matched = true;
-} else if (badgeMatch) {
-document.getElementById('securityNameField').value = "Officer #" + badgeMatch[0];
-}
-}
-
-if (matched) {
-status.innerHTML = "✅ Extracted — please double-check the fields";
-status.style.color = "var(--success-color)";
-} else {
-status.innerHTML = "⚠️ Couldn't confidently read this image — enter details manually";
-status.style.color = "#ef4444";
-}
-
-} catch (err) {
-console.error("OCR engine error:", err);
-if (err.message === 'HEIC_UNSUPPORTED') {
-status.innerHTML = "⚠️ iPhone HEIC photos aren't supported by browsers — switch iPhone Camera format to 'Most Compatible' (Settings → Camera → Formats), or use 📸 Use Camera above";
-} else {
-status.innerHTML = "❌ OCR failed — enter details manually";
-}
-status.style.color = "#ef4444";
-}
-}
-
-async function executeRowSignout(driverName, plateNumber, securityName, dockNumber) {
-if(!confirm("Proceed with terminal sign-out logging for vehicle: " + plateNumber + "?")) return;
-try {
-const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ driverName, plateNumber, securityName, dockNumber, direction: "Outbound" }) });
-if (!response.ok) throw new Error('Server returned ' + response.status);
-alert("Sign-out logged smoothly!"); fetchLogs();
-} catch(e) { alert("Error connecting to database: " + e.message); }
-}
-
-function fmtDate(s) {
-if(!s) return "May 10, 2026"; let d = new Date(s); if(isNaN(d.getTime())) return s;
-return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-}
-
-function formatTimeText(s) {
-if(!s) return "--"; let d = new Date(s); if(isNaN(d.getTime())) return s;
-return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${d.getDate()}, ${d.getHours()%12||12}:${String(d.getMinutes()).padStart(2,'0')} ${d.getHours()>=12?'PM':'AM'}`;
-}
-
-function calcDuration(t1, t2) {
-if(!t1) return "--"; let diff = (t2 ? new Date(t2) : new Date()) - new Date(t1);
-if(diff < 0 || isNaN(diff)) return "0h 0m";
-let mins = Math.floor(diff / 60000); return `${Math.floor(mins/60)}h ${mins%60}m`;
-}
-
-function generatePlateBumperUI(plateStr) {
-let parts = plateStr ? plateStr.split(' ') : ['--'];
-if(parts.length >= 2) { return `<div class="plate-box-split"><div class="plate-segment">${parts[0]}</div><div class="plate-segment">${parts[1]}</div></div>`; }
-return `<div class="plate-box-split"><div class="plate-segment">${plateStr}</div></div>`;
-}
-
-function compileDriversRegistryCards(data) {
-const container = document.getElementById('driversRegistryContainer'); container.innerHTML = '';
-let uniqueDriversMap = {};
-data.forEach(item => {
-if(!item.driverName || item.driverName.trim() === "") return;
-if(!uniqueDriversMap[item.driverName]) {
-uniqueDriversMap[item.driverName] = { name: item.driverName, plate: item.plateNumber || "--", registered: item.timestamp, id: item.iqamaNumber || "--" };
-}
-});
-
-let list = Object.values(uniqueDriversMap);
-driversRegistryList = list; // used by the existing-driver autocomplete
-document.getElementById('metric-drivers-count').innerText = list.length;
-if(list.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem;">No personnel maps cataloged.</div>'; return; }
-
-list.forEach(driver => {
-let dateFormatted = fmtDate(driver.registered);
-container.innerHTML += `
-<div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${driver.plate.toLowerCase()}">
-<div class="card-management-actions"><button class="btn-icon-manage">✏️</button></div>
-<div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">Verified</span><span class="tag-badge carrier">SLP</span></div></div></div>
-<div class="driver-card-info-grid"><div class="info-block"><p>🆔 IQAMA ID</p><data>${driver.id}</data></div><div class="info-block"><p>📅 Registered</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 Phone Number</p><data>0596584562</data></div></div>
-<button class="btn-card-action" onclick="openDriverProfileModal('${driver.name}', '${driver.id}', '${driver.plate}', '${dateFormatted}')">View Records</button>
-</div>`;
-});
-}
-
-function filterRegistryCards() {
-let query = document.getElementById('driverRegistrySearch').value.toLowerCase();
-document.querySelectorAll('.driver-registry-card').forEach(card => { card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none'; });
-}
-
-/* ---------------- History rendering + date filters (Issue 6) ---------------- */
-function renderHistoryTable(list) {
-const historyBody = document.getElementById('historyLogTableBody');
-historyBody.innerHTML = '';
-if (list.length === 0) {
-historyBody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic;">No records match this range.</td></tr>';
-return;
-}
-list.forEach(r => {
-historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.7rem; color:var(--text-muted);">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="badge ${r.isInside?'in':'out'}">${r.isInside?'INBOUND':'OUTBOUND'}</span></td><td><strong>${r.dockNumber.replace('Dock ','')}</strong></td><td style="color:var(--text-muted);">--</td><td style="font-size:0.85rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.85rem; color:var(--text-muted);">${r.isInside?'<span style="color:var(--accent-color);">Inside</span>':formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.8rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td></tr>`;
-});
-}
-
-function filterHistoryListByRange(range, fromStr, toStr) {
-const now = new Date();
-return globalHistoryListCache.filter(r => {
-const refDate = new Date(r.checkInTime || r.timestamp);
-if (isNaN(refDate.getTime())) return range === 'all';
-if (range === 'today') {
-return refDate.toDateString() === now.toDateString();
-}
-if (range === '7days') {
-const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate() - 7);
-return refDate >= sevenDaysAgo && refDate <= now;
-}
-if (range === 'custom') {
-if (!fromStr || !toStr) return true;
-const from = new Date(fromStr); const to = new Date(toStr); to.setHours(23,59,59,999);
-return refDate >= from && refDate <= to;
-}
-return true; // 'all'
-});
-}
-
-function setHistoryDateFilter(range, btnEl) {
-currentHistoryDateRange = range;
-document.querySelectorAll('.filter-tabs-container .tab-filter-item').forEach(b => b.classList.remove('active'));
-btnEl.classList.add('active');
-const customRow = document.getElementById('customDateRow');
-if (range === 'custom') {
-customRow.classList.add('open');
-return; // wait for Apply button
-}
-customRow.classList.remove('open');
-renderHistoryTable(filterHistoryListByRange(range));
-}
-
-function applyCustomDateFilter() {
-const from = document.getElementById('customDateFrom').value;
-const to = document.getElementById('customDateTo').value;
-if (!from || !to) { alert('Pick both a start and end date.'); return; }
-renderHistoryTable(filterHistoryListByRange('custom', from, to));
-}
-
-/* ---------------- Export to Excel (Issue 6) ---------------- */
-function exportHistoryToExcel() {
-const rows = filterHistoryListByRange(currentHistoryDateRange, document.getElementById('customDateFrom').value, document.getElementById('customDateTo').value);
-if (rows.length === 0) { alert('No rows to export for the current filter.'); return; }
-
-const headers = ['Driver', 'Iqama Number', 'Plate', 'Direction', 'Dock', 'Check In', 'Check Out', 'Duration', 'Security'];
-const csvLines = [headers.join(',')];
-
-rows.forEach(r => {
-const line = [
-r.driverName || '',
-r.iqamaNumber || '',
-r.plateNumber || '',
-r.isInside ? 'Inbound' : 'Outbound',
-r.dockNumber || '',
-formatTimeText(r.checkInTime),
-r.isInside ? 'Inside' : formatTimeText(r.timestamp),
-calcDuration(r.checkInTime, r.isInside ? null : r.timestamp),
-r.securityName || ''
-].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
-csvLines.push(line);
-});
-
-const csvContent = csvLines.join('\n');
-const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = `movement-history-${currentHistoryDateRange}-${new Date().toISOString().slice(0,10)}.csv`;
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-URL.revokeObjectURL(url);
-}
-
-window.handleLogsResponse = function(data) {
-let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; globalLogsCache = chronData;
-const liveBody = document.getElementById('liveFeedBody'), activeBody = document.getElementById('activeYardTableBody');
-liveBody.innerHTML = ''; activeBody.innerHTML = '';
-
-compileDriversRegistryCards(chronData);
-if(chronData.length === 0) { renderHistoryTable([]); return; }
-document.getElementById('metric-total-checkins').innerText = chronData.length;
-
-let activeYardMap = {}, historicalPairs = [];
-chronData.forEach(row => {
-if(row.direction === "Inbound") activeYardMap[row.plateNumber] = row;
-else if(row.direction === "Outbound") {
-let match = activeYardMap[row.plateNumber];
-historicalPairs.push({ ...row, checkInTime: match ? match.timestamp : "", iqamaNumber: match ? match.iqamaNumber : row.iqamaNumber });
-if(match) delete activeYardMap[row.plateNumber];
-}
-});
-
-let activeList = Object.values(activeYardMap);
-document.getElementById('metric-active-now').innerText = document.getElementById('activeYardCounter').innerText = activeList.length;
-document.getElementById('metric-completed-today').innerText = historicalPairs.length;
-
-[...chronData].reverse().slice(0, 5).forEach(r => {
-liveBody.innerHTML += `<tr><td><strong>${r.driverName}</strong></td><td>${r.plateNumber}</td><td>${r.dockNumber}</td><td><span class="badge ${r.direction.toLowerCase()}">${r.direction}</span></td></tr>`;
-});
-
-if(activeList.length === 0) activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
-else activeList.reverse().forEach(r => {
-activeBody.innerHTML += `<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="badge in">INBOUND</span></td><td style="color:var(--accent-color); font-weight:600; font-size:0.8rem;">DISPATCHING</td><td style="color:var(--text-muted);">--</td><td><strong>${r.dockNumber.replace('Dock ','')}</strong></td><td style="font-size:0.85rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.timestamp, null)}</td><td style="font-size:0.8rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td><td style="text-align:right; padding-right:1rem;"><button class="btn-signout-action" onclick="executeRowSignout('${r.driverName}','${r.plateNumber}','${r.securityName || 'Guard'}','${r.dockNumber}')">SIGN OUT</button></td></tr>`;
-});
-
-globalHistoryListCache = [...historicalPairs, ...activeList.map(i => ({ ...i, checkInTime: i.timestamp, isInside: true }))].sort((a,b) => new Date(b.checkInTime) - new Date(a.checkInTime));
-renderHistoryTable(filterHistoryListByRange(currentHistoryDateRange, document.getElementById('customDateFrom').value, document.getElementById('customDateTo').value));
-};
-
-function filterTable(bodyId, query) {
-document.querySelectorAll('#' + bodyId + ' tr').forEach(row => { if(row.cells.length >= 2) row.style.display = row.innerText.toLowerCase().includes(query.toLowerCase()) ? '' : 'none'; });
-}
-
-function fetchLogs() {
-const old = document.getElementById('jsonp-fetcher'); if(old) old.remove();
-const s = document.createElement('script'); s.id = 'jsonp-fetcher'; s.src = API_URL + "?callback=handleLogsResponse&prefix=handleLogsResponse&_" + new Date().getTime(); document.body.appendChild(s);
-}
-
-document.getElementById('entryForm').addEventListener('submit', async e => {
-e.preventDefault(); const btn = document.querySelector('.submit-btn-global'); btn.innerText = "Processing Check In..."; btn.disabled = true;
-try {
-const payload = { driverName: document.getElementById('driverName').value, iqamaNumber: document.getElementById('iqamaNumber').value, plateNumber: document.getElementById('plateNumber').value, securityName: document.getElementById('securityNameField').value, dockNumber: document.getElementById('dockNumber').value, direction: document.getElementById('direction').value };
-const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
-if (!response.ok) throw new Error('Server returned status ' + response.status);
-document.getElementById('entryForm').reset(); btn.innerText = "Check In Truck"; btn.disabled = false;
-document.getElementById('driverPhotoStatus').innerText = "Driver Photo / Truck Photo"; document.getElementById('driverPhotoStatus').style.color = document.getElementById('iqamaStatus').style.color = document.getElementById('officerStatus').style.color = "var(--text-muted)";
-document.getElementById('iqamaStatus').innerText = "Iqama (ID Card) Scanner"; document.getElementById('officerStatus').innerText = "Security ID Scanner";
-switchView('dashboard', document.querySelectorAll('.nav-item')[0]); setTimeout(fetchLogs, 1500);
-} catch (err) {
-alert("Error saving log: " + err.message + "\n\nCheck that your logging Apps Script is deployed with 'Anyone' access and is accepting this request.");
-btn.innerText = "Check In Truck"; btn.disabled = false;
-}
-});
-
-setInterval(fetchLogs, 15000); fetchLogs();
-</script>
+    <div class="sidebar">
+        <div class="brand-section"><img class="brand-logo" src="logo.png" alt="Logo"><div class="brand-text"><h2>Gateway <span>SLP</span></h2><p>Security Hub</p></div></div>
+        <ul class="nav-links">
+            <li class="nav-item active" onclick="switchView('dashboard', this)"><span>📊 Dashboard</span></li>
+            <li class="nav-item" onclick="switchView('checkin', this)"><span>🚛 Check-in Truck</span></li>
+            <li class="nav-item" onclick="switchView('active-trucks', this)"><span>⏱️ Active Trucks</span></li>
+            <li class="nav-item" onclick="switchView('history', this)"><span>📜 History Log</span></li>
+            <li class="nav-item" onclick="switchView('drivers', this)"><span>🪪 Drivers Database</span></li>
+            <li class="nav-item" onclick="switchView('settings', this)"><span>⚙️ Settings</span></li>
+        </ul>
+        <div class="sidebar-footer">
+            <div class="system-health"><div><span>System Health</span><div style="font-weight:bold; color:var(--success-color); margin-top:2px;">Operational</div></div><div class="health-dot"></div></div>
+            <div class="nav-item" onclick="toggleFullscreen()"><span id="fsBtnLabel">🖥️ Fullscreen</span></div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="view-dashboard" class="app-view active-view">
+            <div class="metrics-bar-four">
+                <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="metric-active-now">0</div><div class="label">Active Now</div><div class="metric-accent-line"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">✅</div><div class="num" id="metric-completed-today">0</div><div class="label">Completed Today</div><div class="metric-accent-line" style="background-color: var(--success-color);"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label">Total Check-Ins</div><div class="metric-accent-line" style="background-color: #3b82f6;"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label">Drivers Database</div><div class="metric-accent-line"></div></div>
+            </div>
+            <div class="dashboard-mid-split">
+                <div class="card" style="overflow-x: auto;"><div class="card-header-flex"><h2>Live Now</h2><button class="btn-mini" onclick="switchView('history', document.querySelectorAll('.nav-item')[3])">History Log</button></div>
+                    <table><thead><tr><th>Driver</th><th>Plate Number</th><th>Dock Assignment</th><th>Direction Status</th></tr></thead><tbody id="liveFeedBody"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading security records...</td></tr></tbody></table>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;"><div class="card-header-flex"><h2>Pending Access Requests</h2></div>
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem;"><span style="font-size: 2rem;">🔒</span><div style="font-weight: 600; text-transform: uppercase; font-size: 0.85rem; color: #fff;">All Clear</div><p style="font-size: 0.75rem; max-width: 180px;">No pending vehicle overrides detected.</p></div>
+                    <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem;">🛡️ Secure Protocol v2.4 Active</div>
+                </div>
+            </div>
+            <div class="dashboard-bottom-split">
+                <div class="card"><div class="card-header-flex"><h2>Recent Login Activity</h2></div>
+                    <table><thead><tr><th>User ID</th><th>Email Routing</th><th>Location Branch</th><th>Timestamp</th></tr></thead><tbody><tr><td><strong>Farman Shahid Butt</strong></td><td style="color: var(--text-muted);">fsbutt@noon.com</td><td>🇸🇦 Saudi Arabia</td><td style="font-size: 0.85rem;">1:36:59 PM<br><span style="color:var(--text-muted)">7/6/2026</span></td></tr><tr><td><strong>Farman Shahid Butt</strong></td><td style="color: var(--text-muted);">fsbutt@noon.com</td><td>🇸🇦 Saudi Arabia</td><td style="font-size: 0.85rem;">9:15:22 AM<br><span style="color:var(--text-muted)">7/6/2026</span></td></tr></tbody></table>
+                </div>
+                <div class="card"><div class="card-header-flex"><h2>Users Active</h2></div><div class="user-activity-row"><div class="user-avatar">FB</div><div class="user-details"><h4>Farman Shahid Butt</h4><p>fsbutt@noon.com</p></div></div><div style="margin-top: 1.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 8px; font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem;"><span>⏱️</span><div><span style="color: var(--text-muted)">System Uptime:</span> <strong>98.5%</strong></div></div></div>
+            </div>
+        </div>
+
+        <div id="view-checkin" class="app-view">
+            <header><h1>Truck Entry Form</h1></header>
+            <div class="card" style="max-width: 850px; margin: 0 auto;">
+                <div class="scanners-triple-row">
+                    <div class="scan-box-dashed" onclick="document.getElementById('driverPhotoInput').click()">
+                        <div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus">Driver Photo / Truck Photo</span></div>
+                        <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatus', 'PLATE')">
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 Use Camera</div>
+                    </div>
+                    <div class="scan-box-dashed" onclick="document.getElementById('iqamaScanner').click()">
+                        <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus">Iqama (ID Card) Scanner</span></div>
+                        <input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')">
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 Use Camera</div>
+                    </div>
+                    <div class="scan-box-dashed" onclick="document.getElementById('officerScanner').click()">
+                        <div><span class="icon">🛡️</span><span class="label-text" id="officerStatus">Security ID Scanner</span></div>
+                        <input type="file" id="officerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'officerStatus', 'OFFICER')">
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('officerStatus', 'OFFICER')">📸 Use Camera</div>
+                    </div>
+                </div>
+                <div class="toggle-container">
+                    <button class="toggle-btn active" type="button" id="toggleNewDriverBtn" onclick="setDriverMode('new', this)">New Driver</button>
+                    <button class="toggle-btn" type="button" id="toggleExistingDriverBtn" onclick="setDriverMode('existing', this)">Existing Driver</button>
+                </div>
+                <form id="entryForm">
+                    <div class="form-grid-columns">
+                        <div class="form-group search-input-wrapper" id="driverLookupGroup" style="display: none; grid-column: 1 / -1; position: relative;">
+                            <label class="badge-style">Search Driver By Name or Plate... *</label>
+                            <span class="search-icon-inside" style="position:absolute; left:12px; top:62%;">🔍</span>
+                            <input type="text" id="driverSearchBox" class="input-box-styled input-search-padded" placeholder="Type to search drivers..." autocomplete="off">
+                            <div id="driverSuggestionsList" class="suggestions-dropdown"></div>
+                        </div>
+                        <div class="form-group new-driver-field"><label class="badge-style">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" placeholder="Enter driver full name"></div>
+                        <div class="form-group new-driver-field"><label class="badge-style">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" placeholder="Enter 10-digit identity card number"></div>
+                        <div class="form-group new-driver-field"><label class="badge-style">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" placeholder="Enter bumper plate sequence"></div>
+                        <div class="form-group new-driver-field"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" value="0596584562" placeholder="Enter contact parameter text"></div>
+                        <div class="form-section-divider">Security & Facility Details</div>
+                        <div class="form-group"><label class="badge-style">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required placeholder="Enter verification guard identity"></div>
+                        <div class="form-group"><label class="badge-style">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required placeholder="Enter staff token number"></div>
+                        <div class="form-group"><label class="badge-style">Dock Number *</label><select id="dockNumber" class="input-box-styled"><option value="Dock 1">Dock 1</option><option value="Dock 2">Dock 2</option><option value="Dock 3">Dock 3</option><option value="Dock 4">Dock 4</option></select></div>
+                        <div class="form-group"><label class="badge-style">Direction *</label><select id="direction" class="input-box-styled"><option value="Inbound">Inbound</option><option value="Outbound">Outbound</option></select></div>
+                        <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style">Dispatching / Receiving *</label><select id="dispatchSelect" class="input-box-styled"><option value="">Select...</option><option value="Dispatching">Dispatching</option><option value="Receiving">Receiving</option></select></div>
+                    </div>
+                    <button type="submit" class="submit-btn-global">Check In Truck</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="view-active-trucks" class="app-view">
+            <div class="view-header-row">
+                <div class="view-header-title"><h1>Active Trucks in Facility</h1><p>Currently Checked-In Vehicles</p><div class="counter-badge-orange">⏳ Total Inside: <span id="activeYardCounter">0</span></div></div>
+                <div class="header-search-box-container"><span>🔍</span><input type="text" id="yardSearchQuery" class="header-search-input" placeholder="Search records..." oninput="filterTable('activeYardTableBody', this.value)"></div>
+            </div>
+            <div class="card" style="overflow-x: auto; padding: 0.5rem;">
+                <table id="activeYardTable">
+                    <thead><tr><th>Driver</th><th>Plate</th><th>Direction</th><th>Type</th><th>Seal Number</th><th>Dock</th><th>Check-In Time</th><th>Duration</th><th>Security</th><th style="text-align: right; padding-right: 1.5rem;">Action</th></tr></thead>
+                    <tbody id="activeYardTableBody"><tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="view-history" class="app-view">
+            <div class="view-header-row">
+                <div class="view-header-title"><h1>Movement History</h1><p>Site Movement Activity</p></div><button class="btn-excel" onclick="exportHistoryToExcel()">🗄️ Export to Excel</button>
+            </div>
+            <div class="card" style="padding: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.75rem;">
+                    <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" placeholder="Filter by driver, plate, or security ID..." oninput="filterTable('historyLogTableBody', this.value)"></div>
+                    <div class="filter-tabs-container">
+                        <button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)">Today</button>
+                        <button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)">Last 7 Days</button>
+                        <button class="tab-filter-item" data-range="custom" onclick="setHistoryDateFilter('custom', this)">Custom</button>
+                        <button class="tab-filter-item active" data-range="all" onclick="setHistoryDateFilter('all', this)">All Time</button>
+                    </div>
+                </div>
+                <div class="custom-date-row" id="customDateRow">
+                    <input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem;">to</span> <input type="date" id="customDateTo">
+                    <button onclick="applyCustomDateFilter()">Apply</button>
+                </div>
+                <div style="overflow-x: auto; margin-top: 1rem;">
+                    <table id="historyLogTable">
+                        <thead><tr><th>Driver</th><th>Plate</th><th>Direction</th><th>Dock</th><th>Seal Number</th><th>Check In Truck</th><th>Check Out</th><th>Duration</th><th>Security</th></tr></thead>
+                        <tbody id="historyLogTableBody"><tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic;">No historical logs parsed inside database.</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-drivers" class="app-view">
+            <div class="view-header-row">
+                <div class="view-header-title"><h1>Drivers Registry</h1><p>Centralized database of authorized personnel.</p></div>
+                <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="driverRegistrySearch" class="header-search-input" placeholder="Search records..." oninput="filterRegistryCards()"></div>
+            </div>
+            <div class="drivers-grid" id="driversRegistryContainer"></div>
+        </div>
+
+        <div id="view-settings" class="app-view">
+            <header><h1>Control Panel Settings</h1></header>
+            <div class="card"><h2>Hardware Configurations</h2><p style="color: var(--text-muted); margin-top: 0.5rem;">OCR Engine Mode: Dynamic Client-Side Recognition Engine.</p></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="driverProfileModal">
+        <div class="modal-window">
+            <div class="modal-header-container"><h2 id="modalTitleName">Driver Details</h2><button class="btn-modal-close" onclick="closeDriverProfileModal()">✕</button></div>
+            <div class="modal-body-content">
+                <div class="modal-media-viewport"></div>
+                <div class="modal-data-blocks-grid">
+                    <div class="modal-slate-cell"><span>Full Legal Name</span><p id="modalDataName">--</p></div>
+                    <div class="modal-slate-cell"><span>Iqama/National ID</span><p id="modalDataIqama">--</p></div>
+                    <div class="modal-slate-cell"><span>Primary Vehicle Plate</span><div class="modal-plate-capsules" id="modalDataPlate"><div class="modal-plate-tag">--</div></div></div>
+                    <div class="modal-slate-cell"><span>Mobile Number</span><p id="modalDataMobile">0596584562</p></div>
+                    <div class="modal-slate-cell"><span>Registered Date</span><p id="modalDataDate">--</p></div>
+                    <div class="modal-slate-cell"><span>ID Token Reference</span><p style="font-family: monospace; font-size: 0.85rem; color: var(--accent-color);">d-k4v21l788</p></div>
+                </div>
+            </div>
+            <div class="modal-footer-container"><button class="btn-modal-cancel" onclick="closeDriverProfileModal()">Cancel</button></div>
+        </div>
+    </div>
+
+    <div class="camera-overlay" id="cameraOverlay">
+        <video id="cameraVideo" autoplay playsinline muted></video>
+        <canvas id="cameraCanvas" style="display:none;"></canvas>
+        <div class="camera-controls">
+            <button class="btn-capture" onclick="captureCameraFrame()">📸 Capture</button>
+            <button class="btn-cancel-cam" onclick="closeCamera()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbyR8_49OV91ebXs0aTiQOs-0l4_wCgHHrXptBBmNgXHzBfHN8cJMSu-CD_Rn_if6kmv6Q/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxJe0TiXyU47-DCQfi44OztKNHaxmsM8n31wzg53fUw6BBnYkgcVmVhEIE5ViKvGQiWDg/exec";
+        const OCR_API_URL = "https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
+        let globalLogsCache = [];
+        let driversRegistryList = [];
+        let globalHistoryListCache = [];
+        let currentHistoryDateRange = 'all';
+
+        function switchView(viewId, element) {
+            document.querySelectorAll('.app-view').forEach(v => v.id === 'view-' + viewId ? v.classList.add('active-view') : v.classList.remove('active-view'));
+            document.querySelectorAll('.nav-item').forEach(item => item === element ? item.classList.add('active') : item.classList.remove('active'));
+        }
+
+        function toggleFullscreen() {
+            const fsBtn = document.getElementById('fsBtnLabel');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => { fsBtn.innerText = "📉 Exit Fullscreen"; }).catch(() => alert("Fullscreen error."));
+            } else {
+                document.exitFullscreen().then(() => { fsBtn.innerText = "🖥️ Fullscreen"; });
+            }
+        }
+
+        function openDriverProfileModal(name, iqama, plate, date) {
+            document.getElementById('modalDataName').innerText = name;
+            document.getElementById('modalDataIqama').innerText = iqama;
+            document.getElementById('modalDataDate').innerText = date;
+            let plateBox = document.getElementById('modalDataPlate'); plateBox.innerHTML = '';
+            let segments = plate ? plate.split(' ') : ['--'];
+            segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
+            document.getElementById('driverProfileModal').classList.add('modal-active');
+        }
+
+        function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
+
+        function setDriverMode(mode, element) {
+            element.parentNode.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active')); element.classList.add('active');
+            document.getElementById('driverLookupGroup').style.display = mode === "existing" ? "block" : "none";
+            document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = mode === "existing" ? "none" : "block"; f.querySelector('input').required = mode !== "existing"; });
+        }
+
+        /* ---------------- Existing-driver autocomplete (Issue 5) ---------------- */
+        const driverSearchBoxEl = document.getElementById('driverSearchBox');
+        const suggestionsListEl = document.getElementById('driverSuggestionsList');
+
+        driverSearchBoxEl.addEventListener('input', function(e) {
+            let value = e.target.value.toUpperCase().trim();
+            suggestionsListEl.innerHTML = '';
+            if (value.length < 1 || driversRegistryList.length === 0) { suggestionsListEl.classList.remove('open'); return; }
+
+            let matches = driversRegistryList.filter(d => d.name.toUpperCase().includes(value) || (d.plate || '').toUpperCase().includes(value)).slice(0, 8);
+            if (matches.length === 0) { suggestionsListEl.classList.remove('open'); return; }
+
+            matches.forEach(d => {
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.innerHTML = `${d.name}<small>Plate: ${d.plate || '--'} · Iqama: ${d.id || '--'}</small>`;
+                item.addEventListener('click', () => {
+                    driverSearchBoxEl.value = d.name;
+                    document.getElementById('driverName').value = d.name;
+                    document.getElementById('plateNumber').value = d.plate || '';
+                    document.getElementById('iqamaNumber').value = d.id || '';
+                    suggestionsListEl.classList.remove('open');
+                });
+                suggestionsListEl.appendChild(item);
+            });
+            suggestionsListEl.classList.add('open');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-input-wrapper')) suggestionsListEl.classList.remove('open');
+        });
+
+        function convertArabicNumeralsToDigits(str) {
+            const map = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' };
+            return str.replace(/[٠-٩]/g, match => map[match]);
+        }
+
+        /* ---------------- Image preprocessing (Issues 2 & 3) ---------------- */
+        function isLikelyHeic(file) {
+            const type = (file.type || '').toLowerCase();
+            const name = (file.name || '').toLowerCase();
+            return type.includes('heic') || type.includes('heif') || name.endsWith('.heic') || name.endsWith('.heif');
+        }
+
+        // Loads a File into an <img>. Tries a blob: URL first (fastest); if the browser
+        // can't decode it (wrong/unsupported format, some mobile browser quirks), falls
+        // back to a data: URL via FileReader, which is more broadly supported.
+        function loadImageRobust(file) {
+            return new Promise((resolve, reject) => {
+                if (isLikelyHeic(file)) {
+                    reject(new Error('HEIC_UNSUPPORTED'));
+                    return;
+                }
+                const img = new Image();
+                let triedFallback = false;
+
+                function fallbackToDataUrl() {
+                    if (triedFallback) { reject(new Error('image failed to load — try a JPG or PNG instead')); return; }
+                    triedFallback = true;
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        img.onerror = () => reject(new Error('image failed to load — try a JPG or PNG instead'));
+                        img.onload = () => resolve(img);
+                        img.src = reader.result;
+                    };
+                    reader.onerror = () => reject(new Error('could not read the selected file'));
+                    reader.readAsDataURL(file);
+                }
+
+                img.onload = () => resolve(img);
+                img.onerror = fallbackToDataUrl;
+                try {
+                    img.src = URL.createObjectURL(file);
+                } catch (e) {
+                    fallbackToDataUrl();
+                }
+            });
+        }
+
+        // scanType PLATE gets a bottom-center crop first, since on a "front of truck/car"
+        // photo the plate is reliably in that region — this cuts out background signage
+        // and badge noise that was confusing the regex matching, and also means we only
+        // need to upscale a small, already-zoomed region instead of the whole photo.
+        async function preprocessImageForOcr(file, scanType) {
+            const img = await loadImageRobust(file);
+
+            let sx = 0, sy = 0, sw = img.width, sh = img.height;
+
+            if (scanType === 'PLATE') {
+                sw = img.width * 0.7;
+                sh = img.height * 0.42;
+                sx = (img.width - sw) / 2;
+                sy = img.height * 0.52;
+            }
+
+            const targetWidth = scanType === 'PLATE' ? 1100 : 1400;
+            const scale = sw < targetWidth ? targetWidth / sw : 1;
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(sw * scale);
+            canvas.height = Math.round(sh * scale);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const d = imageData.data;
+            const contrast = 50;
+            const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+            for (let i = 0; i < d.length; i += 4) {
+                let gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                gray = factor * (gray - 128) + 128;
+                gray = Math.min(255, Math.max(0, gray));
+                d[i] = d[i + 1] = d[i + 2] = gray;
+            }
+            ctx.putImageData(imageData, 0, 0);
+
+            return new Promise((resolve, reject) => {
+                // JPEG instead of PNG: much smaller payload -> faster upload + faster
+                // Drive-side processing, with no real accuracy loss for OCR text.
+                canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('canvas toBlob failed')), 'image/jpeg', 0.85);
+            });
+        }
+
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = () => reject(new Error('failed to read blob'));
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        /* ---------------- Camera capture (Issue 3 suggestion) ---------------- */
+        let cameraStream = null;
+        let cameraTargetStatusId = null;
+        let cameraTargetScanType = null;
+
+        async function openCamera(statusLabelId, scanType) {
+            cameraTargetStatusId = statusLabelId;
+            cameraTargetScanType = scanType;
+            const overlay = document.getElementById('cameraOverlay');
+            const video = document.getElementById('cameraVideo');
+            overlay.classList.add('open');
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 960 }, height: { ideal: 720 } }
+                });
+                video.srcObject = cameraStream;
+            } catch (err) {
+                alert('Could not access camera: ' + err.message);
+                closeCamera();
+            }
+        }
+
+        function closeCamera() {
+            const overlay = document.getElementById('cameraOverlay');
+            overlay.classList.remove('open');
+            if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+        }
+
+        function captureCameraFrame() {
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.getElementById('cameraCanvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            canvas.toBlob(blob => {
+                const file = new File([blob], 'camera_capture.jpg', { type: 'image/jpeg' });
+                closeCamera();
+                runLocalOcrEngine(file, cameraTargetStatusId, cameraTargetScanType);
+            }, 'image/jpeg', 0.85);
+        }
+
+        function handleFileSelected(inputEl, statusLabelId, scanType) {
+            const file = inputEl.files[0];
+            if (!file) return;
+            runLocalOcrEngine(file, statusLabelId, scanType);
+        }
+
+        /* ---------------- OCR engine (real Drive OCR backend, no hardcoding) ---------------- */
+        async function runLocalOcrEngine(file, statusLabelId, scanType) {
+            const status = document.getElementById(statusLabelId);
+            status.innerHTML = "🌀 Preparing image...";
+            status.style.color = "var(--accent-color)";
+
+            try {
+                const processedBlob = await preprocessImageForOcr(file, scanType);
+                const base64Data = await blobToBase64(processedBlob);
+
+                status.innerHTML = "🌀 Reading with Google OCR...";
+
+                const response = await fetch(OCR_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ scanType: scanType, imageObj: base64Data })
+                });
+
+                if (!response.ok) throw new Error('Network error: ' + response.status);
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error || 'OCR backend returned an error');
+
+                let cleanText = convertArabicNumeralsToDigits(result.text || "").toUpperCase();
+                console.log(`[OCR RAW TEXT - ${scanType}]:`, cleanText);
+
+                let matched = false;
+
+                if (scanType === "IQAMA") {
+                    let idMatch = cleanText.match(/\b[12]\d{9}\b/);
+                    if (idMatch) { document.getElementById('iqamaNumber').value = idMatch[0]; matched = true; }
+
+                    let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
+                    let nameMatch = lines.find(line =>
+                        /^[A-Z][A-Z\s.']{7,45}$/.test(line) &&
+                        !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line)
+                    );
+                    if (nameMatch) { document.getElementById('driverName').value = nameMatch; matched = true; }
+                }
+                else if (scanType === "PLATE") {
+                    let digitsMatch = cleanText.match(/\b\d{3,4}\b/);
+                    let lettersMatch = cleanText.match(/\b[A-Z]{3}\b/);
+                    if (digitsMatch && lettersMatch) {
+                        document.getElementById('plateNumber').value = `${digitsMatch[0]} ${lettersMatch[0]}`;
+                        matched = true;
+                    }
+                }
+                else if (scanType === "OFFICER") {
+                    let badgeMatch = cleanText.match(/LP\d+/i) || cleanText.match(/[A-Z]{2}\d{4}\b/i);
+                    if (badgeMatch) {
+                        document.getElementById('securityNameId').value = badgeMatch[0];
+                        matched = true;
+                    }
+
+                    let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
+                    let nameMatch = lines.find(line =>
+                        /^[A-Z][A-Z\s.']{2,25}$/i.test(line) &&
+                        !/LP|ASSOCIATE|EVERY|DOORBELL|DAY|AL\s+ABEER|SAUDI|SECURITY|GATEWAY/i.test(line)
+                    );
+
+                    if (nameMatch) {
+                        document.getElementById('securityNameField').value = nameMatch;
+                        matched = true;
+                    } else if (badgeMatch) {
+                        document.getElementById('securityNameField').value = "Officer #" + badgeMatch[0];
+                    }
+                }
+
+                if (matched) {
+                    status.innerHTML = "✅ Extracted — please double-check the fields";
+                    status.style.color = "var(--success-color)";
+                } else {
+                    status.innerHTML = "⚠️ Couldn't confidently read this image — enter details manually";
+                    status.style.color = "#ef4444";
+                }
+
+            } catch (err) {
+                console.error("OCR engine error:", err);
+                if (err.message === 'HEIC_UNSUPPORTED') {
+                    status.innerHTML = "⚠️ iPhone HEIC photos aren't supported by browsers — switch iPhone Camera format to 'Most Compatible' (Settings → Camera → Formats), or use 📸 Use Camera above";
+                } else {
+                    status.innerHTML = "❌ OCR failed — enter details manually";
+                }
+                status.style.color = "#ef4444";
+            }
+        }
+
+        async function executeRowSignout(driverName, plateNumber, securityName, dockNumber) {
+            if(!confirm("Proceed with terminal sign-out logging for vehicle: " + plateNumber + "?")) return;
+            try {
+                const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ driverName, plateNumber, securityName, dockNumber, direction: "Outbound" }) });
+                if (!response.ok) throw new Error('Server returned ' + response.status);
+                alert("Sign-out logged smoothly!"); fetchLogs();
+            } catch(e) { alert("Error connecting to database: " + e.message); }
+        }
+
+        function fmtDate(s) {
+            if(!s) return "May 10, 2026"; let d = new Date(s); if(isNaN(d.getTime())) return s;
+            return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+        }
+
+        function formatTimeText(s) {
+            if(!s) return "--"; let d = new Date(s); if(isNaN(d.getTime())) return s;
+            return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${d.getDate()}, ${d.getHours()%12||12}:${String(d.getMinutes()).padStart(2,'0')} ${d.getHours()>=12?'PM':'AM'}`;
+        }
+
+        function calcDuration(t1, t2) {
+            if(!t1) return "--"; let diff = (t2 ? new Date(t2) : new Date()) - new Date(t1);
+            if(diff < 0 || isNaN(diff)) return "0h 0m";
+            let mins = Math.floor(diff / 60000); return `${Math.floor(mins/60)}h ${mins%60}m`;
+        }
+
+        function generatePlateBumperUI(plateStr) {
+            let parts = plateStr ? plateStr.split(' ') : ['--'];
+            if(parts.length >= 2) { return `<div class="plate-box-split"><div class="plate-segment">${parts[0]}</div><div class="plate-segment">${parts[1]}</div></div>`; }
+            return `<div class="plate-box-split"><div class="plate-segment">${plateStr}</div></div>`;
+        }
+
+        function compileDriversRegistryCards(data) {
+            const container = document.getElementById('driversRegistryContainer'); container.innerHTML = '';
+            let uniqueDriversMap = {};
+            data.forEach(item => {
+                if(!item.driverName || item.driverName.trim() === "") return;
+                if(!uniqueDriversMap[item.driverName]) {
+                    uniqueDriversMap[item.driverName] = { name: item.driverName, plate: item.plateNumber || "--", registered: item.timestamp, id: item.iqamaNumber || "--" };
+                }
+            });
+
+            let list = Object.values(uniqueDriversMap);
+            driversRegistryList = list; // used by the existing-driver autocomplete
+            document.getElementById('metric-drivers-count').innerText = list.length;
+            if(list.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem;">No personnel maps cataloged.</div>'; return; }
+
+            list.forEach(driver => {
+                let dateFormatted = fmtDate(driver.registered);
+                container.innerHTML += `
+                    <div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${driver.plate.toLowerCase()}">
+                        <div class="card-management-actions"><button class="btn-icon-manage">✏️</button></div>
+                        <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">Verified</span><span class="tag-badge carrier">SLP</span></div></div></div>
+                        <div class="driver-card-info-grid"><div class="info-block"><p>🆔 IQAMA ID</p><data>${driver.id}</data></div><div class="info-block"><p>📅 Registered</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 Phone Number</p><data>0596584562</data></div></div>
+                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name}', '${driver.id}', '${driver.plate}', '${dateFormatted}')">View Records</button>
+                    </div>`;
+            });
+        }
+
+        function filterRegistryCards() {
+            let query = document.getElementById('driverRegistrySearch').value.toLowerCase();
+            document.querySelectorAll('.driver-registry-card').forEach(card => { card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none'; });
+        }
+
+        /* ---------------- History rendering + date filters (Issue 6) ---------------- */
+        function renderHistoryTable(list) {
+            const historyBody = document.getElementById('historyLogTableBody');
+            historyBody.innerHTML = '';
+            if (list.length === 0) {
+                historyBody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic;">No records match this range.</td></tr>';
+                return;
+            }
+            list.forEach(r => {
+                historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.7rem; color:var(--text-muted);">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="badge ${r.isInside?'in':'out'}">${r.isInside?'INBOUND':'OUTBOUND'}</span></td><td><strong>${r.dockNumber.replace('Dock ','')}</strong></td><td style="color:var(--text-muted);">--</td><td style="font-size:0.85rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.85rem; color:var(--text-muted);">${r.isInside?'<span style="color:var(--accent-color);">Inside</span>':formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.8rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td></tr>`;
+            });
+        }
+
+        function filterHistoryListByRange(range, fromStr, toStr) {
+            const now = new Date();
+            return globalHistoryListCache.filter(r => {
+                const refDate = new Date(r.checkInTime || r.timestamp);
+                if (isNaN(refDate.getTime())) return range === 'all';
+                if (range === 'today') {
+                    return refDate.toDateString() === now.toDateString();
+                }
+                if (range === '7days') {
+                    const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate() - 7);
+                    return refDate >= sevenDaysAgo && refDate <= now;
+                }
+                if (range === 'custom') {
+                    if (!fromStr || !toStr) return true;
+                    const from = new Date(fromStr); const to = new Date(toStr); to.setHours(23,59,59,999);
+                    return refDate >= from && refDate <= to;
+                }
+                return true; // 'all'
+            });
+        }
+
+        function setHistoryDateFilter(range, btnEl) {
+            currentHistoryDateRange = range;
+            document.querySelectorAll('.filter-tabs-container .tab-filter-item').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+            const customRow = document.getElementById('customDateRow');
+            if (range === 'custom') {
+                customRow.classList.add('open');
+                return; // wait for Apply button
+            }
+            customRow.classList.remove('open');
+            renderHistoryTable(filterHistoryListByRange(range));
+        }
+
+        function applyCustomDateFilter() {
+            const from = document.getElementById('customDateFrom').value;
+            const to = document.getElementById('customDateTo').value;
+            if (!from || !to) { alert('Pick both a start and end date.'); return; }
+            renderHistoryTable(filterHistoryListByRange('custom', from, to));
+        }
+
+        /* ---------------- Export to Excel (Issue 6) ---------------- */
+        function exportHistoryToExcel() {
+            const rows = filterHistoryListByRange(currentHistoryDateRange, document.getElementById('customDateFrom').value, document.getElementById('customDateTo').value);
+            if (rows.length === 0) { alert('No rows to export for the current filter.'); return; }
+
+            const headers = ['Driver', 'Iqama Number', 'Plate', 'Direction', 'Dock', 'Check In', 'Check Out', 'Duration', 'Security'];
+            const csvLines = [headers.join(',')];
+
+            rows.forEach(r => {
+                const line = [
+                    r.driverName || '',
+                    r.iqamaNumber || '',
+                    r.plateNumber || '',
+                    r.isInside ? 'Inbound' : 'Outbound',
+                    r.dockNumber || '',
+                    formatTimeText(r.checkInTime),
+                    r.isInside ? 'Inside' : formatTimeText(r.timestamp),
+                    calcDuration(r.checkInTime, r.isInside ? null : r.timestamp),
+                    r.securityName || ''
+                ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+                csvLines.push(line);
+            });
+
+            const csvContent = csvLines.join('\n');
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `movement-history-${currentHistoryDateRange}-${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        window.handleLogsResponse = function(data) {
+            let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; globalLogsCache = chronData;
+            const liveBody = document.getElementById('liveFeedBody'), activeBody = document.getElementById('activeYardTableBody');
+            liveBody.innerHTML = ''; activeBody.innerHTML = '';
+
+            compileDriversRegistryCards(chronData);
+            if(chronData.length === 0) { renderHistoryTable([]); return; }
+            document.getElementById('metric-total-checkins').innerText = chronData.length;
+
+            let activeYardMap = {}, historicalPairs = [];
+            chronData.forEach(row => {
+                if(row.direction === "Inbound") activeYardMap[row.plateNumber] = row;
+                else if(row.direction === "Outbound") {
+                    let match = activeYardMap[row.plateNumber];
+                    historicalPairs.push({ ...row, checkInTime: match ? match.timestamp : "", iqamaNumber: match ? match.iqamaNumber : row.iqamaNumber });
+                    if(match) delete activeYardMap[row.plateNumber];
+                }
+            });
+
+            let activeList = Object.values(activeYardMap);
+            document.getElementById('metric-active-now').innerText = document.getElementById('activeYardCounter').innerText = activeList.length;
+            document.getElementById('metric-completed-today').innerText = historicalPairs.length;
+
+            [...chronData].reverse().slice(0, 5).forEach(r => {
+                liveBody.innerHTML += `<tr><td><strong>${r.driverName}</strong></td><td>${r.plateNumber}</td><td>${r.dockNumber}</td><td><span class="badge ${r.direction.toLowerCase()}">${r.direction}</span></td></tr>`;
+            });
+
+            if(activeList.length === 0) activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
+            else activeList.reverse().forEach(r => {
+                activeBody.innerHTML += `<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="badge in">INBOUND</span></td><td style="color:var(--accent-color); font-weight:600; font-size:0.8rem;">DISPATCHING</td><td style="color:var(--text-muted);">--</td><td><strong>${r.dockNumber.replace('Dock ','')}</strong></td><td style="font-size:0.85rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.timestamp, null)}</td><td style="font-size:0.8rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td><td style="text-align:right; padding-right:1rem;"><button class="btn-signout-action" onclick="executeRowSignout('${r.driverName}','${r.plateNumber}','${r.securityName || 'Guard'}','${r.dockNumber}')">SIGN OUT</button></td></tr>`;
+            });
+
+            globalHistoryListCache = [...historicalPairs, ...activeList.map(i => ({ ...i, checkInTime: i.timestamp, isInside: true }))].sort((a,b) => new Date(b.checkInTime) - new Date(a.checkInTime));
+            renderHistoryTable(filterHistoryListByRange(currentHistoryDateRange, document.getElementById('customDateFrom').value, document.getElementById('customDateTo').value));
+        };
+
+        function filterTable(bodyId, query) {
+            document.querySelectorAll('#' + bodyId + ' tr').forEach(row => { if(row.cells.length >= 2) row.style.display = row.innerText.toLowerCase().includes(query.toLowerCase()) ? '' : 'none'; });
+        }
+
+        function fetchLogs() {
+            const old = document.getElementById('jsonp-fetcher'); if(old) old.remove();
+            const s = document.createElement('script'); s.id = 'jsonp-fetcher'; s.src = API_URL + "?callback=handleLogsResponse&prefix=handleLogsResponse&_" + new Date().getTime(); document.body.appendChild(s);
+        }
+
+        document.getElementById('entryForm').addEventListener('submit', async e => {
+            e.preventDefault(); const btn = document.querySelector('.submit-btn-global'); btn.innerText = "Processing Check In..."; btn.disabled = true;
+            try {
+                const payload = { driverName: document.getElementById('driverName').value, iqamaNumber: document.getElementById('iqamaNumber').value, plateNumber: document.getElementById('plateNumber').value, securityName: document.getElementById('securityNameField').value, dockNumber: document.getElementById('dockNumber').value, direction: document.getElementById('direction').value };
+                const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error('Server returned status ' + response.status);
+                document.getElementById('entryForm').reset(); btn.innerText = "Check In Truck"; btn.disabled = false;
+                document.getElementById('driverPhotoStatus').innerText = "Driver Photo / Truck Photo"; document.getElementById('driverPhotoStatus').style.color = document.getElementById('iqamaStatus').style.color = document.getElementById('officerStatus').style.color = "var(--text-muted)";
+                document.getElementById('iqamaStatus').innerText = "Iqama (ID Card) Scanner"; document.getElementById('officerStatus').innerText = "Security ID Scanner";
+                switchView('dashboard', document.querySelectorAll('.nav-item')[0]); setTimeout(fetchLogs, 1500);
+            } catch (err) {
+                alert("Error saving log: " + err.message + "\n\nCheck that your logging Apps Script is deployed with 'Anyone' access and is accepting this request.");
+                btn.innerText = "Check In Truck"; btn.disabled = false;
+            }
+        });
+
+        setInterval(fetchLogs, 15000); fetchLogs();
+    </script>
 </body>
 </html>
