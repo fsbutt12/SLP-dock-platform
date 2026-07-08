@@ -119,6 +119,7 @@
             display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;
         }
         .modal-overlay.modal-active { display: flex; }
+        
         .modal-window {
             background: #111625; border: 1px solid var(--border-color); border-radius: 14px; width: 100%; max-width: 580px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column;
@@ -247,7 +248,11 @@
                         <div class="form-section-divider">Security & Facility Details</div>
                         <div class="form-group"><label class="badge-style">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required placeholder="Enter verification guard identity"></div>
                         <div class="form-group"><label class="badge-style">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required placeholder="Enter staff token number"></div>
-                        <div class="form-group"><label class="badge-style">Dock Number *</label><select id="dockNumber" class="input-box-styled"><option value="Dock 1">Dock 1</option><option value="Dock 2">Dock 2</option><option value="Dock 3">Dock 3</option><option value="Dock 4">Dock 4</option></select></div>
+                        
+                        <div class="form-group"><label class="badge-style">Dock Number *</label>
+                            <input type="text" id="dockNumber" class="input-box-styled" required placeholder="e.g. 25 or Dock 4">
+                        </div>
+                        
                         <div class="form-group"><label class="badge-style">Purpose / Direction *</label>
                             <select id="direction" class="input-box-styled" style="font-size: 0.8rem;">
                                 <option value="Inbound - تنزيل بضائع">Inbound - تنزيل بضائع</option>
@@ -265,7 +270,19 @@
                                 <option value="Liquidation - إعادة بيع البضائع التالفة">Liquidation - إعادة بيع البضائع التالفة</option>
                             </select>
                         </div>
-                        <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style">Dispatching / Receiving *</label><select id="dispatchSelect" class="input-box-styled"><option value="">Select...</option><option value="Dispatching">Dispatching</option><option value="Receiving">Receiving</option></select></div>
+                        <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style">Dispatching / Receiving *</label>
+                            <select id="dispatchSelect" class="input-box-styled" required>
+                                <option value="">Select...</option>
+                                <option value="Dispatching">Dispatching</option>
+                                <option value="Receiving">Receiving</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="sealNumberContainer" style="display: none; grid-column: 1 / -1;">
+                            <label class="badge-style">Incoming Seal Number *</label>
+                            <input type="text" id="sealNumber" class="input-box-styled" placeholder="Enter incoming seal number">
+                        </div>
+                        
                     </div>
                     <button type="submit" class="submit-btn-global">Check In Truck</button>
                 </form>
@@ -344,6 +361,26 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="signOutModal">
+        <div class="modal-window" style="max-width: 420px; text-align: center; border: 1px solid var(--accent-color);">
+            <div class="modal-body-content" style="padding: 2.5rem 1.5rem;">
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛡️</div>
+                <h2 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem;">Authorize Departure</h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 2rem;" id="signOutModalSubtext">Completing SLP cycle...</p>
+                
+                <div class="form-group" style="text-align: left; margin-bottom: 2rem;">
+                    <label class="badge-style" style="color: var(--accent-color);">ATTACH DEPARTURE SEAL *</label>
+                    <input type="text" id="signOutSeal" class="input-box-styled" placeholder="e.g. SEAL-9022-X" style="border-color: rgba(245, 158, 11, 0.5);">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <button id="btnConfirmSignOut" class="submit-btn-global" style="margin-top: 0; border-radius: 8px;">CONFIRM SIGN OUT</button>
+                    <button class="btn-modal-cancel" style="background: transparent; border: none; color: var(--text-muted); font-size: 0.8rem;" onclick="closeSignOutModal()">DISCARD CHANGES</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="camera-overlay" id="cameraOverlay">
         <video id="cameraVideo" autoplay playsinline muted></video>
         <canvas id="cameraCanvas" style="display:none;"></canvas>
@@ -385,7 +422,6 @@
             segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
             document.getElementById('driverProfileModal').classList.add('modal-active');
         }
-
         function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
 
         function setDriverMode(mode, element) {
@@ -394,7 +430,21 @@
             document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = mode === "existing" ? "none" : "block"; f.querySelector('input').required = mode !== "existing"; });
         }
 
-        /* ---------------- Existing-driver autocomplete (Issue 5) ---------------- */
+        /* ---------------- TOGGLE INCOMING SEAL LOGIC ---------------- */
+        document.getElementById('dispatchSelect').addEventListener('change', function() {
+            const container = document.getElementById('sealNumberContainer');
+            const input = document.getElementById('sealNumber');
+            if (this.value === 'Receiving') {
+                container.style.display = 'block';
+                input.required = true;
+            } else {
+                container.style.display = 'none';
+                input.required = false;
+                input.value = '';
+            }
+        });
+
+        /* ---------------- Existing-driver autocomplete ---------------- */
         const driverSearchBoxEl = document.getElementById('driverSearchBox');
         const suggestionsListEl = document.getElementById('driverSuggestionsList');
 
@@ -431,7 +481,7 @@
             return str.replace(/[٠-٩]/g, match => map[match]);
         }
 
-        /* ---------------- Image preprocessing (Issues 2 & 3) ---------------- */
+        /* ---------------- Image preprocessing & Camera ---------------- */
         function isLikelyHeic(file) {
             const type = (file.type || '').toLowerCase();
             const name = (file.name || '').toLowerCase();
@@ -440,10 +490,7 @@
 
         function loadImageRobust(file) {
             return new Promise((resolve, reject) => {
-                if (isLikelyHeic(file)) {
-                    reject(new Error('HEIC_UNSUPPORTED'));
-                    return;
-                }
+                if (isLikelyHeic(file)) { reject(new Error('HEIC_UNSUPPORTED')); return; }
                 const img = new Image();
                 let triedFallback = false;
 
@@ -451,49 +498,30 @@
                     if (triedFallback) { reject(new Error('image failed to load — try a JPG or PNG instead')); return; }
                     triedFallback = true;
                     const reader = new FileReader();
-                    reader.onload = () => {
-                        img.onerror = () => reject(new Error('image failed to load — try a JPG or PNG instead'));
-                        img.onload = () => resolve(img);
-                        img.src = reader.result;
-                    };
+                    reader.onload = () => { img.onerror = () => reject(new Error('image failed to load')); img.onload = () => resolve(img); img.src = reader.result; };
                     reader.onerror = () => reject(new Error('could not read the selected file'));
                     reader.readAsDataURL(file);
                 }
 
                 img.onload = () => resolve(img);
                 img.onerror = fallbackToDataUrl;
-                try {
-                    img.src = URL.createObjectURL(file);
-                } catch (e) {
-                    fallbackToDataUrl();
-                }
+                try { img.src = URL.createObjectURL(file); } catch (e) { fallbackToDataUrl(); }
             });
         }
 
         async function preprocessImageForOcr(file, scanType) {
             const img = await loadImageRobust(file);
-
             let sx = 0, sy = 0, sw = img.width, sh = img.height;
-
-            if (scanType === 'PLATE') {
-                sw = img.width * 0.7;
-                sh = img.height * 0.42;
-                sx = (img.width - sw) / 2;
-                sy = img.height * 0.52;
-            }
-
+            if (scanType === 'PLATE') { sw = img.width * 0.7; sh = img.height * 0.42; sx = (img.width - sw) / 2; sy = img.height * 0.52; }
             const targetWidth = scanType === 'PLATE' ? 1100 : 1400;
             const scale = sw < targetWidth ? targetWidth / sw : 1;
             const canvas = document.createElement('canvas');
-            canvas.width = Math.round(sw * scale);
-            canvas.height = Math.round(sh * scale);
+            canvas.width = Math.round(sw * scale); canvas.height = Math.round(sh * scale);
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
 
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const d = imageData.data;
-            const contrast = 50;
-            const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+            const d = imageData.data; const contrast = 50; const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
             for (let i = 0; i < d.length; i += 4) {
                 let gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
                 gray = factor * (gray - 128) + 128;
@@ -509,177 +537,147 @@
 
         function blobToBase64(blob) {
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = () => reject(new Error('failed to read blob'));
-                reader.readAsDataURL(blob);
+                const reader = new FileReader(); reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = () => reject(new Error('failed to read blob')); reader.readAsDataURL(blob);
             });
         }
 
-        /* ---------------- Camera capture (Issue 3 suggestion) ---------------- */
-        let cameraStream = null;
-        let cameraTargetStatusId = null;
-        let cameraTargetScanType = null;
+        let cameraStream = null, cameraTargetStatusId = null, cameraTargetScanType = null;
 
         async function openCamera(statusLabelId, scanType) {
-            cameraTargetStatusId = statusLabelId;
-            cameraTargetScanType = scanType;
-            const overlay = document.getElementById('cameraOverlay');
-            const video = document.getElementById('cameraVideo');
+            cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
+            const overlay = document.getElementById('cameraOverlay'), video = document.getElementById('cameraVideo');
             overlay.classList.add('open');
-            try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment', width: { ideal: 960 }, height: { ideal: 720 } }
-                });
-                video.srcObject = cameraStream;
-            } catch (err) {
-                alert('Could not access camera: ' + err.message);
-                closeCamera();
-            }
+            try { cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 960 }, height: { ideal: 720 } } }); video.srcObject = cameraStream; } 
+            catch (err) { alert('Could not access camera: ' + err.message); closeCamera(); }
         }
 
         function closeCamera() {
-            const overlay = document.getElementById('cameraOverlay');
-            overlay.classList.remove('open');
+            document.getElementById('cameraOverlay').classList.remove('open');
             if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
         }
 
         function captureCameraFrame() {
-            const video = document.getElementById('cameraVideo');
-            const canvas = document.getElementById('cameraCanvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            const video = document.getElementById('cameraVideo'), canvas = document.getElementById('cameraCanvas');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
             canvas.toBlob(blob => {
                 const file = new File([blob], 'camera_capture.jpg', { type: 'image/jpeg' });
-                closeCamera();
-                runLocalOcrEngine(file, cameraTargetStatusId, cameraTargetScanType);
+                closeCamera(); runLocalOcrEngine(file, cameraTargetStatusId, cameraTargetScanType);
             }, 'image/jpeg', 0.85);
         }
 
         function handleFileSelected(inputEl, statusLabelId, scanType) {
             const file = inputEl.files[0];
-            if (!file) return;
-            runLocalOcrEngine(file, statusLabelId, scanType);
+            if (!file) return; runLocalOcrEngine(file, statusLabelId, scanType);
         }
 
-        /* ---------------- OCR engine (real Drive OCR backend, no hardcoding) ---------------- */
         async function runLocalOcrEngine(file, statusLabelId, scanType) {
             const status = document.getElementById(statusLabelId);
-            status.innerHTML = "🌀 Preparing image...";
-            status.style.color = "var(--accent-color)";
-
+            status.innerHTML = "🌀 Preparing image..."; status.style.color = "var(--accent-color)";
             try {
                 const processedBlob = await preprocessImageForOcr(file, scanType);
                 const base64Data = await blobToBase64(processedBlob);
-
                 status.innerHTML = "🌀 Reading with Google OCR...";
-
-                const response = await fetch(OCR_API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ scanType: scanType, imageObj: base64Data })
-                });
-
+                const response = await fetch(OCR_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ scanType: scanType, imageObj: base64Data }) });
                 if (!response.ok) throw new Error('Network error: ' + response.status);
                 const result = await response.json();
                 if (!result.success) throw new Error(result.error || 'OCR backend returned an error');
 
                 let cleanText = convertArabicNumeralsToDigits(result.text || "").toUpperCase();
-                console.log(`[OCR RAW TEXT - ${scanType}]:`, cleanText);
-
                 let matched = false;
 
                 if (scanType === "IQAMA") {
                     let idMatch = cleanText.match(/\b[12]\d{9}\b/);
                     if (idMatch) { document.getElementById('iqamaNumber').value = idMatch[0]; matched = true; }
-
                     let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
-                    let nameMatch = lines.find(line =>
-                        /^[A-Z][A-Z\s.']{7,45}$/.test(line) &&
-                        !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line)
-                    );
+                    let nameMatch = lines.find(line => /^[A-Z][A-Z\s.']{7,45}$/.test(line) && !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line));
                     if (nameMatch) { document.getElementById('driverName').value = nameMatch; matched = true; }
                 }
                 else if (scanType === "PLATE") {
-                    let digitsMatch = cleanText.match(/\b\d{3,4}\b/);
-                    let lettersMatch = cleanText.match(/\b[A-Z]{3}\b/);
-                    if (digitsMatch && lettersMatch) {
-                        document.getElementById('plateNumber').value = `${digitsMatch[0]} ${lettersMatch[0]}`;
-                        matched = true;
-                    }
+                    let digitsMatch = cleanText.match(/\b\d{3,4}\b/), lettersMatch = cleanText.match(/\b[A-Z]{3}\b/);
+                    if (digitsMatch && lettersMatch) { document.getElementById('plateNumber').value = `${digitsMatch[0]} ${lettersMatch[0]}`; matched = true; }
                 }
                 else if (scanType === "OFFICER") {
                     let badgeMatch = cleanText.match(/LP\d+/i) || cleanText.match(/[A-Z]{2}\d{4}\b/i);
-                    if (badgeMatch) {
-                        document.getElementById('securityNameId').value = badgeMatch[0];
-                        matched = true;
-                    }
-
+                    if (badgeMatch) { document.getElementById('securityNameId').value = badgeMatch[0]; matched = true; }
                     let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
-                    let nameMatch = lines.find(line =>
-                        /^[A-Z][A-Z\s.']{2,25}$/i.test(line) &&
-                        !/LP|ASSOCIATE|EVERY|DOORBELL|DAY|AL\s+ABEER|SAUDI|SECURITY|GATEWAY/i.test(line)
-                    );
-
-                    if (nameMatch) {
-                        document.getElementById('securityNameField').value = nameMatch;
-                        matched = true;
-                    } else if (badgeMatch) {
-                        document.getElementById('securityNameField').value = "Officer #" + badgeMatch[0];
-                    }
+                    let nameMatch = lines.find(line => /^[A-Z][A-Z\s.']{2,25}$/i.test(line) && !/LP|ASSOCIATE|EVERY|DOORBELL|DAY|AL\s+ABEER|SAUDI|SECURITY|GATEWAY/i.test(line));
+                    if (nameMatch) { document.getElementById('securityNameField').value = nameMatch; matched = true; } 
+                    else if (badgeMatch) { document.getElementById('securityNameField').value = "Officer #" + badgeMatch[0]; }
                 }
 
-                if (matched) {
-                    status.innerHTML = "✅ Extracted — please double-check the fields";
-                    status.style.color = "var(--success-color)";
-                } else {
-                    status.innerHTML = "⚠️ Couldn't confidently read this image — enter details manually";
-                    status.style.color = "#ef4444";
-                }
+                if (matched) { status.innerHTML = "✅ Extracted — please double-check the fields"; status.style.color = "var(--success-color)"; } 
+                else { status.innerHTML = "⚠️ Couldn't confidently read this image — enter details manually"; status.style.color = "#ef4444"; }
 
             } catch (err) {
-                console.error("OCR engine error:", err);
-                if (err.message === 'HEIC_UNSUPPORTED') {
-                    status.innerHTML = "⚠️ iPhone HEIC photos aren't supported by browsers — switch iPhone Camera format to 'Most Compatible' (Settings → Camera → Formats), or use 📸 Use Camera above";
-                } else {
-                    status.innerHTML = "❌ OCR failed — enter details manually";
-                }
+                if (err.message === 'HEIC_UNSUPPORTED') { status.innerHTML = "⚠️ iPhone HEIC photos aren't supported — use 📸 Camera above"; } 
+                else { status.innerHTML = "❌ OCR failed — enter details manually"; }
                 status.style.color = "#ef4444";
             }
         }
 
-        async function executeRowSignout(driverName, plateNumber, securityName, dockNumber) {
-            if(!confirm("Proceed with terminal sign-out logging for vehicle: " + plateNumber + "?")) return;
-            try {
-                const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ driverName, plateNumber, securityName, dockNumber, direction: "Outbound" }) });
-                if (!response.ok) throw new Error('Server returned ' + response.status);
-                alert("Sign-out logged smoothly!"); fetchLogs();
-            } catch(e) { alert("Error connecting to database: " + e.message); }
+        /* ---------------- SIGN OUT MODAL LOGIC ---------------- */
+        let currentSignOutContext = null;
+
+        function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
+            currentSignOutContext = { driverName, plateNumber, securityName, dockNumber, dispatchType };
+            document.getElementById('signOutModalSubtext').innerText = `Completing SLP cycle for ${plateNumber}`;
+            document.getElementById('signOutSeal').value = '';
+            document.getElementById('signOutModal').classList.add('modal-active');
         }
 
+        function closeSignOutModal() {
+            document.getElementById('signOutModal').classList.remove('modal-active');
+            currentSignOutContext = null;
+        }
+
+        document.getElementById('btnConfirmSignOut').addEventListener('click', async () => {
+            const sealVal = document.getElementById('signOutSeal').value.trim();
+            if (!sealVal) { alert('Please attach a departure seal number.'); return; }
+            
+            if(!currentSignOutContext) return;
+            const { driverName, plateNumber, securityName, dockNumber } = currentSignOutContext;
+            
+            const btn = document.getElementById('btnConfirmSignOut');
+            btn.innerText = "Processing..."; btn.disabled = true;
+
+            try {
+                const payload = { driverName, plateNumber, securityName, dockNumber, direction: "Outbound", sealNumber: sealVal };
+                const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error('Server returned ' + response.status);
+                
+                closeSignOutModal();
+                fetchLogs();
+            } catch(e) { 
+                alert("Error connecting to database: " + e.message); 
+            } finally {
+                btn.innerText = "CONFIRM SIGN OUT";
+                btn.disabled = false;
+            }
+        });
+
+        /* ---------------- Formatting Tools ---------------- */
         function fmtDate(s) {
             if(!s) return "May 10, 2026"; let d = new Date(s); if(isNaN(d.getTime())) return s;
             return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
         }
-
         function formatTimeText(s) {
             if(!s) return "--"; let d = new Date(s); if(isNaN(d.getTime())) return s;
             return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${d.getDate()}, ${d.getHours()%12||12}:${String(d.getMinutes()).padStart(2,'0')} ${d.getHours()>=12?'PM':'AM'}`;
         }
-
         function calcDuration(t1, t2) {
             if(!t1) return "--"; let diff = (t2 ? new Date(t2) : new Date()) - new Date(t1);
             if(diff < 0 || isNaN(diff)) return "0h 0m";
             let mins = Math.floor(diff / 60000); return `${Math.floor(mins/60)}h ${mins%60}m`;
         }
-
         function generatePlateBumperUI(plateStr) {
             let parts = plateStr ? plateStr.split(' ') : ['--'];
             if(parts.length >= 2) { return `<div class="plate-box-split"><div class="plate-segment">${parts[0]}</div><div class="plate-segment">${parts[1]}</div></div>`; }
             return `<div class="plate-box-split"><div class="plate-segment">${plateStr}</div></div>`;
         }
 
+        /* ---------------- Driver Cards Rendering ---------------- */
         function compileDriversRegistryCards(data) {
             const container = document.getElementById('driversRegistryContainer'); container.innerHTML = '';
             let uniqueDriversMap = {};
@@ -689,9 +687,8 @@
                     uniqueDriversMap[item.driverName] = { name: item.driverName, plate: item.plateNumber || "--", registered: item.timestamp, id: item.iqamaNumber || "--" };
                 }
             });
-
             let list = Object.values(uniqueDriversMap);
-            driversRegistryList = list; // used by the existing-driver autocomplete
+            driversRegistryList = list; 
             document.getElementById('metric-drivers-count').innerText = list.length;
             if(list.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem;">No personnel maps cataloged.</div>'; return; }
 
@@ -712,7 +709,7 @@
             document.querySelectorAll('.driver-registry-card').forEach(card => { card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none'; });
         }
 
-        /* ---------------- History rendering + date filters (Issue 6) ---------------- */
+        /* ---------------- Tables Rendering ---------------- */
         function renderHistoryTable(list) {
             const historyBody = document.getElementById('historyLogTableBody');
             historyBody.innerHTML = '';
@@ -722,7 +719,7 @@
             }
             list.forEach(r => {
                 let displayDir = r.isInside ? (r.direction || '').split(' - ')[0] : (r.entryReason && r.entryReason !== "Unknown" ? r.entryReason.split(' - ')[0] : 'OUTBOUND');
-                historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.7rem; color:var(--text-muted);">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="badge ${r.isInside?'in':'out'}" style="font-size:0.65rem;">${displayDir}</span></td><td><strong>${r.dockNumber.replace('Dock ','')}</strong></td><td style="color:var(--text-muted);">--</td><td style="font-size:0.85rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.85rem; color:var(--text-muted);">${r.isInside?'<span style="color:var(--accent-color);">Inside</span>':formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.8rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td></tr>`;
+                historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.7rem; color:var(--text-muted);">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="badge ${r.isInside?'in':'out'}" style="font-size:0.65rem;">${displayDir}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace;">${r.sealNumber || '--'}</td><td style="font-size:0.85rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.85rem; color:var(--text-muted);">${r.isInside?'<span style="color:var(--accent-color);">Inside</span>':formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.8rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td></tr>`;
             });
         }
 
@@ -731,19 +728,14 @@
             return globalHistoryListCache.filter(r => {
                 const refDate = new Date(r.checkInTime || r.timestamp);
                 if (isNaN(refDate.getTime())) return range === 'all';
-                if (range === 'today') {
-                    return refDate.toDateString() === now.toDateString();
-                }
-                if (range === '7days') {
-                    const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate() - 7);
-                    return refDate >= sevenDaysAgo && refDate <= now;
-                }
+                if (range === 'today') return refDate.toDateString() === now.toDateString();
+                if (range === '7days') { const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate() - 7); return refDate >= sevenDaysAgo && refDate <= now; }
                 if (range === 'custom') {
                     if (!fromStr || !toStr) return true;
                     const from = new Date(fromStr); const to = new Date(toStr); to.setHours(23,59,59,999);
                     return refDate >= from && refDate <= to;
                 }
-                return true; // 'all'
+                return true; 
             });
         }
 
@@ -752,10 +744,7 @@
             document.querySelectorAll('.filter-tabs-container .tab-filter-item').forEach(b => b.classList.remove('active'));
             btnEl.classList.add('active');
             const customRow = document.getElementById('customDateRow');
-            if (range === 'custom') {
-                customRow.classList.add('open');
-                return; // wait for Apply button
-            }
+            if (range === 'custom') { customRow.classList.add('open'); return; }
             customRow.classList.remove('open');
             renderHistoryTable(filterHistoryListByRange(range));
         }
@@ -767,12 +756,11 @@
             renderHistoryTable(filterHistoryListByRange('custom', from, to));
         }
 
-        /* ---------------- Export to Excel (Issue 6) ---------------- */
         function exportHistoryToExcel() {
             const rows = filterHistoryListByRange(currentHistoryDateRange, document.getElementById('customDateFrom').value, document.getElementById('customDateTo').value);
             if (rows.length === 0) { alert('No rows to export for the current filter.'); return; }
 
-            const headers = ['Driver', 'Iqama Number', 'Plate', 'Direction', 'Dock', 'Check In', 'Check Out', 'Duration', 'Security'];
+            const headers = ['Driver', 'Iqama Number', 'Plate', 'Direction', 'Dock', 'Seal Number', 'Check In', 'Check Out', 'Duration', 'Security'];
             const csvLines = [headers.join(',')];
 
             rows.forEach(r => {
@@ -782,6 +770,7 @@
                     r.plateNumber || '',
                     r.isInside ? (r.direction || '') : (r.entryReason || 'Outbound'),
                     r.dockNumber || '',
+                    r.sealNumber || '--',
                     formatTimeText(r.checkInTime),
                     r.isInside ? 'Inside' : formatTimeText(r.timestamp),
                     calcDuration(r.checkInTime, r.isInside ? null : r.timestamp),
@@ -793,13 +782,9 @@
             const csvContent = csvLines.join('\n');
             const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
+            const a = document.createElement('a'); a.href = url;
             a.download = `movement-history-${currentHistoryDateRange}-${new Date().toISOString().slice(0,10)}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         }
 
         window.handleLogsResponse = function(data) {
@@ -821,7 +806,8 @@
                         ...row, 
                         checkInTime: match ? match.timestamp : "", 
                         iqamaNumber: match ? match.iqamaNumber : row.iqamaNumber, 
-                        entryReason: match ? match.direction : "Unknown" 
+                        entryReason: match ? match.direction : "Unknown",
+                        sealNumber: row.sealNumber || (match ? match.sealNumber : '--')
                     });
                     if(match) delete activeYardMap[row.plateNumber];
                 }
@@ -840,16 +826,30 @@
             if(activeList.length === 0) activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
             else activeList.reverse().forEach(r => {
                 let displayDir = (r.direction || '').split(' - ')[0];
-                activeBody.innerHTML += `<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="badge in" style="font-size:0.65rem;">${displayDir}</span></td><td style="color:var(--accent-color); font-weight:600; font-size:0.8rem;">DISPATCHING</td><td style="color:var(--text-muted);">--</td><td><strong>${r.dockNumber.replace('Dock ','')}</strong></td><td style="font-size:0.85rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.timestamp, null)}</td><td style="font-size:0.8rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td><td style="text-align:right; padding-right:1rem;"><button class="btn-signout-action" onclick="executeRowSignout('${r.driverName}','${r.plateNumber}','${r.securityName || 'Guard'}','${r.dockNumber}')">SIGN OUT</button></td></tr>`;
+                let activeDispType = r.dispatchType || 'DISPATCHING';
+                let activeSeal = r.sealNumber || '--';
+                
+                activeBody.innerHTML += `<tr>
+                    <td><strong>${r.driverName}</strong></td>
+                    <td>${generatePlateBumperUI(r.plateNumber)}</td>
+                    <td><span class="badge in" style="font-size:0.65rem;">${displayDir}</span></td>
+                    <td style="color:var(--accent-color); font-weight:600; font-size:0.8rem;">${activeDispType.toUpperCase()}</td>
+                    <td style="color:var(--text-muted); font-family: monospace;">${activeSeal}</td>
+                    <td><strong>${r.dockNumber}</strong></td>
+                    <td style="font-size:0.85rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td>
+                    <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.timestamp, null)}</td>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td>
+                    <td style="text-align:right; padding-right:1rem;">
+                        <button class="btn-signout-action" onclick="promptSignOut('${r.driverName}','${r.plateNumber}','${r.securityName || 'Guard'}','${r.dockNumber}','${activeDispType}')">SIGN OUT</button>
+                    </td>
+                </tr>`;
             });
 
             globalHistoryListCache = [...historicalPairs, ...activeList.map(i => ({ ...i, checkInTime: i.timestamp, isInside: true }))].sort((a,b) => new Date(b.checkInTime) - new Date(a.checkInTime));
             renderHistoryTable(filterHistoryListByRange(currentHistoryDateRange, document.getElementById('customDateFrom').value, document.getElementById('customDateTo').value));
         };
 
-        function filterTable(bodyId, query) {
-            document.querySelectorAll('#' + bodyId + ' tr').forEach(row => { if(row.cells.length >= 2) row.style.display = row.innerText.toLowerCase().includes(query.toLowerCase()) ? '' : 'none'; });
-        }
+        function filterTable(bodyId, query) { document.querySelectorAll('#' + bodyId + ' tr').forEach(row => { if(row.cells.length >= 2) row.style.display = row.innerText.toLowerCase().includes(query.toLowerCase()) ? '' : 'none'; }); }
 
         function fetchLogs() {
             const old = document.getElementById('jsonp-fetcher'); if(old) old.remove();
@@ -859,12 +859,24 @@
         document.getElementById('entryForm').addEventListener('submit', async e => {
             e.preventDefault(); const btn = document.querySelector('.submit-btn-global'); btn.innerText = "Processing Check In..."; btn.disabled = true;
             try {
-                const payload = { driverName: document.getElementById('driverName').value, iqamaNumber: document.getElementById('iqamaNumber').value, plateNumber: document.getElementById('plateNumber').value, securityName: document.getElementById('securityNameField').value, dockNumber: document.getElementById('dockNumber').value, direction: document.getElementById('direction').value };
+                const payload = { 
+                    driverName: document.getElementById('driverName').value, 
+                    iqamaNumber: document.getElementById('iqamaNumber').value, 
+                    plateNumber: document.getElementById('plateNumber').value, 
+                    securityName: document.getElementById('securityNameField').value, 
+                    dockNumber: document.getElementById('dockNumber').value, 
+                    direction: document.getElementById('direction').value,
+                    dispatchType: document.getElementById('dispatchSelect').value,
+                    sealNumber: document.getElementById('sealNumber').value 
+                };
                 const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 if (!response.ok) throw new Error('Server returned status ' + response.status);
+                
                 document.getElementById('entryForm').reset(); btn.innerText = "Check In Truck"; btn.disabled = false;
+                document.getElementById('sealNumberContainer').style.display = 'none'; document.getElementById('sealNumber').required = false;
                 document.getElementById('driverPhotoStatus').innerText = "Driver Photo / Truck Photo"; document.getElementById('driverPhotoStatus').style.color = document.getElementById('iqamaStatus').style.color = document.getElementById('officerStatus').style.color = "var(--text-muted)";
                 document.getElementById('iqamaStatus').innerText = "Iqama (ID Card) Scanner"; document.getElementById('officerStatus').innerText = "Security ID Scanner";
+                
                 switchView('dashboard', document.querySelectorAll('.nav-item')[0]); setTimeout(fetchLogs, 1500);
             } catch (err) {
                 alert("Error saving log: " + err.message + "\n\nCheck that your logging Apps Script is deployed with 'Anyone' access and is accepting this request.");
