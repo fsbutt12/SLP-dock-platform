@@ -39,14 +39,13 @@
             transition: all 0.3s ease;
         }
         .brand-section { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
-        .brand-logo { height: 42px; width: auto; border-radius: 6px; }
         .brand-text h2 { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.5px; color: #fff; }
         .brand-text p { font-size: 0.7rem; color: var(--accent-color); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
         
         .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; flex-grow: 1; }
         .nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s ease; border-left: 3px solid transparent; }
         .nav-item:hover { background-color: var(--nav-hover); color: #fff; }
-        .nav-item.active { background-color: rgba(252, 194, 0, 0.1); color: var(--accent-color); border-left: 3px solid var(--accent-color); }
+        .nav-item.active { background-color: rgba(252, 194, 0, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
         .nav-icon { font-size: 1.15rem; }
         .nav-text { white-space: nowrap; }
 
@@ -60,7 +59,6 @@
             .sidebar { width: 75px; padding: 1.5rem 0.5rem; align-items: center; }
             .brand-text, .system-health, .nav-text { display: none; }
             .brand-section { padding-bottom: 1.5rem; justify-content: center; width: 100%; }
-            .brand-logo { height: 32px; }
             .nav-item { justify-content: center; padding: 0.85rem 0; width: 100%; border-radius: 8px; border-left: none; border-bottom: 3px solid transparent; }
             .nav-item.active { border-left: none; border-bottom: 3px solid var(--accent-color); }
             .nav-icon { font-size: 1.4rem; margin: 0; }
@@ -75,9 +73,9 @@
         @media (max-width: 600px) { .metrics-bar-four { grid-template-columns: 1fr; } }
         .metric-card-slate { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: left; position: relative; backdrop-filter: blur(10px); }
         .metric-card-slate .card-icon { font-size: 1.1rem; margin-bottom: 1rem; opacity: 0.9; }
-        .metric-card-slate .num { font-size: 2.25rem; font-weight: 700; color: #fff; line-height: 1; }
+        .metric-card-slate .num { font-size: 2.25rem; font-weight: 700; color: #fff; line-height: 1.1; }
         .metric-card-slate .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; font-weight: 600; }
-        .metric-accent-line { position: absolute; top: 15px; right: 15px; width: 20px; height: 3px; background-color: var(--accent-color); border-radius: 2px; }
+        .metric-accent-line { position: absolute; top: 15px; right: 15px; width: 30px; height: 3px; background-color: var(--accent-color); border-radius: 2px; }
 
         /* Layout Grids */
         .dashboard-mid-split, .dashboard-bottom-split { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
@@ -85,10 +83,9 @@
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
         
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
-        .card h2 { font-size: 0.95rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; font-weight: 700; }
-        .card h2::before { content: '●'; color: var(--success-color); font-size: 0.7rem; }
+        .card h2 { font-size: 0.95rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; font-weight: 700; }
         
-        .view-header-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+        .view-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
         .view-header-title h1 { font-size: 1.75rem; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
         .view-header-title p { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; font-weight: 600; }
         .counter-badge-orange { display: inline-block; background: rgba(252, 194, 0, 0.15); color: var(--accent-color); border: 1px solid rgba(252, 194, 0, 0.3); font-size: 0.7rem; font-weight: bold; padding: 0.25rem 0.6rem; border-radius: 4px; margin-top: 8px; }
@@ -231,7 +228,6 @@
 
     <div class="sidebar">
         <div class="brand-section">
-            <img class="brand-logo" src="logo.png" alt="Logo">
             <div class="brand-text"><h2>Gateway <span style="color:var(--accent-color);">SLP</span></h2><p>Security Hub</p></div>
         </div>
         <ul class="nav-links">
