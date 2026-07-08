@@ -338,7 +338,6 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyR8_49OV91ebXs0aTiQOs-0l4_wCgHHrXptBBmNgXHzBfHN8cJMSu-CD_Rn_if6kmv6Q/exec";
         const API_URL = "https://script.google.com/macros/s/AKfycbxJe0TiXyU47-DCQfi44OztKNHaxmsM8n31wzg53fUw6BBnYkgcVmVhEIE5ViKvGQiWDg/exec";
         const OCR_API_URL = "https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
         let globalLogsCache = [];
@@ -798,38 +797,82 @@
             let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; globalLogsCache = chronData;
             const liveBody = document.getElementById('liveFeedBody'), activeBody = document.getElementById('activeYardTableBody');
             liveBody.innerHTML = ''; activeBody.innerHTML = '';
+ 
+            let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; 
+            globalLogsCache = chronData;
+            
+            const liveBody = document.getElementById('liveFeedBody');
+            const activeBody = document.getElementById('activeYardTableBody');
+            
+            if (liveBody) liveBody.innerHTML = ''; 
+            if (activeBody) activeBody.innerHTML = '';
 
             compileDriversRegistryCards(chronData);
             if(chronData.length === 0) { renderHistoryTable([]); return; }
+            
             document.getElementById('metric-total-checkins').innerText = chronData.length;
-
+ 
             let activeYardMap = {}, historicalPairs = [];
+
+            let activeYardMap = {};
+            let historicalPairs = [];
+            
+            // BULLETPROOF SORTING: Forces everything to lowercase and trims spaces so "INBOUND" matches "inbound"
             chronData.forEach(row => {
                 if(row.direction === "Inbound") activeYardMap[row.plateNumber] = row;
                 else if(row.direction === "Outbound") {
                     let match = activeYardMap[row.plateNumber];
                     historicalPairs.push({ ...row, checkInTime: match ? match.timestamp : "", iqamaNumber: match ? match.iqamaNumber : row.iqamaNumber });
                     if(match) delete activeYardMap[row.plateNumber];
+                let plate = (row.plateNumber || 'UNKNOWN').toString().trim().toUpperCase();
+                let dir = (row.direction || '').toString().trim().toLowerCase();
+                
+                if(dir === "inbound") {
+                    activeYardMap[plate] = row;
+                }
+                else if(dir === "outbound") {
+                    let match = activeYardMap[plate];
+                    historicalPairs.push({ 
+                        ...row, 
+                        checkInTime: match ? match.timestamp : row.timestamp, 
+                        iqamaNumber: match ? match.iqamaNumber : row.iqamaNumber 
+                    });
+                    if(match) delete activeYardMap[plate]; // Removes from Active Trucks
                 }
             });
+ 
 
             let activeList = Object.values(activeYardMap);
             document.getElementById('metric-active-now').innerText = document.getElementById('activeYardCounter').innerText = activeList.length;
             document.getElementById('metric-completed-today').innerText = historicalPairs.length;
+ 
 
             [...chronData].reverse().slice(0, 5).forEach(r => {
                 liveBody.innerHTML += `<tr><td><strong>${r.driverName}</strong></td><td>${r.plateNumber}</td><td>${r.dockNumber}</td><td><span class="badge ${r.direction.toLowerCase()}">${r.direction}</span></td></tr>`;
             });
-
+ 
             if(activeList.length === 0) activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
             else activeList.reverse().forEach(r => {
                 activeBody.innerHTML += `<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="badge in">INBOUND</span></td><td style="color:var(--accent-color); font-weight:600; font-size:0.8rem;">DISPATCHING</td><td style="color:var(--text-muted);">--</td><td><strong>${r.dockNumber.replace('Dock ','')}</strong></td><td style="font-size:0.85rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.timestamp, null)}</td><td style="font-size:0.8rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td><td style="text-align:right; padding-right:1rem;"><button class="btn-signout-action" onclick="executeRowSignout('${r.driverName}','${r.plateNumber}','${r.securityName || 'Guard'}','${r.dockNumber}')">SIGN OUT</button></td></tr>`;
+                let dirClass = r.direction ? r.direction.toLowerCase().trim() : 'inbound';
+                let displayDir = r.direction ? r.direction.toUpperCase().trim() : 'INBOUND';
+                liveBody.innerHTML += `<tr><td><strong>${r.driverName || 'Unknown'}</strong></td><td>${r.plateNumber || '--'}</td><td>${r.dockNumber || '--'}</td><td><span class="badge ${dirClass}">${displayDir}</span></td></tr>`;
             });
+ 
+
+            if(activeList.length === 0) {
+                activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
+            } else {
+                activeList.reverse().forEach(r => {
+                    let cleanDock = (r.dockNumber || '').toString().replace('Dock ','') || '--';
+                    activeBody.innerHTML += `<tr><td><strong>${r.driverName || 'Unknown'}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="badge in">INBOUND</span></td><td style="color:var(--accent-color); font-weight:600; font-size:0.8rem;">DISPATCHING</td><td style="color:var(--text-muted);">--</td><td><strong>${cleanDock}</strong></td><td style="font-size:0.85rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.timestamp, null)}</td><td style="font-size:0.8rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td><td style="text-align:right; padding-right:1rem;"><button class="btn-signout-action" onclick="executeRowSignout('${(r.driverName || 'Unknown').replace(/'/g, "\\'")}','${(r.plateNumber || '').replace(/'/g, "\\'")}','${(r.securityName || 'Guard').replace(/'/g, "\\'")}','${(r.dockNumber || '').replace(/'/g, "\\'")}')">SIGN OUT</button></td></tr>`;
+                });
+            }
 
             globalHistoryListCache = [...historicalPairs, ...activeList.map(i => ({ ...i, checkInTime: i.timestamp, isInside: true }))].sort((a,b) => new Date(b.checkInTime) - new Date(a.checkInTime));
             renderHistoryTable(filterHistoryListByRange(currentHistoryDateRange, document.getElementById('customDateFrom').value, document.getElementById('customDateTo').value));
         };
-
+ 
         function filterTable(bodyId, query) {
             document.querySelectorAll('#' + bodyId + ' tr').forEach(row => { if(row.cells.length >= 2) row.style.display = row.innerText.toLowerCase().includes(query.toLowerCase()) ? '' : 'none'; });
         }
