@@ -78,8 +78,7 @@
         .metric-accent-line { position: absolute; top: 15px; right: 15px; width: 30px; height: 3px; background-color: var(--accent-color); border-radius: 2px; }
 
         /* Layout Grids */
-        .dashboard-mid-split, .dashboard-bottom-split { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
-        @media (max-width: 1100px) { .dashboard-mid-split, .dashboard-bottom-split { grid-template-columns: 1fr; } }
+        .dashboard-mid-split { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
         
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
@@ -270,19 +269,10 @@
                 <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
             </div>
             <div class="dashboard-mid-split">
-                <div class="card" style="overflow-x: auto;"><div class="card-header-flex"><h2>Live Now</h2><button class="btn-mini" onclick="switchView('history', document.querySelectorAll('.nav-item')[3])">History Log</button></div>
-                    <table><thead><tr><th>Driver</th><th>Plate Number</th><th>Dock</th><th>Direction Status</th></tr></thead><tbody id="liveFeedBody"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading security records...</td></tr></tbody></table>
-                </div>
                 <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;"><div class="card-header-flex"><h2>Pending Access Requests</h2></div>
-                    <div style="text-align: center; color: var(--text-muted); padding: 2rem 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem;"><span style="font-size: 2rem;">🔒</span><div style="font-weight: 700; text-transform: uppercase; font-size: 0.85rem; color: #fff;">All Clear</div><p style="font-size: 0.75rem; max-width: 180px;">No pending vehicle overrides detected.</p></div>
+                    <div style="text-align: center; color: var(--text-muted); padding: 4rem 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem;"><span style="font-size: 2.5rem;">🔒</span><div style="font-weight: 700; text-transform: uppercase; font-size: 0.95rem; color: #fff; margin-top: 0.5rem;">All Clear</div><p style="font-size: 0.8rem; max-width: 220px; line-height: 1.4;">No pending vehicle overrides detected.</p></div>
                     <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 0.75rem; font-weight:700;">🛡️ Secure Protocol v2.4 Active</div>
                 </div>
-            </div>
-            <div class="dashboard-bottom-split">
-                <div class="card"><div class="card-header-flex"><h2>Recent Login Activity</h2></div>
-                    <table><thead><tr><th>User ID</th><th>Email Routing</th><th>Location Branch</th><th>Timestamp</th></tr></thead><tbody><tr><td><strong>Farman Shahid Butt</strong><br><span style="font-size:0.65rem; color:var(--text-muted);">ID: fsbutt@noon.com</span></td><td style="color: var(--text-muted);">fsbutt@noon.com</td><td>🇸🇦 Saudi Arabia</td><td style="font-size: 0.85rem;">1:36:59 PM<br><span style="color:var(--text-muted); font-size:0.7rem;">7/6/2026</span></td></tr><tr><td><strong>Farman Shahid Butt</strong><br><span style="font-size:0.65rem; color:var(--text-muted);">ID: fsbutt@noon.com</span></td><td style="color: var(--text-muted);">fsbutt@noon.com</td><td>🇸🇦 Saudi Arabia</td><td style="font-size: 0.85rem;">9:15:22 AM<br><span style="color:var(--text-muted); font-size:0.7rem;">7/6/2026</span></td></tr></tbody></table>
-                </div>
-                <div class="card"><div class="card-header-flex"><h2>Users Active</h2></div><div style="display:flex; align-items:center; gap: 1rem;"><div class="driver-avatar-img" style="background:var(--accent-color); color:#000; font-weight:800; font-size:1.1rem; border:none;">FB</div><div><h4 style="color:#fff; font-size:0.95rem;">Farman Shahid Butt</h4><p style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">fsbutt@noon.com</p></div></div><div style="margin-top: 2rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 6px; font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem;"><span>⏱️</span><div><span style="color: var(--text-muted)">System Uptime:</span> <strong style="color:#fff;">98.5%</strong></div></div></div>
             </div>
         </div>
 
@@ -420,6 +410,7 @@
         </div>
     </div>
 
+    <!-- DRIVER PROFILE MODAL -->
     <div class="modal-overlay" id="driverProfileModal">
         <div class="modal-window">
             <div class="modal-header-container"><h2 id="modalTitleName">Driver Details</h2><button class="btn-modal-close" onclick="closeDriverProfileModal()">✕</button></div>
@@ -438,6 +429,7 @@
         </div>
     </div>
 
+    <!-- SIGN OUT MODAL -->
     <div class="modal-overlay" id="signOutModal">
         <div class="modal-window" style="max-width: 400px; text-align: center; border: 1px solid rgba(252, 194, 0, 0.4);">
             <div class="modal-body-content" style="padding: 2.5rem 2rem;">
@@ -872,8 +864,8 @@
 
         window.handleLogsResponse = function(data) {
             let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; globalLogsCache = chronData;
-            const liveBody = document.getElementById('liveFeedBody'), activeBody = document.getElementById('activeYardTableBody');
-            liveBody.innerHTML = ''; activeBody.innerHTML = '';
+            const activeBody = document.getElementById('activeYardTableBody');
+            if(activeBody) activeBody.innerHTML = '';
 
             compileDriversRegistryCards(chronData);
             if(chronData.length === 0) { renderHistoryTable([]); return; }
@@ -900,35 +892,30 @@
             document.getElementById('metric-active-now').innerText = document.getElementById('activeYardCounter').innerText = activeList.length;
             document.getElementById('metric-completed-today').innerText = historicalPairs.length;
 
-            [...chronData].reverse().slice(0, 5).forEach(r => {
-                let isOut = r.direction === "Outbound";
-                let displayDir = isOut ? "OUTBOUND" : (r.direction || '').split(' - ')[0].toUpperCase(); 
-                let cssClass = getBadgeClass(displayDir, isOut);
-                liveBody.innerHTML += `<tr><td><strong style="font-size:0.9rem;">${r.driverName}</strong></td><td><span style="font-family:monospace; font-weight:700;">${r.plateNumber}</span></td><td><strong style="font-size:0.85rem;">${r.dockNumber}</strong></td><td><span class="${cssClass}">${displayDir}</span></td></tr>`;
-            });
-
-            if(activeList.length === 0) activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
-            else activeList.reverse().forEach(r => {
-                let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
-                let cssClass = getBadgeClass(displayDir, false);
-                let activeDispType = r.dispatchType || 'DISPATCHING';
-                let activeSeal = r.sealNumber || '--';
-                
-                activeBody.innerHTML += `<tr>
-                    <td><strong>${r.driverName}</strong></td>
-                    <td>${generatePlateBumperUI(r.plateNumber)}</td>
-                    <td><span class="${cssClass}">${displayDir}</span></td>
-                    <td style="color:var(--accent-color); font-weight:700; font-size:0.75rem;">${activeDispType.toUpperCase()}</td>
-                    <td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${activeSeal}</td>
-                    <td><strong style="font-size:0.9rem;">${r.dockNumber}</strong></td>
-                    <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td>
-                    <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.timestamp, null)}</td>
-                    <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td>
-                    <td style="text-align:right; padding-right:1rem;">
-                        <button class="btn-signout-action" onclick="promptSignOut('${r.driverName}','${r.plateNumber}','${r.securityName || 'Guard'}','${r.dockNumber}','${activeDispType}')">SIGN OUT</button>
-                    </td>
-                </tr>`;
-            });
+            if(activeBody) {
+                if(activeList.length === 0) activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
+                else activeList.reverse().forEach(r => {
+                    let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
+                    let cssClass = getBadgeClass(displayDir, false);
+                    let activeDispType = r.dispatchType || 'DISPATCHING';
+                    let activeSeal = r.sealNumber || '--';
+                    
+                    activeBody.innerHTML += `<tr>
+                        <td><strong>${r.driverName}</strong></td>
+                        <td>${generatePlateBumperUI(r.plateNumber)}</td>
+                        <td><span class="${cssClass}">${displayDir}</span></td>
+                        <td style="color:var(--accent-color); font-weight:700; font-size:0.75rem;">${activeDispType.toUpperCase()}</td>
+                        <td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${activeSeal}</td>
+                        <td><strong style="font-size:0.9rem;">${r.dockNumber}</strong></td>
+                        <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td>
+                        <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.timestamp, null)}</td>
+                        <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td>
+                        <td style="text-align:right; padding-right:1rem;">
+                            <button class="btn-signout-action" onclick="promptSignOut('${r.driverName}','${r.plateNumber}','${r.securityName || 'Guard'}','${r.dockNumber}','${activeDispType}')">SIGN OUT</button>
+                        </td>
+                    </tr>`;
+                });
+            }
 
             globalHistoryListCache = [...historicalPairs, ...activeList.map(i => ({ ...i, checkInTime: i.timestamp, isInside: true }))].sort((a,b) => new Date(b.checkInTime) - new Date(a.checkInTime));
             renderHistoryTable(filterHistoryListByRange(currentHistoryDateRange, document.getElementById('customDateFrom').value, document.getElementById('customDateTo').value));
