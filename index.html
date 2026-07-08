@@ -6,170 +6,225 @@
     <title>SLP Security - Gateway Platform</title>
     <style>
         :root {
-            --bg-color: #0b0f19; --card-bg: rgba(21, 28, 44, 0.85); --sidebar-bg: rgba(15, 22, 36, 0.95);
-            --accent-color: #f59e0b; --text-main: #f3f4f6; --text-muted: #9ca3af;
-            --border-color: rgba(30, 41, 59, 0.8); --success-color: #10b981; --nav-hover: rgba(245, 158, 11, 0.1);
+            /* Exact colors from the video/images */
+            --bg-color: #0b0e14; /* Deep dark background */
+            --card-bg: rgba(18, 22, 31, 0.85); /* Slightly lighter for cards */
+            --sidebar-bg: #07090c;
+            --accent-color: #fcc200; /* Noon Yellow */
+            --text-main: #f0f2f5;
+            --text-muted: #8b949e;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --success-color: #2ea043;
+            --danger-color: #f85149;
+            --nav-hover: rgba(252, 194, 0, 0.1);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        
         body {
             background-color: var(--bg-color);
-            background-image: linear-gradient(rgba(11, 15, 25, 0.9), rgba(11, 15, 25, 0.9)), url('background.jpg');
-            background-size: cover; background-position: center; background-attachment: fixed;
-            color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden;
+            /* Watermark background configuration */
+            background-image: linear-gradient(rgba(11, 14, 20, 0.92), rgba(11, 14, 20, 0.92)), url('background.jpg.jpeg');
+            background-size: 55%;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            color: var(--text-main); 
+            display: flex; 
+            min-height: 100vh; 
+            overflow-x: hidden;
         }
+
         .sidebar {
             width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color);
-            display: flex; flex-direction: column; padding: 1.5rem 1rem; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100; backdrop-filter: blur(12px);
+            display: flex; flex-direction: column; padding: 1.5rem 1rem; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
         }
         .brand-section { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
         .brand-logo { height: 42px; width: auto; border-radius: 6px; }
-        .brand-text h2 { font-size: 1.25rem; font-weight: 700; letter-spacing: 0.5px; color: #fff; }
-        .brand-text p { font-size: 0.75rem; color: var(--accent-color); font-weight: 600; text-transform: uppercase; }
-        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex-grow: 1; }
-        .nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.75rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s ease; }
+        .brand-text h2 { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.5px; color: #fff; }
+        .brand-text p { font-size: 0.7rem; color: var(--accent-color); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
+        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; flex-grow: 1; }
+        .nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s ease; border-left: 3px solid transparent; }
         .nav-item:hover { background-color: var(--nav-hover); color: #fff; }
-        .nav-item.active { background-color: rgba(245, 158, 11, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
+        .nav-item.active { background-color: rgba(252, 194, 0, 0.1); color: var(--accent-color); border-left: 3px solid var(--accent-color); }
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
-        .system-health { background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-bottom: 0.5rem; }
+        .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 8px; padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 0.5rem; }
         .health-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 8px var(--success-color); }
-        .main-content { margin-left: 260px; flex-grow: 1; padding: 2rem; width: calc(100% - 260px); }
+        .main-content { margin-left: 260px; flex-grow: 1; padding: 2.5rem 3rem; width: calc(100% - 260px); }
+        
         @media (max-width: 900px) {
             .sidebar { width: 70px; padding: 1.5rem 0.5rem; } .brand-text, .system-health, .nav-item span { display: none; }
-            .main-content { margin-left: 70px; width: calc(100% - 70px); }
+            .main-content { margin-left: 70px; width: calc(100% - 70px); padding: 1.5rem; }
         }
         .app-view { display: none; } .app-view.active-view { display: block; }
+
+        /* Dashboard Metric Cards */
         .metrics-bar-four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
         @media (max-width: 1200px) { .metrics-bar-four { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px) { .metrics-bar-four { grid-template-columns: 1fr; } }
-        .metric-card-slate { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; text-align: left; position: relative; backdrop-filter: blur(8px); }
-        .metric-card-slate .card-icon { font-size: 1.2rem; color: var(--accent-color); margin-bottom: 0.75rem; opacity: 0.8; }
-        .metric-card-slate .num { font-size: 2rem; font-weight: 700; color: #fff; line-height: 1.1; }
-        .metric-card-slate .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-        .metric-accent-line { position: absolute; top: 15px; right: 15px; width: 30px; height: 3px; background-color: var(--accent-color); border-radius: 2px; }
-        .dashboard-mid-split, .dashboard-bottom-split { display: grid; grid-template-columns: 1.8fr 1fr; gap: 2rem; margin-bottom: 2rem; }
-        .dashboard-bottom-split { grid-template-columns: 2fr 1fr; }
+        .metric-card-slate { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: left; position: relative; backdrop-filter: blur(10px); }
+        .metric-card-slate .card-icon { font-size: 1.1rem; margin-bottom: 1rem; opacity: 0.9; }
+        .metric-card-slate .num { font-size: 2.25rem; font-weight: 700; color: #fff; line-height: 1; }
+        .metric-card-slate .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; font-weight: 600; }
+        .metric-accent-line { position: absolute; top: 15px; right: 15px; width: 20px; height: 3px; background-color: var(--accent-color); border-radius: 2px; }
+
+        /* Layout Grids */
+        .dashboard-mid-split, .dashboard-bottom-split { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
         @media (max-width: 1100px) { .dashboard-mid-split, .dashboard-bottom-split { grid-template-columns: 1fr; } }
-        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); backdrop-filter: blur(8px); }
-        .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.75rem; }
-        .card h2 { font-size: 1.1rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; }
-        .card h2::before { content: '●'; color: var(--success-color); font-size: 0.8rem; }
-        .view-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
-        .view-header-title h1 { font-size: 1.75rem; font-weight: 700; color: #fff; }
-        .view-header-title p { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-        .counter-badge-orange { display: inline-block; background: rgba(245, 158, 11, 0.15); color: var(--accent-color); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.7rem; font-weight: bold; padding: 0.15rem 0.5rem; border-radius: 4px; margin-top: 4px; }
-        .filter-tabs-container { display: flex; gap: 0.5rem; background: rgba(11, 15, 25, 0.5); padding: 0.25rem; border-radius: 6px; border: 1px solid var(--border-color); }
-        .tab-filter-item { background: transparent; border: none; color: var(--text-muted); font-size: 0.7rem; font-weight: bold; padding: 0.4rem 0.85rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
+        
+        .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
+        .card h2 { font-size: 0.95rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem; font-weight: 700; }
+        .card h2::before { content: '●'; color: var(--success-color); font-size: 0.7rem; }
+        
+        .view-header-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+        .view-header-title h1 { font-size: 1.75rem; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+        .view-header-title p { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; font-weight: 600; }
+        .counter-badge-orange { display: inline-block; background: rgba(252, 194, 0, 0.15); color: var(--accent-color); border: 1px solid rgba(252, 194, 0, 0.3); font-size: 0.7rem; font-weight: bold; padding: 0.25rem 0.6rem; border-radius: 4px; margin-top: 8px; }
+        
+        .filter-tabs-container { display: flex; gap: 0.25rem; background: rgba(0,0,0,0.4); padding: 0.25rem; border-radius: 6px; border: 1px solid var(--border-color); }
+        .tab-filter-item { background: transparent; border: none; color: var(--text-muted); font-size: 0.7rem; font-weight: 700; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; }
         .tab-filter-item.active { background: var(--accent-color); color: #000; }
-        .btn-excel { background-color: var(--accent-color); color: #000; border: none; padding: 0.5rem 1.25rem; font-size: 0.8rem; font-weight: bold; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-excel { background-color: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; }
+        .btn-excel:hover { background-color: var(--accent-color); color: #000; }
+
+        /* Tables & Badges EXACTLY matching video */
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; padding: 0.85rem; border-bottom: 1px solid var(--border-color); letter-spacing: 0.5px; }
-        td { padding: 1rem 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem; }
+        th { color: var(--text-muted); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; padding: 1rem 0.85rem; border-bottom: 1px solid var(--border-color); letter-spacing: 0.5px; }
+        td { padding: 1rem 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background-color: rgba(255,255,255,0.02); }
-        .btn-mini { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 0.25rem 0.75rem; font-size: 0.75rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; font-weight: 600; }
-        .btn-mini:hover { background: var(--accent-color); color: #000; }
-        .btn-signout-action { background: #ef4444; color: #fff; border: none; padding: 0.4rem 1rem; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: opacity 0.2s; }
-        .btn-signout-action:hover { opacity: 0.9; }
-        .scanners-triple-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
+        
+        .badge {
+            padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.5px; display: inline-block;
+        }
+        /* Inbound - Green */
+        .badge.in { background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid rgba(46, 160, 67, 0.3); }
+        /* Outbound - Red */
+        .badge.out { background: rgba(248, 81, 73, 0.15); color: #ff7b72; border: 1px solid rgba(248, 81, 73, 0.3); }
+        /* Transfer/Other - Purple */
+        .badge.purple { background: rgba(163, 113, 247, 0.15); color: #d2a8ff; border: 1px solid rgba(163, 113, 247, 0.3); }
+        /* Alternative - Blue */
+        .badge.blue { background: rgba(56, 139, 253, 0.15); color: #79c0ff; border: 1px solid rgba(56, 139, 253, 0.3); }
+
+        .btn-mini { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.3rem 0.75rem; font-size: 0.7rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; font-weight: 600; transition: 0.2s; }
+        .btn-mini:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        
+        .btn-signout-action { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 0.4rem 1rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .btn-signout-action:hover { background: var(--danger-color); color: #fff; }
+
+        /* Form styling matching video */
+        .scanners-triple-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
         @media (max-width: 768px) { .scanners-triple-row { grid-template-columns: 1fr; } }
-        .scan-box-dashed { background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 8px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; }
-        .scan-box-dashed:hover { border-color: var(--accent-color); background: rgba(245, 158, 11, 0.03); }
+        .scan-box-dashed { background: rgba(0,0,0,0.3); border: 1px dashed var(--border-color); border-radius: 6px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; }
+        .scan-box-dashed:hover { border-color: var(--accent-color); background: rgba(252, 194, 0, 0.05); }
         .scan-box-dashed .icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
-        .scan-box-dashed span.label-text { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
-        .camera-btn-inline { display: inline-flex; align-items: center; justify-content: center; margin-top: 0.5rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--accent-color); font-size: 0.7rem; font-weight: bold; text-transform: uppercase; padding: 0.3rem 0.6rem; border-radius: 5px; cursor: pointer; }
+        .scan-box-dashed span.label-text { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+        .camera-btn-inline { display: inline-flex; align-items: center; justify-content: center; margin-top: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--accent-color); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer; }
         .camera-btn-inline:hover { background: var(--accent-color); color: #000; }
-        .toggle-container { display: flex; justify-content: center; background: rgba(11, 15, 25, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.25rem; margin-bottom: 2rem; max-width: 320px; margin-left: auto; margin-right: auto; }
-        .toggle-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        
+        .toggle-container { display: flex; justify-content: center; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.25rem; margin-bottom: 2rem; max-width: 320px; margin-left: auto; margin-right: auto; }
+        .toggle-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
         .toggle-btn.active { background: var(--accent-color); color: #000; }
-        .form-grid-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem 2rem; }
+        
+        .form-grid-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem 2rem; }
         @media (max-width: 768px) { .form-grid-columns { grid-template-columns: 1fr; } }
-        .form-section-divider { grid-column: 1 / -1; background: #1e3a8a; color: #fff; padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; border-radius: 4px; margin-top: 1rem; margin-bottom: 0.5rem; letter-spacing: 0.5px; max-width: fit-content; }
-        .badge-style { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.4rem; font-weight: 600; letter-spacing: 0.5px; }
-        .input-box-styled { width: 100%; background-color: rgba(11, 15, 25, 0.7); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.85rem; border-radius: 6px; font-size: 0.95rem; outline: none; transition: border 0.2s; }
-        .input-box-styled:focus { border-color: var(--accent-color); }
+        .form-section-divider { grid-column: 1 / -1; background: rgba(56, 139, 253, 0.15); color: #79c0ff; border: 1px solid rgba(56, 139, 253, 0.3); padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; margin-top: 1rem; margin-bottom: 0.5rem; letter-spacing: 0.5px; max-width: fit-content; }
+        
+        .badge-style { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem; font-weight: 700; letter-spacing: 0.5px; }
+        .input-box-styled { width: 100%; background-color: #0d1117; border: 1px solid var(--border-color); color: var(--text-main); padding: 0.85rem 1rem; border-radius: 6px; font-size: 0.9rem; outline: none; transition: border 0.2s; }
+        .input-box-styled:focus { border-color: var(--accent-color); background-color: #161b22; }
+        
         .header-search-box-container { position: relative; width: 280px; }
         .header-search-box-container span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; }
-        .header-search-input { width: 100%; background: rgba(11, 15, 25, 0.5); border: 1px solid var(--border-color); color: #fff; padding: 0.6rem 1rem 0.6rem 2.25rem; border-radius: 8px; font-size: 0.85rem; outline: none; }
+        .header-search-input { width: 100%; background: #0d1117; border: 1px solid var(--border-color); color: #fff; padding: 0.6rem 1rem 0.6rem 2.25rem; border-radius: 6px; font-size: 0.85rem; outline: none; }
         .header-search-input:focus { border-color: var(--accent-color); }
+        
         .plate-box-split { display: inline-flex; flex-direction: column; gap: 2px; }
-        .plate-segment { border: 1px solid rgba(255,255,255,0.15); padding: 1px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: rgba(0,0,0,0.2); text-align: center; min-width: 45px; }
-        .submit-btn-global { width: 100%; background-color: var(--accent-color); color: #000; border: none; padding: 1rem; font-size: 1rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 2rem; letter-spacing: 0.5px; transition: opacity 0.2s; }
+        .plate-segment { border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background: rgba(0,0,0,0.4); text-align: center; min-width: 50px; font-family: monospace; }
+        
+        .submit-btn-global { width: 100%; background-color: var(--accent-color); color: #000; border: none; padding: 1rem; font-size: 0.95rem; font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 2.5rem; letter-spacing: 1px; transition: opacity 0.2s; }
+        .submit-btn-global:hover { opacity: 0.9; }
 
+        /* Driver Registry Grid */
         .drivers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1rem; }
         @media (max-width: 1100px) { .drivers-grid { grid-template-columns: 1fr; } }
-        .driver-registry-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; position: relative; backdrop-filter: blur(8px); }
+        .driver-registry-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; position: relative; backdrop-filter: blur(10px); }
         .driver-card-header { display: flex; align-items: center; gap: 1rem; }
-        .driver-avatar-img { width: 56px; height: 56px; border-radius: 50%; background: rgba(0,0,0,0.3); border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        .driver-meta h3 { font-size: 1.1rem; color: #fff; font-weight: 700; text-transform: uppercase; }
-        .driver-badges { display: flex; gap: 0.5rem; margin-top: 4px; }
-        .tag-badge { font-size: 0.65rem; font-weight: bold; padding: 0.15rem 0.5rem; border-radius: 4px; text-transform: uppercase; }
-        .tag-badge.verified { background: rgba(16, 185, 129, 0.15); color: var(--success-color); border: 1px solid rgba(16, 185, 129, 0.3); }
-        .tag-badge.carrier { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .driver-card-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: rgba(0,0,0,0.15); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.02); }
-        .info-block p { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
-        .info-block data { font-size: 0.95rem; color: #fff; font-weight: bold; font-family: monospace; }
-        .btn-card-action { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--accent-color); padding: 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: all 0.2s; text-align: center; width: 100%; }
-        .btn-card-action:hover { background: var(--accent-color); color: #000; border-color: var(--accent-color); }
+        .driver-avatar-img { width: 50px; height: 50px; border-radius: 50%; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+        .driver-meta h3 { font-size: 1.05rem; color: #fff; font-weight: 700; text-transform: uppercase; }
+        .driver-badges { display: flex; gap: 0.5rem; margin-top: 6px; }
+        .tag-badge { font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; text-transform: uppercase; }
+        .tag-badge.verified { background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid rgba(46, 160, 67, 0.3); }
+        .tag-badge.carrier { background: rgba(56, 139, 253, 0.15); color: #79c0ff; border: 1px solid rgba(56, 139, 253, 0.3); }
+        .driver-card-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 6px; border: 1px solid var(--border-color); }
+        .info-block p { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; font-weight: 600; }
+        .info-block data { font-size: 0.9rem; color: #fff; font-weight: 700; font-family: monospace; }
+        .btn-card-action { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; text-align: center; width: 100%; }
+        .btn-card-action:hover { border-color: var(--accent-color); color: var(--accent-color); }
         .card-management-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
-        .btn-icon-manage { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-muted); width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; }
+        .btn-icon-manage { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; }
 
+        /* Modals */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
             display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;
         }
         .modal-overlay.modal-active { display: flex; }
         
         .modal-window {
-            background: #111625; border: 1px solid var(--border-color); border-radius: 14px; width: 100%; max-width: 580px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column;
+            background: #0d1117; border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 580px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); display: flex; flex-direction: column;
         }
-        .modal-header-container { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .modal-header-container h2 { font-size: 1.2rem; color: #fff; font-weight: 700; }
+        .modal-header-container { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); }
+        .modal-header-container h2 { font-size: 1.1rem; color: #fff; font-weight: 700; text-transform: uppercase; }
         .btn-modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
         .modal-body-content { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
-        .modal-media-viewport { width: 100%; height: 210px; border-radius: 8px; background: #1a2236 url('https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800') center/cover no-repeat; border: 1px solid rgba(255,255,255,0.05); }
+        .modal-media-viewport { width: 100%; height: 210px; border-radius: 6px; background: #161b22 url('https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800') center/cover no-repeat; border: 1px solid var(--border-color); }
         .modal-data-blocks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .modal-slate-cell { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); padding: 0.85rem 1rem; border-radius: 8px; }
-        .modal-slate-cell span { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 4px; }
-        .modal-slate-cell p { font-size: 1rem; color: #fff; font-weight: bold; }
+        .modal-slate-cell { background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.85rem 1rem; border-radius: 6px; }
+        .modal-slate-cell span { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
+        .modal-slate-cell p { font-size: 0.95rem; color: #fff; font-weight: 700; }
         .modal-plate-capsules { display: flex; gap: 0.35rem; margin-top: 4px; }
-        .modal-plate-tag { background: #000; border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; font-family: monospace; border-radius: 4px; font-size: 0.85rem; font-weight: bold; color: var(--accent-color); }
-        .modal-footer-container { padding: 1rem 1.5rem; background: rgba(0,0,0,0.1); border-top: 1px solid rgba(255,255,255,0.03); display: flex; justify-content: flex-end; border-radius: 0 0 14px 14px; }
-        .btn-modal-cancel { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #fff; padding: 0.6rem 1.5rem; font-size: 0.8rem; font-weight: bold; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
+        .modal-plate-tag { background: #000; border: 1px solid var(--border-color); padding: 2px 8px; font-family: monospace; border-radius: 4px; font-size: 0.85rem; font-weight: 700; color: var(--accent-color); }
+        .modal-footer-container { padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; border-radius: 0 0 12px 12px; }
+        .btn-modal-cancel { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.6rem 1.5rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
 
         .suggestions-dropdown {
             position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
-            background: #111625; border: 1px solid var(--border-color); border-radius: 8px;
-            max-height: 220px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            background: #161b22; border: 1px solid var(--border-color); border-radius: 6px;
+            max-height: 220px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.6);
         }
         .suggestions-dropdown.open { display: block; }
-        .suggestion-item { padding: 0.65rem 1rem; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .suggestion-item { padding: 0.75rem 1rem; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid var(--border-color); }
         .suggestion-item:last-child { border-bottom: none; }
-        .suggestion-item:hover { background: rgba(245, 158, 11, 0.1); }
-        .suggestion-item small { display: block; color: var(--text-muted); font-size: 0.7rem; margin-top: 2px; }
+        .suggestion-item:hover { background: rgba(252, 194, 0, 0.1); }
+        .suggestion-item small { display: block; color: var(--text-muted); font-size: 0.7rem; margin-top: 4px; }
 
         .camera-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000;
             display: none; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; padding: 1rem;
         }
         .camera-overlay.open { display: flex; }
-        .camera-overlay video, .camera-overlay canvas { max-width: 100%; max-height: 65vh; border-radius: 10px; border: 2px solid var(--accent-color); }
+        .camera-overlay video, .camera-overlay canvas { max-width: 100%; max-height: 65vh; border-radius: 8px; border: 2px solid var(--accent-color); }
         .camera-controls { display: flex; gap: 1rem; }
-        .camera-controls button { padding: 0.7rem 1.5rem; border-radius: 8px; border: none; font-weight: bold; text-transform: uppercase; cursor: pointer; font-size: 0.8rem; }
+        .camera-controls button { padding: 0.8rem 1.5rem; border-radius: 6px; border: none; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.8rem; }
         .btn-capture { background: var(--accent-color); color: #000; }
-        .btn-cancel-cam { background: #ef4444; color: #fff; }
+        .btn-cancel-cam { background: var(--danger-color); color: #fff; }
 
         .custom-date-row { display: none; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
         .custom-date-row.open { display: flex; }
-        .custom-date-row input[type="date"] { background: rgba(11,15,25,0.7); border: 1px solid var(--border-color); color: #fff; padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.8rem; }
-        .custom-date-row button { background: var(--accent-color); color: #000; border: none; padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .custom-date-row input[type="date"] { background: #0d1117; border: 1px solid var(--border-color); color: #fff; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.8rem; outline:none;}
+        .custom-date-row button { background: var(--accent-color); color: #000; border: none; padding: 0.55rem 1rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <div class="brand-section"><img class="brand-logo" src="logo.png" alt="Logo"><div class="brand-text"><h2>Gateway <span>SLP</span></h2><p>Security Hub</p></div></div>
+        <div class="brand-section">
+            <div class="brand-text"><h2>Gateway <span style="color:var(--accent-color);">SLP</span></h2><p>Security Hub</p></div>
+        </div>
         <ul class="nav-links">
             <li class="nav-item active" onclick="switchView('dashboard', this)"><span>📊 Dashboard</span></li>
             <li class="nav-item" onclick="switchView('checkin', this)"><span>🚛 Check-in Truck</span></li>
@@ -179,7 +234,7 @@
             <li class="nav-item" onclick="switchView('settings', this)"><span>⚙️ Settings</span></li>
         </ul>
         <div class="sidebar-footer">
-            <div class="system-health"><div><span>System Health</span><div style="font-weight:bold; color:var(--success-color); margin-top:2px;">Operational</div></div><div class="health-dot"></div></div>
+            <div class="system-health"><div><span>System Health</span><div style="font-weight:700; color:var(--success-color); margin-top:2px;">Operational</div></div><div class="health-dot"></div></div>
             <div class="nav-item" onclick="toggleFullscreen()"><span id="fsBtnLabel">🖥️ Fullscreen</span></div>
         </div>
     </div>
@@ -189,29 +244,29 @@
             <div class="metrics-bar-four">
                 <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="metric-active-now">0</div><div class="label">Active Now</div><div class="metric-accent-line"></div></div>
                 <div class="metric-card-slate"><div class="card-icon">✅</div><div class="num" id="metric-completed-today">0</div><div class="label">Completed Today</div><div class="metric-accent-line" style="background-color: var(--success-color);"></div></div>
-                <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label">Total Check-Ins</div><div class="metric-accent-line" style="background-color: #3b82f6;"></div></div>
-                <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label">Drivers Database</div><div class="metric-accent-line"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label">Total Check-Ins</div><div class="metric-accent-line" style="background-color: #79c0ff;"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
             </div>
             <div class="dashboard-mid-split">
                 <div class="card" style="overflow-x: auto;"><div class="card-header-flex"><h2>Live Now</h2><button class="btn-mini" onclick="switchView('history', document.querySelectorAll('.nav-item')[3])">History Log</button></div>
-                    <table><thead><tr><th>Driver</th><th>Plate Number</th><th>Dock Assignment</th><th>Direction Status</th></tr></thead><tbody id="liveFeedBody"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading security records...</td></tr></tbody></table>
+                    <table><thead><tr><th>Driver</th><th>Plate Number</th><th>Dock</th><th>Direction Status</th></tr></thead><tbody id="liveFeedBody"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading security records...</td></tr></tbody></table>
                 </div>
                 <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;"><div class="card-header-flex"><h2>Pending Access Requests</h2></div>
-                    <div style="text-align: center; color: var(--text-muted); padding: 2rem 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem;"><span style="font-size: 2rem;">🔒</span><div style="font-weight: 600; text-transform: uppercase; font-size: 0.85rem; color: #fff;">All Clear</div><p style="font-size: 0.75rem; max-width: 180px;">No pending vehicle overrides detected.</p></div>
-                    <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem;">🛡️ Secure Protocol v2.4 Active</div>
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem;"><span style="font-size: 2rem;">🔒</span><div style="font-weight: 700; text-transform: uppercase; font-size: 0.85rem; color: #fff;">All Clear</div><p style="font-size: 0.75rem; max-width: 180px;">No pending vehicle overrides detected.</p></div>
+                    <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 0.75rem; font-weight:700;">🛡️ Secure Protocol v2.4 Active</div>
                 </div>
             </div>
             <div class="dashboard-bottom-split">
                 <div class="card"><div class="card-header-flex"><h2>Recent Login Activity</h2></div>
-                    <table><thead><tr><th>User ID</th><th>Email Routing</th><th>Location Branch</th><th>Timestamp</th></tr></thead><tbody><tr><td><strong>Farman Shahid Butt</strong></td><td style="color: var(--text-muted);">fsbutt@noon.com</td><td>🇸🇦 Saudi Arabia</td><td style="font-size: 0.85rem;">1:36:59 PM<br><span style="color:var(--text-muted)">7/6/2026</span></td></tr><tr><td><strong>Farman Shahid Butt</strong></td><td style="color: var(--text-muted);">fsbutt@noon.com</td><td>🇸🇦 Saudi Arabia</td><td style="font-size: 0.85rem;">9:15:22 AM<br><span style="color:var(--text-muted)">7/6/2026</span></td></tr></tbody></table>
+                    <table><thead><tr><th>User ID</th><th>Email Routing</th><th>Location Branch</th><th>Timestamp</th></tr></thead><tbody><tr><td><strong>Farman Shahid Butt</strong><br><span style="font-size:0.65rem; color:var(--text-muted);">ID: fsbutt@noon.com</span></td><td style="color: var(--text-muted);">fsbutt@noon.com</td><td>🇸🇦 Saudi Arabia</td><td style="font-size: 0.85rem;">1:36:59 PM<br><span style="color:var(--text-muted); font-size:0.7rem;">7/6/2026</span></td></tr><tr><td><strong>Farman Shahid Butt</strong><br><span style="font-size:0.65rem; color:var(--text-muted);">ID: fsbutt@noon.com</span></td><td style="color: var(--text-muted);">fsbutt@noon.com</td><td>🇸🇦 Saudi Arabia</td><td style="font-size: 0.85rem;">9:15:22 AM<br><span style="color:var(--text-muted); font-size:0.7rem;">7/6/2026</span></td></tr></tbody></table>
                 </div>
-                <div class="card"><div class="card-header-flex"><h2>Users Active</h2></div><div class="user-activity-row"><div class="user-avatar">FB</div><div class="user-details"><h4>Farman Shahid Butt</h4><p>fsbutt@noon.com</p></div></div><div style="margin-top: 1.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 0.75rem; border-radius: 8px; font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem;"><span>⏱️</span><div><span style="color: var(--text-muted)">System Uptime:</span> <strong>98.5%</strong></div></div></div>
+                <div class="card"><div class="card-header-flex"><h2>Users Active</h2></div><div style="display:flex; align-items:center; gap: 1rem;"><div class="driver-avatar-img" style="background:var(--accent-color); color:#000; font-weight:800; font-size:1.1rem; border:none;">FB</div><div><h4 style="color:#fff; font-size:0.95rem;">Farman Shahid Butt</h4><p style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">fsbutt@noon.com</p></div></div><div style="margin-top: 2rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 6px; font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem;"><span>⏱️</span><div><span style="color: var(--text-muted)">System Uptime:</span> <strong style="color:#fff;">98.5%</strong></div></div></div>
             </div>
         </div>
 
         <div id="view-checkin" class="app-view">
-            <header><h1>Truck Entry Form</h1></header>
-            <div class="card" style="max-width: 850px; margin: 0 auto;">
+            <header class="view-header-row"><div class="view-header-title"><h1>Truck Entry Form</h1><p>Record arriving and departing vehicles</p></div></header>
+            <div class="card" style="max-width: 850px; margin: 0 auto; padding: 2rem;">
                 <div class="scanners-triple-row">
                     <div class="scan-box-dashed" onclick="document.getElementById('driverPhotoInput').click()">
                         <div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus">Driver Photo / Truck Photo</span></div>
@@ -238,7 +293,7 @@
                         <div class="form-group search-input-wrapper" id="driverLookupGroup" style="display: none; grid-column: 1 / -1; position: relative;">
                             <label class="badge-style">Search Driver By Name or Plate... *</label>
                             <span class="search-icon-inside" style="position:absolute; left:12px; top:62%;">🔍</span>
-                            <input type="text" id="driverSearchBox" class="input-box-styled input-search-padded" placeholder="Type to search drivers..." autocomplete="off">
+                            <input type="text" id="driverSearchBox" class="input-box-styled header-search-input" placeholder="Type to search drivers..." autocomplete="off">
                             <div id="driverSuggestionsList" class="suggestions-dropdown"></div>
                         </div>
                         <div class="form-group new-driver-field"><label class="badge-style">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" placeholder="Enter driver full name"></div>
@@ -254,7 +309,7 @@
                         </div>
                         
                         <div class="form-group"><label class="badge-style">Purpose / Direction *</label>
-                            <select id="direction" class="input-box-styled" style="font-size: 0.8rem;">
+                            <select id="direction" class="input-box-styled" style="font-size: 0.85rem;">
                                 <option value="Inbound - تنزيل بضائع">Inbound - تنزيل بضائع</option>
                                 <option value="RTV Handover - تسليم مرتجعات">RTV Handover - تسليم مرتجعات</option>
                                 <option value="ST CFCs - نقل بضائع بين مستودعات نون">ST CFCs - نقل بضائع بين مستودعات نون</option>
@@ -279,8 +334,8 @@
                         </div>
                         
                         <div class="form-group" id="sealNumberContainer" style="display: none; grid-column: 1 / -1;">
-                            <label class="badge-style">Incoming Seal Number *</label>
-                            <input type="text" id="sealNumber" class="input-box-styled" placeholder="Enter incoming seal number">
+                            <label class="badge-style" style="color:var(--accent-color);">Incoming Seal Number *</label>
+                            <input type="text" id="sealNumber" class="input-box-styled" placeholder="Enter incoming seal number" style="border-color: rgba(252, 194, 0, 0.4);">
                         </div>
                         
                     </div>
@@ -294,20 +349,20 @@
                 <div class="view-header-title"><h1>Active Trucks in Facility</h1><p>Currently Checked-In Vehicles</p><div class="counter-badge-orange">⏳ Total Inside: <span id="activeYardCounter">0</span></div></div>
                 <div class="header-search-box-container"><span>🔍</span><input type="text" id="yardSearchQuery" class="header-search-input" placeholder="Search records..." oninput="filterTable('activeYardTableBody', this.value)"></div>
             </div>
-            <div class="card" style="overflow-x: auto; padding: 0.5rem;">
+            <div class="card" style="overflow-x: auto; padding: 0.5rem; background: transparent; border: none;">
                 <table id="activeYardTable">
                     <thead><tr><th>Driver</th><th>Plate</th><th>Direction</th><th>Type</th><th>Seal Number</th><th>Dock</th><th>Check-In Time</th><th>Duration</th><th>Security</th><th style="text-align: right; padding-right: 1.5rem;">Action</th></tr></thead>
-                    <tbody id="activeYardTableBody"><tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr></tbody>
+                    <tbody id="activeYardTableBody"><tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr></tbody>
                 </table>
             </div>
         </div>
 
         <div id="view-history" class="app-view">
             <div class="view-header-row">
-                <div class="view-header-title"><h1>Movement History</h1><p>Site Movement Activity</p></div><button class="btn-excel" onclick="exportHistoryToExcel()">🗄️ Export to Excel</button>
+                <div class="view-header-title"><h1>Movement History</h1><p>Site Movement Activity</p></div><button class="btn-excel" onclick="exportHistoryToExcel()">⤓ Export to Excel</button>
             </div>
-            <div class="card" style="padding: 1.25rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div class="card" style="padding: 1.5rem; background: transparent; border:none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
                     <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" placeholder="Filter by driver, plate, or security ID..." oninput="filterTable('historyLogTableBody', this.value)"></div>
                     <div class="filter-tabs-container">
                         <button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)">Today</button>
@@ -317,13 +372,13 @@
                     </div>
                 </div>
                 <div class="custom-date-row" id="customDateRow">
-                    <input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem;">to</span> <input type="date" id="customDateTo">
+                    <input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;">TO</span> <input type="date" id="customDateTo">
                     <button onclick="applyCustomDateFilter()">Apply</button>
                 </div>
                 <div style="overflow-x: auto; margin-top: 1rem;">
                     <table id="historyLogTable">
                         <thead><tr><th>Driver</th><th>Plate</th><th>Direction</th><th>Dock</th><th>Seal Number</th><th>Check In Truck</th><th>Check Out</th><th>Duration</th><th>Security</th></tr></thead>
-                        <tbody id="historyLogTableBody"><tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic;">No historical logs parsed inside database.</td></tr></tbody>
+                        <tbody id="historyLogTableBody"><tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;">No historical logs parsed inside database.</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -332,14 +387,14 @@
         <div id="view-drivers" class="app-view">
             <div class="view-header-row">
                 <div class="view-header-title"><h1>Drivers Registry</h1><p>Centralized database of authorized personnel.</p></div>
-                <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="driverRegistrySearch" class="header-search-input" placeholder="Search records..." oninput="filterRegistryCards()"></div>
+                <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="driverRegistrySearch" class="header-search-input" placeholder="Search name, id, number..." oninput="filterRegistryCards()"></div>
             </div>
             <div class="drivers-grid" id="driversRegistryContainer"></div>
         </div>
 
         <div id="view-settings" class="app-view">
-            <header><h1>Control Panel Settings</h1></header>
-            <div class="card"><h2>Hardware Configurations</h2><p style="color: var(--text-muted); margin-top: 0.5rem;">OCR Engine Mode: Dynamic Client-Side Recognition Engine.</p></div>
+            <header class="view-header-row"><div class="view-header-title"><h1>Control Panel Settings</h1></div></header>
+            <div class="card"><h2>Hardware Configurations</h2><p style="color: var(--text-muted); margin-top: 0.5rem; font-size:0.85rem;">OCR Engine Mode: Dynamic Client-Side Recognition Engine.</p></div>
         </div>
     </div>
 
@@ -357,25 +412,25 @@
                     <div class="modal-slate-cell"><span>ID Token Reference</span><p style="font-family: monospace; font-size: 0.85rem; color: var(--accent-color);">d-k4v21l788</p></div>
                 </div>
             </div>
-            <div class="modal-footer-container"><button class="btn-modal-cancel" onclick="closeDriverProfileModal()">Cancel</button></div>
+            <div class="modal-footer-container"><button class="btn-modal-cancel" onclick="closeDriverProfileModal()">Close Window</button></div>
         </div>
     </div>
 
     <div class="modal-overlay" id="signOutModal">
-        <div class="modal-window" style="max-width: 420px; text-align: center; border: 1px solid var(--accent-color);">
-            <div class="modal-body-content" style="padding: 2.5rem 1.5rem;">
+        <div class="modal-window" style="max-width: 400px; text-align: center; border: 1px solid rgba(252, 194, 0, 0.4);">
+            <div class="modal-body-content" style="padding: 2.5rem 2rem;">
                 <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛡️</div>
                 <h2 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem;">Authorize Departure</h2>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 2rem;" id="signOutModalSubtext">Completing SLP cycle...</p>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 2.5rem;" id="signOutModalSubtext">Completing SLP cycle...</p>
                 
                 <div class="form-group" style="text-align: left; margin-bottom: 2rem;">
                     <label class="badge-style" style="color: var(--accent-color);">ATTACH DEPARTURE SEAL *</label>
-                    <input type="text" id="signOutSeal" class="input-box-styled" placeholder="e.g. SEAL-9022-X" style="border-color: rgba(245, 158, 11, 0.5);">
+                    <input type="text" id="signOutSeal" class="input-box-styled" placeholder="e.g. SEAL-9022-X" style="border-color: rgba(252, 194, 0, 0.5); background:#0b0e14;">
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <button id="btnConfirmSignOut" class="submit-btn-global" style="margin-top: 0; border-radius: 8px;">CONFIRM SIGN OUT</button>
-                    <button class="btn-modal-cancel" style="background: transparent; border: none; color: var(--text-muted); font-size: 0.8rem;" onclick="closeSignOutModal()">DISCARD CHANGES</button>
+                    <button id="btnConfirmSignOut" class="submit-btn-global" style="margin-top: 0; border-radius: 6px;">CONFIRM SIGN OUT</button>
+                    <button class="btn-modal-cancel" style="background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; letter-spacing:0.5px;" onclick="closeSignOutModal()">DISCARD CHANGES</button>
                 </div>
             </div>
         </div>
@@ -493,7 +548,6 @@
                 if (isLikelyHeic(file)) { reject(new Error('HEIC_UNSUPPORTED')); return; }
                 const img = new Image();
                 let triedFallback = false;
-
                 function fallbackToDataUrl() {
                     if (triedFallback) { reject(new Error('image failed to load — try a JPG or PNG instead')); return; }
                     triedFallback = true;
@@ -502,7 +556,6 @@
                     reader.onerror = () => reject(new Error('could not read the selected file'));
                     reader.readAsDataURL(file);
                 }
-
                 img.onload = () => resolve(img);
                 img.onerror = fallbackToDataUrl;
                 try { img.src = URL.createObjectURL(file); } catch (e) { fallbackToDataUrl(); }
@@ -519,7 +572,6 @@
             canvas.width = Math.round(sw * scale); canvas.height = Math.round(sh * scale);
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const d = imageData.data; const contrast = 50; const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
             for (let i = 0; i < d.length; i += 4) {
@@ -529,10 +581,7 @@
                 d[i] = d[i + 1] = d[i + 2] = gray;
             }
             ctx.putImageData(imageData, 0, 0);
-
-            return new Promise((resolve, reject) => {
-                canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('canvas toBlob failed')), 'image/jpeg', 0.85);
-            });
+            return new Promise((resolve, reject) => { canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('canvas toBlob failed')), 'image/jpeg', 0.85); });
         }
 
         function blobToBase64(blob) {
@@ -622,7 +671,7 @@
 
         function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
             currentSignOutContext = { driverName, plateNumber, securityName, dockNumber, dispatchType };
-            document.getElementById('signOutModalSubtext').innerText = `Completing SLP cycle for ${plateNumber}`;
+            document.getElementById('signOutModalSubtext').innerText = `Completing SLP cycle for vehicle ${plateNumber}`;
             document.getElementById('signOutSeal').value = '';
             document.getElementById('signOutModal').classList.add('modal-active');
         }
@@ -676,6 +725,14 @@
             if(parts.length >= 2) { return `<div class="plate-box-split"><div class="plate-segment">${parts[0]}</div><div class="plate-segment">${parts[1]}</div></div>`; }
             return `<div class="plate-box-split"><div class="plate-segment">${plateStr}</div></div>`;
         }
+        
+        // Dynamic Badge Styling Logic
+        function getBadgeClass(displayDir, isOut) {
+            if(isOut || displayDir.includes("OUTBOUND")) return "badge out";
+            if(displayDir.includes("INBOUND")) return "badge in";
+            if(displayDir.includes("RTV") || displayDir.includes("LQD") || displayDir.includes("LIQUIDATION")) return "badge purple";
+            return "badge blue"; // Default transfer style
+        }
 
         /* ---------------- Driver Cards Rendering ---------------- */
         function compileDriversRegistryCards(data) {
@@ -690,7 +747,7 @@
             let list = Object.values(uniqueDriversMap);
             driversRegistryList = list; 
             document.getElementById('metric-drivers-count').innerText = list.length;
-            if(list.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem;">No personnel maps cataloged.</div>'; return; }
+            if(list.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem; font-size:0.8rem;">No personnel maps cataloged.</div>'; return; }
 
             list.forEach(driver => {
                 let dateFormatted = fmtDate(driver.registered);
@@ -714,12 +771,14 @@
             const historyBody = document.getElementById('historyLogTableBody');
             historyBody.innerHTML = '';
             if (list.length === 0) {
-                historyBody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic;">No records match this range.</td></tr>';
+                historyBody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">No records match this range.</td></tr>';
                 return;
             }
             list.forEach(r => {
-                let displayDir = r.isInside ? (r.direction || '').split(' - ')[0] : (r.entryReason && r.entryReason !== "Unknown" ? r.entryReason.split(' - ')[0] : 'OUTBOUND');
-                historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.7rem; color:var(--text-muted);">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="badge ${r.isInside?'in':'out'}" style="font-size:0.65rem;">${displayDir}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace;">${r.sealNumber || '--'}</td><td style="font-size:0.85rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.85rem; color:var(--text-muted);">${r.isInside?'<span style="color:var(--accent-color);">Inside</span>':formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.8rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td></tr>`;
+                let displayDir = r.isInside ? (r.direction || '').split(' - ')[0].toUpperCase() : (r.entryReason && r.entryReason !== "Unknown" ? r.entryReason.split(' - ')[0].toUpperCase() : 'OUTBOUND');
+                let cssClass = getBadgeClass(displayDir, !r.isInside && displayDir==='OUTBOUND');
+                
+                historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.65rem; color:var(--text-muted); font-weight:600;">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${cssClass}">${displayDir}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${r.sealNumber || '--'}</td><td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${r.isInside?'<span style="color:var(--accent-color); font-weight:700;">Inside</span>':formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td></tr>`;
             });
         }
 
@@ -765,16 +824,11 @@
 
             rows.forEach(r => {
                 const line = [
-                    r.driverName || '',
-                    r.iqamaNumber || '',
-                    r.plateNumber || '',
+                    r.driverName || '', r.iqamaNumber || '', r.plateNumber || '',
                     r.isInside ? (r.direction || '') : (r.entryReason || 'Outbound'),
-                    r.dockNumber || '',
-                    r.sealNumber || '--',
-                    formatTimeText(r.checkInTime),
-                    r.isInside ? 'Inside' : formatTimeText(r.timestamp),
-                    calcDuration(r.checkInTime, r.isInside ? null : r.timestamp),
-                    r.securityName || ''
+                    r.dockNumber || '', r.sealNumber || '--',
+                    formatTimeText(r.checkInTime), r.isInside ? 'Inside' : formatTimeText(r.timestamp),
+                    calcDuration(r.checkInTime, r.isInside ? null : r.timestamp), r.securityName || ''
                 ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
                 csvLines.push(line);
             });
@@ -819,26 +873,28 @@
 
             [...chronData].reverse().slice(0, 5).forEach(r => {
                 let isOut = r.direction === "Outbound";
-                let displayDir = isOut ? "OUTBOUND" : (r.direction || '').split(' - ')[0]; 
-                liveBody.innerHTML += `<tr><td><strong>${r.driverName}</strong></td><td>${r.plateNumber}</td><td>${r.dockNumber}</td><td><span class="badge ${isOut ? 'out' : 'in'}" style="font-size:0.65rem;">${displayDir}</span></td></tr>`;
+                let displayDir = isOut ? "OUTBOUND" : (r.direction || '').split(' - ')[0].toUpperCase(); 
+                let cssClass = getBadgeClass(displayDir, isOut);
+                liveBody.innerHTML += `<tr><td><strong style="font-size:0.9rem;">${r.driverName}</strong></td><td><span style="font-family:monospace; font-weight:700;">${r.plateNumber}</span></td><td><strong style="font-size:0.85rem;">${r.dockNumber}</strong></td><td><span class="${cssClass}">${displayDir}</span></td></tr>`;
             });
 
-            if(activeList.length === 0) activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
+            if(activeList.length === 0) activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
             else activeList.reverse().forEach(r => {
-                let displayDir = (r.direction || '').split(' - ')[0];
+                let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
+                let cssClass = getBadgeClass(displayDir, false);
                 let activeDispType = r.dispatchType || 'DISPATCHING';
                 let activeSeal = r.sealNumber || '--';
                 
                 activeBody.innerHTML += `<tr>
                     <td><strong>${r.driverName}</strong></td>
                     <td>${generatePlateBumperUI(r.plateNumber)}</td>
-                    <td><span class="badge in" style="font-size:0.65rem;">${displayDir}</span></td>
-                    <td style="color:var(--accent-color); font-weight:600; font-size:0.8rem;">${activeDispType.toUpperCase()}</td>
-                    <td style="color:var(--text-muted); font-family: monospace;">${activeSeal}</td>
-                    <td><strong>${r.dockNumber}</strong></td>
-                    <td style="font-size:0.85rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td>
+                    <td><span class="${cssClass}">${displayDir}</span></td>
+                    <td style="color:var(--accent-color); font-weight:700; font-size:0.75rem;">${activeDispType.toUpperCase()}</td>
+                    <td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${activeSeal}</td>
+                    <td><strong style="font-size:0.9rem;">${r.dockNumber}</strong></td>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td>
                     <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.timestamp, null)}</td>
-                    <td style="font-size:0.8rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td>
+                    <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td>
                     <td style="text-align:right; padding-right:1rem;">
                         <button class="btn-signout-action" onclick="promptSignOut('${r.driverName}','${r.plateNumber}','${r.securityName || 'Guard'}','${r.dockNumber}','${activeDispType}')">SIGN OUT</button>
                     </td>
