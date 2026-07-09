@@ -134,30 +134,13 @@
 
         .app-view { display: none; } .app-view.active-view { display: block; }
 
-        .dashboard-hero {
-            background-color: var(--card-bg); 
-            border: 1px solid var(--border-color); 
-            border-radius: 12px; 
-            padding: 4rem 1.5rem 3rem 1.5rem; 
-            margin-bottom: 2rem; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            position: relative; 
-            backdrop-filter: blur(10px);
-        }
+        .dashboard-hero { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 4rem 1.5rem 3rem 1.5rem; margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center; position: relative; backdrop-filter: blur(10px); }
         .hero-badges-wrapper { position: absolute; top: 1.5rem; display: flex; gap: 1rem; }
-        .hero-badge {
-            background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); padding: 0.35rem 0.85rem; border-radius: 4px;
-            font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); font-family: monospace; text-transform: uppercase;
-        }
+        .hero-badge { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); padding: 0.35rem 0.85rem; border-radius: 4px; font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); font-family: monospace; text-transform: uppercase; }
         .hero-title-box { margin-top: 1rem; text-align: center; }
         .hero-title-box h1 { font-size: 3.5rem; font-weight: 900; color: #fff; letter-spacing: 1px; margin-bottom: 0.25rem; text-shadow: 0 0 50px rgba(252, 194, 0, 0.2); }
         .hero-title-box p { font-size: 1.25rem; color: var(--accent-color); font-weight: 700; text-transform: uppercase; letter-spacing: 4px; }
-        @media (max-width: 768px) {
-            .hero-title-box h1 { font-size: 2.2rem; }
-            .hero-title-box p { font-size: 0.9rem; letter-spacing: 2px; }
-        }
+        @media (max-width: 768px) { .hero-title-box h1 { font-size: 2.2rem; } .hero-title-box p { font-size: 0.9rem; letter-spacing: 2px; } }
 
         .metrics-bar-four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
         @media (max-width: 1200px) { .metrics-bar-four { grid-template-columns: repeat(2, 1fr); } }
@@ -174,7 +157,6 @@
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
         .card h2 { font-size: 0.95rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; font-weight: 700; }
-        
         .view-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
         .view-header-title h1 { font-size: 1.75rem; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
         .view-header-title p { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; font-weight: 600; }
@@ -362,7 +344,6 @@
         </ul>
         <div class="sidebar-footer">
             
-            <!-- DYNAMIC LOGGED IN USER IN SIDEBAR -->
             <div style="display:flex; align-items:center; gap: 0.75rem; margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border-color);">
                 <div class="driver-avatar-img" id="sidebarUserPic" style="width: 32px; height: 32px; background:var(--accent-color); color:#000; font-weight:800; font-size:0.8rem; border:none;">?</div>
                 <div style="overflow: hidden;">
@@ -384,7 +365,6 @@
     <div class="main-content">
         <div id="view-dashboard" class="app-view active-view">
             
-            <!-- DASHBOARD HERO BANNER -->
             <div class="dashboard-hero">
                 <div class="hero-badges-wrapper">
                     <span class="hero-badge">SYSTEM ONLINE</span>
@@ -409,7 +389,6 @@
                     <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 0.75rem; font-weight:700;">🛡️ Secure Protocol v2.4 Active</div>
                 </div>
 
-                <!-- DYNAMIC RECENT LOGIN ACTIVITY CARD -->
                 <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
                     <div class="card-header-flex"><h2>Active Officer</h2></div>
                     <div style="display:flex; align-items:center; gap: 1rem; margin-top: 1rem;">
@@ -424,7 +403,6 @@
                         <div><span style="color: var(--text-muted)">System Uptime:</span> <strong style="color:#fff;">98.5%</strong></div>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -463,7 +441,10 @@
                         <div class="form-group new-driver-field"><label class="badge-style">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" placeholder="Enter driver full name"></div>
                         <div class="form-group new-driver-field"><label class="badge-style">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" placeholder="Enter 10-digit identity card number"></div>
                         <div class="form-group new-driver-field"><label class="badge-style">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" placeholder="Enter bumper plate sequence"></div>
-                        <div class="form-group new-driver-field"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" value="0596584562" placeholder="Enter contact parameter text"></div>
+                        
+                        <!-- REMOVED HARDCODED VALUE FOR MOBILE NUMBER -->
+                        <div class="form-group new-driver-field"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" placeholder="Enter mobile number"></div>
+                        
                         <div class="form-section-divider">Security & Facility Details</div>
                         
                         <div class="form-group"><label class="badge-style">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required placeholder="Enter verification guard identity"></div>
@@ -573,7 +554,7 @@
                     <div class="modal-slate-cell"><span>Full Legal Name</span><p id="modalDataName">--</p></div>
                     <div class="modal-slate-cell"><span>Iqama/National ID</span><p id="modalDataIqama">--</p></div>
                     <div class="modal-slate-cell"><span>Primary Vehicle Plate</span><div class="modal-plate-capsules" id="modalDataPlate"><div class="modal-plate-tag">--</div></div></div>
-                    <div class="modal-slate-cell"><span>Mobile Number</span><p id="modalDataMobile">0596584562</p></div>
+                    <div class="modal-slate-cell"><span>Mobile Number</span><p id="modalDataMobile">--</p></div>
                     <div class="modal-slate-cell"><span>Registered Date</span><p id="modalDataDate">--</p></div>
                     <div class="modal-slate-cell"><span>ID Token Reference</span><p style="font-family: monospace; font-size: 0.85rem; color: var(--accent-color);">d-k4v21l788</p></div>
                 </div>
@@ -736,10 +717,11 @@
             }
         }
 
-        function openDriverProfileModal(name, iqama, plate, date) {
+        function openDriverProfileModal(name, iqama, plate, date, phone) {
             document.getElementById('modalDataName').innerText = name;
             document.getElementById('modalDataIqama').innerText = iqama;
             document.getElementById('modalDataDate').innerText = date;
+            document.getElementById('modalDataMobile').innerText = phone || '--';
             let plateBox = document.getElementById('modalDataPlate'); plateBox.innerHTML = '';
             let segments = plate ? plate.split(' ') : ['--'];
             segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
@@ -753,6 +735,7 @@
             document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = mode === "existing" ? "none" : "block"; f.querySelector('input').required = mode !== "existing"; });
         }
 
+        /* ---------------- TOGGLE INCOMING SEAL LOGIC ---------------- */
         document.getElementById('dispatchSelect').addEventListener('change', function() {
             const container = document.getElementById('sealNumberContainer');
             const input = document.getElementById('sealNumber');
@@ -785,8 +768,9 @@
                 item.addEventListener('click', () => {
                     driverSearchBoxEl.value = d.name;
                     document.getElementById('driverName').value = d.name;
-                    document.getElementById('plateNumber').value = d.plate || '';
-                    document.getElementById('iqamaNumber').value = d.id || '';
+                    document.getElementById('plateNumber').value = d.plate !== '--' ? d.plate : '';
+                    document.getElementById('iqamaNumber').value = d.id !== '--' ? d.id : '';
+                    document.getElementById('mobileNumber').value = d.phone !== '--' ? d.phone : '';
                     suggestionsListEl.classList.remove('open');
                 });
                 suggestionsListEl.appendChild(item);
@@ -816,7 +800,7 @@
                 const img = new Image();
                 let triedFallback = false;
                 function fallbackToDataUrl() {
-                    if (triedFallback) { reject(new Error('image failed to load')); return; }
+                    if (triedFallback) { reject(new Error('image failed to load — try a JPG or PNG instead')); return; }
                     triedFallback = true;
                     const reader = new FileReader();
                     reader.onload = () => { img.onerror = () => reject(new Error('image failed to load')); img.onload = () => resolve(img); img.src = reader.result; };
@@ -951,9 +935,10 @@
         document.getElementById('btnConfirmSignOut').addEventListener('click', async () => {
             const sealVal = document.getElementById('signOutSeal').value.trim();
             if (!sealVal) { alert('Please attach a departure seal number.'); return; }
-            if(!currentSignOutContext) return;
             
+            if(!currentSignOutContext) return;
             const { driverName, plateNumber, securityName, dockNumber } = currentSignOutContext;
+            
             const btn = document.getElementById('btnConfirmSignOut');
             btn.innerText = "Processing..."; btn.disabled = true;
 
@@ -1010,7 +995,13 @@
             data.forEach(item => {
                 if(!item.driverName || item.driverName.trim() === "") return;
                 if(!uniqueDriversMap[item.driverName]) {
-                    uniqueDriversMap[item.driverName] = { name: item.driverName, plate: item.plateNumber || "--", registered: item.timestamp, id: item.iqamaNumber || "--" };
+                    uniqueDriversMap[item.driverName] = { 
+                        name: item.driverName, 
+                        plate: item.plateNumber || "--", 
+                        registered: item.timestamp, 
+                        id: item.iqamaNumber || "--",
+                        phone: item.mobileNumber || "--"
+                    };
                 }
             });
             let list = Object.values(uniqueDriversMap);
@@ -1024,8 +1015,8 @@
                     <div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${(driver.plate || '').toLowerCase()}">
                         <div class="card-management-actions"><button class="btn-icon-manage">✏️</button></div>
                         <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">Verified</span><span class="tag-badge carrier">SLP</span></div></div></div>
-                        <div class="driver-card-info-grid"><div class="info-block"><p>🆔 IQAMA ID</p><data>${driver.id}</data></div><div class="info-block"><p>📅 Registered</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 Phone Number</p><data>0596584562</data></div></div>
-                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}')">View Records</button>
+                        <div class="driver-card-info-grid"><div class="info-block"><p>🆔 IQAMA ID</p><data>${driver.id}</data></div><div class="info-block"><p>📅 Registered</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 Phone Number</p><data>${driver.phone}</data></div></div>
+                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${driver.phone}')">View Records</button>
                     </div>`;
             });
         }
@@ -1112,7 +1103,6 @@
             document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         }
 
-        /* ---------------- PAIRING ENGINE (BULLETPROOF UPDATES) ---------------- */
         window.handleLogsResponse = function(data) {
             let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; 
             globalLogsCache = chronData;
@@ -1139,10 +1129,8 @@
                 let dirCheck = (row.direction || "").toString().trim();
                 
                 if(dirCheck !== "Outbound") {
-                    // Check In -> Add to active tracking map
                     activeYardMap[trackingKey] = row;
                 } else {
-                    // Check Out -> Find match and move to history
                     let match = activeYardMap[trackingKey];
                     if(match) {
                         historicalPairs.push({ 
@@ -1154,7 +1142,6 @@
                         });
                         delete activeYardMap[trackingKey];
                     } else {
-                        // Orphan Outbound (Checked out without checking in)
                         historicalPairs.push({ ...row, checkInTime: row.timestamp, entryReason: "Unknown" });
                     }
                 }
@@ -1218,6 +1205,7 @@
                     driverName: document.getElementById('driverName').value, 
                     iqamaNumber: document.getElementById('iqamaNumber').value, 
                     plateNumber: document.getElementById('plateNumber').value, 
+                    mobileNumber: document.getElementById('mobileNumber').value,
                     securityName: document.getElementById('securityNameField').value, 
                     dockNumber: document.getElementById('dockNumber').value, 
                     direction: document.getElementById('direction').value,
