@@ -69,35 +69,17 @@
             flex-direction: column;
             align-items: center;
             transition: all 0.5s ease;
+            max-width: 400px;
+            width: 90%;
         }
         .login-logo {
             height: 140px;
             margin-bottom: 2.5rem;
             transition: transform 0.5s ease;
         }
-        .btn-google-signin {
-            background-color: var(--accent-color);
-            color: #000;
-            border: none;
-            padding: 0.9rem 2rem;
-            font-size: 0.85rem;
-            font-weight: 800;
-            border-radius: 6px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(252, 194, 0, 0.3);
-        }
-        .btn-google-signin:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(252, 194, 0, 0.4);
-        }
+        
         .auth-status {
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             display: none;
         }
         .auth-status p {
@@ -186,7 +168,9 @@
         .metric-card-slate .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; font-weight: 600; }
         .metric-accent-line { position: absolute; top: 15px; right: 15px; width: 30px; height: 3px; background-color: var(--accent-color); border-radius: 2px; }
 
-        .dashboard-mid-split { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .dashboard-mid-split { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        @media (max-width: 1100px) { .dashboard-mid-split { grid-template-columns: 1fr; } }
+
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
         .card h2 { font-size: 0.95rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; font-weight: 700; }
@@ -255,7 +239,7 @@
         @media (max-width: 1100px) { .drivers-grid { grid-template-columns: 1fr; } }
         .driver-registry-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; position: relative; backdrop-filter: blur(10px); }
         .driver-card-header { display: flex; align-items: center; gap: 1rem; }
-        .driver-avatar-img { width: 50px; height: 50px; border-radius: 50%; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+        .driver-avatar-img { width: 50px; height: 50px; border-radius: 50%; background: rgba(0,0,0,0.5); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; overflow: hidden;}
         .driver-meta h3 { font-size: 1.05rem; color: #fff; font-weight: 700; text-transform: uppercase; }
         .driver-badges { display: flex; gap: 0.5rem; margin-top: 6px; }
         .tag-badge { font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; text-transform: uppercase; }
@@ -324,23 +308,22 @@
 </head>
 <body>
 
-    <!-- =========================================
-         INTRO SCREEN OVERLAY
-         ========================================= -->
     <div id="introOverlay" class="intro-overlay">
         <canvas id="particleCanvas"></canvas>
         <div class="login-container" id="loginContainer">
             <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
             
-            <button id="signInBtn" class="btn-google-signin">
-                <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#000"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#000"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#000"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#000"/>
-                </svg>
-                SIGN IN WITH GOOGLE
-            </button>
+            <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 320px;">
+                <input type="text" id="loginName" class="input-box-styled" placeholder="Enter Full Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);">
+                <input type="text" id="loginEmail" class="input-box-styled" placeholder="Enter Noon Email / Guard ID" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);">
+                
+                <button id="customSignInBtn" class="submit-btn-global" style="margin-top: 0.5rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    AUTHORIZE ACCESS
+                </button>
+            </div>
             
             <div id="authStatus" class="auth-status">
                 <p id="authText" class="pulsing">AUTHENTICATING...</p>
@@ -348,9 +331,6 @@
         </div>
     </div>
 
-    <!-- =========================================
-         MAIN APPLICATION
-         ========================================= -->
     <div class="sidebar">
         <div class="brand-section">
             <div class="brand-text">
@@ -379,6 +359,15 @@
             </li>
         </ul>
         <div class="sidebar-footer">
+            
+            <div style="display:flex; align-items:center; gap: 0.75rem; margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border-color);">
+                <div class="driver-avatar-img" id="sidebarUserPic" style="width: 32px; height: 32px; background:var(--accent-color); color:#000; font-weight:800; font-size:0.8rem; border:none;">?</div>
+                <div style="overflow: hidden;">
+                    <h4 id="sidebarUserName" style="color:#fff; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Guest User</h4>
+                    <p id="sidebarUserEmail" style="font-size:0.65rem; color:var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Not signed in</p>
+                </div>
+            </div>
+
             <div class="system-health">
                 <div><span>System Health</span><div style="font-weight:700; color:var(--success-color); margin-top:2px;">Operational</div></div>
                 <div class="health-dot"></div>
@@ -392,7 +381,6 @@
     <div class="main-content">
         <div id="view-dashboard" class="app-view active-view">
             
-            <!-- DASHBOARD HERO BANNER -->
             <div class="dashboard-hero">
                 <div class="hero-badges-wrapper">
                     <span class="hero-badge">SYSTEM ONLINE</span>
@@ -411,10 +399,27 @@
                 <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
             </div>
             <div class="dashboard-mid-split">
+                
                 <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;"><div class="card-header-flex"><h2>Pending Access Requests</h2></div>
                     <div style="text-align: center; color: var(--text-muted); padding: 4rem 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem;"><span style="font-size: 2.5rem;">🔒</span><div style="font-weight: 700; text-transform: uppercase; font-size: 0.95rem; color: #fff; margin-top: 0.5rem;">All Clear</div><p style="font-size: 0.8rem; max-width: 220px; line-height: 1.4;">No pending vehicle overrides detected.</p></div>
                     <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 0.75rem; font-weight:700;">🛡️ Secure Protocol v2.4 Active</div>
                 </div>
+
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="card-header-flex"><h2>Active Officer</h2></div>
+                    <div style="display:flex; align-items:center; gap: 1rem; margin-top: 1rem;">
+                        <div class="driver-avatar-img" id="dashUserPic" style="width: 55px; height: 55px; background:var(--accent-color); color:#000; font-weight:800; font-size:1.5rem; border:none;">?</div>
+                        <div style="overflow: hidden;">
+                            <h4 id="dashUserName" style="color:#fff; font-size:1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Guest User</h4>
+                            <p id="dashUserEmail" style="font-size:0.8rem; color:var(--text-muted); margin-top:4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Not signed in</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 2rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.85rem; border-radius: 6px; font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span>⏱️</span>
+                        <div><span style="color: var(--text-muted)">System Uptime:</span> <strong style="color:#fff;">98.5%</strong></div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -455,6 +460,7 @@
                         <div class="form-group new-driver-field"><label class="badge-style">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" placeholder="Enter bumper plate sequence"></div>
                         <div class="form-group new-driver-field"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" value="0596584562" placeholder="Enter contact parameter text"></div>
                         <div class="form-section-divider">Security & Facility Details</div>
+                        
                         <div class="form-group"><label class="badge-style">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required placeholder="Enter verification guard identity"></div>
                         <div class="form-group"><label class="badge-style">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required placeholder="Enter staff token number"></div>
                         
@@ -552,7 +558,6 @@
         </div>
     </div>
 
-    <!-- DRIVER PROFILE MODAL -->
     <div class="modal-overlay" id="driverProfileModal">
         <div class="modal-window">
             <div class="modal-header-container"><h2 id="modalTitleName">Driver Details</h2><button class="btn-modal-close" onclick="closeDriverProfileModal()">✕</button></div>
@@ -571,7 +576,6 @@
         </div>
     </div>
 
-    <!-- SIGN OUT MODAL -->
     <div class="modal-overlay" id="signOutModal">
         <div class="modal-window" style="max-width: 400px; text-align: center; border: 1px solid rgba(252, 194, 0, 0.4);">
             <div class="modal-body-content" style="padding: 2.5rem 2rem;">
@@ -609,9 +613,65 @@
         let driversRegistryList = [];
         let globalHistoryListCache = [];
         let currentHistoryDateRange = 'all';
+        
+        // Active User Details 
+        let loggedInUser = { name: "Guest User", email: "Not signed in", picture: "" };
 
-        /* ---------------- INTRO SCREEN LOGIC & PARTICLES ---------------- */
-        const introOverlay = document.getElementById('introOverlay');
+        /* ---------------- CUSTOM LOGIN LOGIC (NO API REQUIRED) ---------------- */
+        document.getElementById('customSignInBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const nameInput = document.getElementById('loginName').value.trim();
+            const emailInput = document.getElementById('loginEmail').value.trim();
+
+            if(!nameInput || !emailInput) {
+                alert("Please enter your Full Name and Noon ID/Email to authorize access.");
+                return;
+            }
+
+            // Save User Data globally
+            loggedInUser = {
+                name: nameInput,
+                email: emailInput,
+                picture: "👤"
+            };
+
+            // Update UI elements dynamically
+            document.getElementById('securityNameField').value = loggedInUser.name;
+            
+            // Update Sidebar User Info
+            document.getElementById('sidebarUserName').innerText = loggedInUser.name;
+            document.getElementById('sidebarUserEmail').innerText = loggedInUser.email;
+            document.getElementById('sidebarUserPic').innerText = "👤";
+            
+            // Update Dashboard Hero Card Info
+            document.getElementById('dashUserName').innerText = loggedInUser.name;
+            document.getElementById('dashUserEmail').innerText = loggedInUser.email;
+            document.getElementById('dashUserPic').innerText = "👤";
+
+            // Visual Animation to enter dashboard
+            const statusBox = document.getElementById('authStatus');
+            const authText = document.getElementById('authText');
+            const container = document.getElementById('loginContainer');
+            
+            // Hide custom form, show authenticating status
+            document.getElementById('customLoginBox').style.display = 'none';
+            statusBox.style.display = 'block';
+
+            setTimeout(() => {
+                authText.innerText = "SYSTEM AUTHENTICATION COMPLETE";
+                authText.style.color = "var(--success-color)";
+                authText.classList.remove('pulsing');
+                container.style.boxShadow = "0 0 80px rgba(46, 160, 67, 0.25), 0 20px 40px rgba(0,0,0,0.8)";
+                
+                setTimeout(() => {
+                    document.getElementById('introOverlay').classList.add('hidden');
+                    setTimeout(() => { introActive = false; cancelAnimationFrame(animationFrameId); }, 1000);
+                }, 1200);
+            }, 1200); // 1.2 second fake authorization delay
+        });
+
+        /* ---------------- INTRO SCREEN PARTICLES ---------------- */
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
         let width, height, particles;
@@ -622,82 +682,33 @@
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
             particles = [];
-            // Create particles
             const particleCount = window.innerWidth < 768 ? 40 : 80;
             for (let i = 0; i < particleCount; i++) {
-                particles.push({
-                    x: Math.random() * width,
-                    y: Math.random() * height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5,
-                    size: Math.random() * 2 + 1
-                });
+                particles.push({ x: Math.random() * width, y: Math.random() * height, vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5, size: Math.random() * 2 + 1 });
             }
         }
 
         function animateParticles() {
             if (!introActive) return;
             ctx.clearRect(0, 0, width, height);
-            ctx.fillStyle = 'rgba(252, 194, 0, 0.6)';
-            ctx.strokeStyle = 'rgba(252, 194, 0, 0.15)';
-            
+            ctx.fillStyle = 'rgba(252, 194, 0, 0.6)'; ctx.strokeStyle = 'rgba(252, 194, 0, 0.15)';
             for (let i = 0; i < particles.length; i++) {
                 let p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                
+                p.x += p.vx; p.y += p.vy;
                 if (p.x < 0 || p.x > width) p.vx *= -1;
                 if (p.y < 0 || p.y > height) p.vy *= -1;
-                
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
-                
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
                 for (let j = i + 1; j < particles.length; j++) {
                     let p2 = particles[j];
                     let dist = Math.sqrt((p.x - p2.x)**2 + (p.y - p2.y)**2);
-                    if (dist < 120) {
-                        ctx.beginPath();
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(p2.x, p2.y);
-                        ctx.stroke();
-                    }
+                    if (dist < 120) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); }
                 }
             }
             animationFrameId = requestAnimationFrame(animateParticles);
         }
 
         window.addEventListener('resize', () => { if(introActive) initParticles(); });
-        initParticles();
-        animateParticles();
-
-        // Login Button Click Logic
-        document.getElementById('signInBtn').addEventListener('click', function() {
-            const btn = this;
-            const statusBox = document.getElementById('authStatus');
-            const authText = document.getElementById('authText');
-            const container = document.getElementById('loginContainer');
-            
-            btn.style.display = 'none';
-            statusBox.style.display = 'block';
-            
-            // Simulate Authentication Delay
-            setTimeout(() => {
-                authText.innerText = "SYSTEM AUTHENTICATION COMPLETE";
-                authText.style.color = "var(--success-color)";
-                authText.classList.remove('pulsing');
-                container.style.boxShadow = "0 0 80px rgba(46, 160, 67, 0.25), 0 20px 40px rgba(0,0,0,0.8)";
-                
-                // Hide Overlay
-                setTimeout(() => {
-                    introOverlay.classList.add('hidden');
-                    setTimeout(() => {
-                        introActive = false;
-                        cancelAnimationFrame(animationFrameId);
-                    }, 1000);
-                }, 1200);
-            }, 1800);
-        });
+        initParticles(); animateParticles();
 
         /* ---------------- CORE DASHBOARD LOGIC ---------------- */
         function updateHeroDate() {
@@ -954,7 +965,7 @@
             btn.innerText = "Processing..."; btn.disabled = true;
 
             try {
-                const payload = { driverName, plateNumber, securityName, dockNumber, direction: "Outbound", sealNumber: sealVal };
+                const payload = { driverName, plateNumber, securityName, dockNumber, direction: "Outbound", sealNumber: sealVal, actionByEmail: loggedInUser.email, actionByName: loggedInUser.name };
                 const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 if (!response.ok) throw new Error('Server returned ' + response.status);
                 
@@ -988,12 +999,11 @@
             return `<div class="plate-box-split"><div class="plate-segment">${plateStr}</div></div>`;
         }
         
-        // Dynamic Badge Styling Logic
         function getBadgeClass(displayDir, isOut) {
             if(isOut || displayDir.includes("OUTBOUND")) return "badge out";
             if(displayDir.includes("INBOUND")) return "badge in";
             if(displayDir.includes("RTV") || displayDir.includes("LQD") || displayDir.includes("LIQUIDATION")) return "badge purple";
-            return "badge blue"; // Default transfer style
+            return "badge blue";
         }
 
         /* ---------------- Driver Cards Rendering ---------------- */
@@ -1105,8 +1115,8 @@
 
         window.handleLogsResponse = function(data) {
             let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; globalLogsCache = chronData;
-            const activeBody = document.getElementById('activeYardTableBody');
-            if(activeBody) activeBody.innerHTML = '';
+            const liveBody = document.getElementById('liveFeedBody'), activeBody = document.getElementById('activeYardTableBody');
+            liveBody.innerHTML = ''; activeBody.innerHTML = '';
 
             compileDriversRegistryCards(chronData);
             if(chronData.length === 0) { renderHistoryTable([]); return; }
@@ -1132,6 +1142,13 @@
             let activeList = Object.values(activeYardMap);
             document.getElementById('metric-active-now').innerText = document.getElementById('activeYardCounter').innerText = activeList.length;
             document.getElementById('metric-completed-today').innerText = historicalPairs.length;
+
+            [...chronData].reverse().slice(0, 5).forEach(r => {
+                let isOut = r.direction === "Outbound";
+                let displayDir = isOut ? "OUTBOUND" : (r.direction || '').split(' - ')[0].toUpperCase(); 
+                let cssClass = getBadgeClass(displayDir, isOut);
+                liveBody.innerHTML += `<tr><td><strong style="font-size:0.9rem;">${r.driverName}</strong></td><td><span style="font-family:monospace; font-weight:700;">${r.plateNumber}</span></td><td><strong style="font-size:0.85rem;">${r.dockNumber}</strong></td><td><span class="${cssClass}">${displayDir}</span></td></tr>`;
+            });
 
             if(activeBody) {
                 if(activeList.length === 0) activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
@@ -1180,13 +1197,18 @@
                     dockNumber: document.getElementById('dockNumber').value, 
                     direction: document.getElementById('direction').value,
                     dispatchType: document.getElementById('dispatchSelect').value,
-                    sealNumber: document.getElementById('sealNumber').value 
+                    sealNumber: document.getElementById('sealNumber').value,
+                    actionByEmail: loggedInUser.email,
+                    actionByName: loggedInUser.name
                 };
                 const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
                 if (!response.ok) throw new Error('Server returned status ' + response.status);
                 
                 document.getElementById('entryForm').reset(); btn.innerText = "Check In Truck"; btn.disabled = false;
                 document.getElementById('sealNumberContainer').style.display = 'none'; document.getElementById('sealNumber').required = false;
+                
+                document.getElementById('securityNameField').value = loggedInUser.name;
+
                 document.getElementById('driverPhotoStatus').innerText = "Driver Photo / Truck Photo"; document.getElementById('driverPhotoStatus').style.color = document.getElementById('iqamaStatus').style.color = document.getElementById('officerStatus').style.color = "var(--text-muted)";
                 document.getElementById('iqamaStatus').innerText = "Iqama (ID Card) Scanner"; document.getElementById('officerStatus').innerText = "Security ID Scanner";
                 
