@@ -33,6 +33,92 @@
             overflow-x: hidden;
         }
 
+        /* =========================================
+           INTRO SCREEN & PARTICLES
+           ========================================= */
+        .intro-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease, transform 1s ease;
+        }
+        .intro-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(1.05);
+        }
+        #particleCanvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+        .login-container {
+            position: relative;
+            z-index: 2;
+            background: var(--sidebar-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 3rem 4rem;
+            text-align: center;
+            box-shadow: 0 0 80px rgba(252, 194, 0, 0.15), 0 20px 40px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+        .login-logo {
+            height: 140px;
+            margin-bottom: 2.5rem;
+            transition: transform 0.5s ease;
+        }
+        .btn-google-signin {
+            background-color: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 0.9rem 2rem;
+            font-size: 0.85rem;
+            font-weight: 800;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(252, 194, 0, 0.3);
+        }
+        .btn-google-signin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(252, 194, 0, 0.4);
+        }
+        .auth-status {
+            margin-top: 1rem;
+            display: none;
+        }
+        .auth-status p {
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        .auth-status p.pulsing {
+            animation: authPulse 1.5s infinite;
+        }
+        @keyframes authPulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        /* =========================================
+           MAIN APP STYLES
+           ========================================= */
         .sidebar {
             width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color);
             display: flex; flex-direction: column; padding: 1.5rem 1rem; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
@@ -54,7 +140,6 @@
         .health-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 8px var(--success-color); }
         .main-content { margin-left: 260px; flex-grow: 1; padding: 2.5rem 3rem; width: calc(100% - 260px); transition: all 0.3s ease; }
         
-        /* FIXED MOBILE RESPONSIVENESS */
         @media (max-width: 900px) {
             .sidebar { width: 75px; padding: 1.5rem 0.5rem; align-items: center; }
             .brand-text, .system-health, .nav-text { display: none; }
@@ -67,7 +152,6 @@
 
         .app-view { display: none; } .app-view.active-view { display: block; }
 
-        /* DASHBOARD HERO BANNER - TEXT FOCUSED */
         .dashboard-hero {
             background-color: var(--card-bg); 
             border: 1px solid var(--border-color); 
@@ -85,31 +169,14 @@
             background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); padding: 0.35rem 0.85rem; border-radius: 4px;
             font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); font-family: monospace; text-transform: uppercase;
         }
-        .hero-title-box {
-            margin-top: 1rem;
-            text-align: center;
-        }
-        .hero-title-box h1 {
-            font-size: 3.5rem;
-            font-weight: 900;
-            color: #fff;
-            letter-spacing: 1px;
-            margin-bottom: 0.25rem;
-            text-shadow: 0 0 50px rgba(252, 194, 0, 0.2);
-        }
-        .hero-title-box p {
-            font-size: 1.25rem;
-            color: var(--accent-color);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-        }
+        .hero-title-box { margin-top: 1rem; text-align: center; }
+        .hero-title-box h1 { font-size: 3.5rem; font-weight: 900; color: #fff; letter-spacing: 1px; margin-bottom: 0.25rem; text-shadow: 0 0 50px rgba(252, 194, 0, 0.2); }
+        .hero-title-box p { font-size: 1.25rem; color: var(--accent-color); font-weight: 700; text-transform: uppercase; letter-spacing: 4px; }
         @media (max-width: 768px) {
             .hero-title-box h1 { font-size: 2.2rem; }
             .hero-title-box p { font-size: 0.9rem; letter-spacing: 2px; }
         }
 
-        /* Dashboard Metric Cards */
         .metrics-bar-four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
         @media (max-width: 1200px) { .metrics-bar-four { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px) { .metrics-bar-four { grid-template-columns: 1fr; } }
@@ -119,10 +186,8 @@
         .metric-card-slate .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; font-weight: 600; }
         .metric-accent-line { position: absolute; top: 15px; right: 15px; width: 30px; height: 3px; background-color: var(--accent-color); border-radius: 2px; }
 
-        /* Layout Grids */
         .dashboard-mid-split { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
-        
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
         .card h2 { font-size: 0.95rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; font-weight: 700; }
         
@@ -137,17 +202,13 @@
         .btn-excel { background-color: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; }
         .btn-excel:hover { background-color: var(--accent-color); color: #000; }
 
-        /* Tables & Badges */
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th { color: var(--text-muted); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; padding: 1rem 0.85rem; border-bottom: 1px solid var(--border-color); letter-spacing: 0.5px; }
         td { padding: 1rem 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background-color: rgba(255,255,255,0.02); }
         
-        .badge {
-            padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.5px; display: inline-block;
-        }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
         .badge.in { background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid rgba(46, 160, 67, 0.3); }
         .badge.out { background: rgba(248, 81, 73, 0.15); color: #ff7b72; border: 1px solid rgba(248, 81, 73, 0.3); }
         .badge.purple { background: rgba(163, 113, 247, 0.15); color: #d2a8ff; border: 1px solid rgba(163, 113, 247, 0.3); }
@@ -155,11 +216,9 @@
 
         .btn-mini { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.3rem 0.75rem; font-size: 0.7rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; font-weight: 600; transition: 0.2s; }
         .btn-mini:hover { border-color: var(--accent-color); color: var(--accent-color); }
-        
         .btn-signout-action { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 0.4rem 1rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
         .btn-signout-action:hover { background: var(--danger-color); color: #fff; }
 
-        /* Form styling */
         .scanners-triple-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
         @media (max-width: 768px) { .scanners-triple-row { grid-template-columns: 1fr; } }
         .scan-box-dashed { background: rgba(0,0,0,0.3); border: 1px dashed var(--border-color); border-radius: 6px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; }
@@ -192,7 +251,6 @@
         .submit-btn-global { width: 100%; background-color: var(--accent-color); color: #000; border: none; padding: 1rem; font-size: 0.95rem; font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 2.5rem; letter-spacing: 1px; transition: opacity 0.2s; }
         .submit-btn-global:hover { opacity: 0.9; }
 
-        /* Driver Registry Grid */
         .drivers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1rem; }
         @media (max-width: 1100px) { .drivers-grid { grid-template-columns: 1fr; } }
         .driver-registry-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; position: relative; backdrop-filter: blur(10px); }
@@ -211,7 +269,6 @@
         .card-management-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
         .btn-icon-manage { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; }
 
-        /* Modals */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
@@ -267,6 +324,33 @@
 </head>
 <body>
 
+    <!-- =========================================
+         INTRO SCREEN OVERLAY
+         ========================================= -->
+    <div id="introOverlay" class="intro-overlay">
+        <canvas id="particleCanvas"></canvas>
+        <div class="login-container" id="loginContainer">
+            <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
+            
+            <button id="signInBtn" class="btn-google-signin">
+                <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#000"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#000"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#000"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#000"/>
+                </svg>
+                SIGN IN WITH GOOGLE
+            </button>
+            
+            <div id="authStatus" class="auth-status">
+                <p id="authText" class="pulsing">AUTHENTICATING...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         MAIN APPLICATION
+         ========================================= -->
     <div class="sidebar">
         <div class="brand-section">
             <div class="brand-text">
@@ -526,7 +610,96 @@
         let globalHistoryListCache = [];
         let currentHistoryDateRange = 'all';
 
-        // Auto-update Hero Date
+        /* ---------------- INTRO SCREEN LOGIC & PARTICLES ---------------- */
+        const introOverlay = document.getElementById('introOverlay');
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles;
+        let animationFrameId;
+        let introActive = true;
+
+        function initParticles() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            particles = [];
+            // Create particles
+            const particleCount = window.innerWidth < 768 ? 40 : 80;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    size: Math.random() * 2 + 1
+                });
+            }
+        }
+
+        function animateParticles() {
+            if (!introActive) return;
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = 'rgba(252, 194, 0, 0.6)';
+            ctx.strokeStyle = 'rgba(252, 194, 0, 0.15)';
+            
+            for (let i = 0; i < particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                for (let j = i + 1; j < particles.length; j++) {
+                    let p2 = particles[j];
+                    let dist = Math.sqrt((p.x - p2.x)**2 + (p.y - p2.y)**2);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            animationFrameId = requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', () => { if(introActive) initParticles(); });
+        initParticles();
+        animateParticles();
+
+        // Login Button Click Logic
+        document.getElementById('signInBtn').addEventListener('click', function() {
+            const btn = this;
+            const statusBox = document.getElementById('authStatus');
+            const authText = document.getElementById('authText');
+            const container = document.getElementById('loginContainer');
+            
+            btn.style.display = 'none';
+            statusBox.style.display = 'block';
+            
+            // Simulate Authentication Delay
+            setTimeout(() => {
+                authText.innerText = "SYSTEM AUTHENTICATION COMPLETE";
+                authText.style.color = "var(--success-color)";
+                authText.classList.remove('pulsing');
+                container.style.boxShadow = "0 0 80px rgba(46, 160, 67, 0.25), 0 20px 40px rgba(0,0,0,0.8)";
+                
+                // Hide Overlay
+                setTimeout(() => {
+                    introOverlay.classList.add('hidden');
+                    setTimeout(() => {
+                        introActive = false;
+                        cancelAnimationFrame(animationFrameId);
+                    }, 1000);
+                }, 1200);
+            }, 1800);
+        });
+
+        /* ---------------- CORE DASHBOARD LOGIC ---------------- */
         function updateHeroDate() {
             const d = new Date();
             const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
