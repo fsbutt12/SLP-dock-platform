@@ -6,11 +6,10 @@
     <title>Noon SLP Dock Security Platform</title>
     <style>
         :root {
-            /* Exact colors from the video/images */
-            --bg-color: #0b0e14; /* Deep dark background */
-            --card-bg: rgba(18, 22, 31, 0.85); /* Slightly lighter for cards */
+            --bg-color: #0b0e14; 
+            --card-bg: rgba(18, 22, 31, 0.85); 
             --sidebar-bg: #07090c;
-            --accent-color: #fcc200; /* Noon Yellow */
+            --accent-color: #fcc200; 
             --text-main: #f0f2f5;
             --text-muted: #8b949e;
             --border-color: rgba(255, 255, 255, 0.08);
@@ -33,90 +32,40 @@
             overflow-x: hidden;
         }
 
-        /* =========================================
-           INTRO SCREEN & PARTICLES
-           ========================================= */
+        /* INTRO SCREEN & PARTICLES */
         .intro-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--bg-color);
-            z-index: 99999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-color); z-index: 99999;
+            display: flex; align-items: center; justify-content: center;
             transition: opacity 1s ease, transform 1s ease;
         }
-        .intro-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(1.05);
-        }
-        #particleCanvas {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1;
-        }
+        .intro-overlay.hidden { opacity: 0; pointer-events: none; transform: scale(1.05); }
+        #particleCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         .login-container {
-            position: relative;
-            z-index: 2;
-            background: var(--sidebar-bg);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 3rem 4rem;
-            text-align: center;
-            box-shadow: 0 0 80px rgba(252, 194, 0, 0.15), 0 20px 40px rgba(0,0,0,0.8);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: all 0.5s ease;
-            max-width: 400px;
-            width: 90%;
+            position: relative; z-index: 2; background: var(--sidebar-bg); border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px; padding: 3rem 4rem; text-align: center; box-shadow: 0 0 80px rgba(252, 194, 0, 0.15), 0 20px 40px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; align-items: center; transition: all 0.5s ease; max-width: 400px; width: 90%;
         }
-        .login-logo {
-            height: 140px;
-            margin-bottom: 2.5rem;
-            transition: transform 0.5s ease;
-        }
-        
-        .auth-status {
-            margin-top: 1.5rem;
-            display: none;
-        }
-        .auth-status p {
-            font-size: 0.75rem;
-            color: var(--accent-color);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 700;
-        }
-        .auth-status p.pulsing {
-            animation: authPulse 1.5s infinite;
-        }
-        @keyframes authPulse {
-            0% { opacity: 0.4; }
-            50% { opacity: 1; }
-            100% { opacity: 0.4; }
-        }
+        .login-logo { height: 140px; margin-bottom: 2.5rem; transition: transform 0.5s ease; }
+        .auth-status { margin-top: 1.5rem; display: none; }
+        .auth-status p { font-size: 0.75rem; color: var(--accent-color); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
+        .auth-status p.pulsing { animation: authPulse 1.5s infinite; }
+        @keyframes authPulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
-        /* =========================================
-           MAIN APP STYLES
-           ========================================= */
+        /* MAIN APP STYLES */
         .sidebar {
             width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color);
-            display: flex; flex-direction: column; padding: 1.5rem 1rem; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
-            transition: all 0.3s ease;
+            display: flex; flex-direction: column; padding: 1.5rem 1rem; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100; transition: all 0.3s ease;
         }
         .brand-section { display: flex; align-items: center; justify-content: flex-start; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
         .brand-text h2 { font-size: 1.35rem; font-weight: 800; letter-spacing: 0.5px; color: #fff; }
         .brand-text p { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px;}
-        
         .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; flex-grow: 1; }
         .nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s ease; border-left: 3px solid transparent; }
         .nav-item:hover { background-color: var(--nav-hover); color: #fff; }
         .nav-item.active { background-color: rgba(252, 194, 0, 0.15); color: var(--accent-color); font-weight: 600; border-left: 3px solid var(--accent-color); }
         .nav-icon { font-size: 1.15rem; }
         .nav-text { white-space: nowrap; }
-
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
         .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 8px; padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 0.5rem; }
         .health-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 8px var(--success-color); }
@@ -134,30 +83,13 @@
 
         .app-view { display: none; } .app-view.active-view { display: block; }
 
-        .dashboard-hero {
-            background-color: var(--card-bg); 
-            border: 1px solid var(--border-color); 
-            border-radius: 12px; 
-            padding: 4rem 1.5rem 3rem 1.5rem; 
-            margin-bottom: 2rem; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            position: relative; 
-            backdrop-filter: blur(10px);
-        }
+        .dashboard-hero { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 4rem 1.5rem 3rem 1.5rem; margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center; position: relative; backdrop-filter: blur(10px); }
         .hero-badges-wrapper { position: absolute; top: 1.5rem; display: flex; gap: 1rem; }
-        .hero-badge {
-            background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); padding: 0.35rem 0.85rem; border-radius: 4px;
-            font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); font-family: monospace; text-transform: uppercase;
-        }
+        .hero-badge { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); padding: 0.35rem 0.85rem; border-radius: 4px; font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; color: var(--text-muted); font-family: monospace; text-transform: uppercase; }
         .hero-title-box { margin-top: 1rem; text-align: center; }
         .hero-title-box h1 { font-size: 3.5rem; font-weight: 900; color: #fff; letter-spacing: 1px; margin-bottom: 0.25rem; text-shadow: 0 0 50px rgba(252, 194, 0, 0.2); }
         .hero-title-box p { font-size: 1.25rem; color: var(--accent-color); font-weight: 700; text-transform: uppercase; letter-spacing: 4px; }
-        @media (max-width: 768px) {
-            .hero-title-box h1 { font-size: 2.2rem; }
-            .hero-title-box p { font-size: 0.9rem; letter-spacing: 2px; }
-        }
+        @media (max-width: 768px) { .hero-title-box h1 { font-size: 2.2rem; } .hero-title-box p { font-size: 0.9rem; letter-spacing: 2px; } }
 
         .metrics-bar-four { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
         @media (max-width: 1200px) { .metrics-bar-four { grid-template-columns: repeat(2, 1fr); } }
@@ -174,7 +106,6 @@
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
         .card h2 { font-size: 0.95rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; font-weight: 700; }
-        
         .view-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
         .view-header-title h1 { font-size: 1.75rem; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
         .view-header-title p { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; font-weight: 600; }
@@ -308,6 +239,7 @@
 </head>
 <body>
 
+    <!-- CUSTOM INTRO SCREEN OVERLAY -->
     <div id="introOverlay" class="intro-overlay">
         <canvas id="particleCanvas"></canvas>
         <div class="login-container" id="loginContainer">
@@ -331,6 +263,7 @@
         </div>
     </div>
 
+    <!-- MAIN APPLICATION -->
     <div class="sidebar">
         <div class="brand-section">
             <div class="brand-text">
@@ -360,6 +293,7 @@
         </ul>
         <div class="sidebar-footer">
             
+            <!-- DYNAMIC LOGGED IN USER IN SIDEBAR -->
             <div style="display:flex; align-items:center; gap: 0.75rem; margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border-color);">
                 <div class="driver-avatar-img" id="sidebarUserPic" style="width: 32px; height: 32px; background:var(--accent-color); color:#000; font-weight:800; font-size:0.8rem; border:none;">?</div>
                 <div style="overflow: hidden;">
@@ -381,6 +315,7 @@
     <div class="main-content">
         <div id="view-dashboard" class="app-view active-view">
             
+            <!-- DASHBOARD HERO BANNER -->
             <div class="dashboard-hero">
                 <div class="hero-badges-wrapper">
                     <span class="hero-badge">SYSTEM ONLINE</span>
@@ -398,13 +333,15 @@
                 <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label">Total Check-Ins</div><div class="metric-accent-line" style="background-color: #79c0ff;"></div></div>
                 <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
             </div>
+            
             <div class="dashboard-mid-split">
-                
-                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;"><div class="card-header-flex"><h2>Pending Access Requests</h2></div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;">
+                    <div class="card-header-flex"><h2>Pending Access Requests</h2></div>
                     <div style="text-align: center; color: var(--text-muted); padding: 4rem 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem;"><span style="font-size: 2.5rem;">🔒</span><div style="font-weight: 700; text-transform: uppercase; font-size: 0.95rem; color: #fff; margin-top: 0.5rem;">All Clear</div><p style="font-size: 0.8rem; max-width: 220px; line-height: 1.4;">No pending vehicle overrides detected.</p></div>
                     <div style="font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 0.75rem; font-weight:700;">🛡️ Secure Protocol v2.4 Active</div>
                 </div>
 
+                <!-- DYNAMIC RECENT LOGIN ACTIVITY CARD -->
                 <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
                     <div class="card-header-flex"><h2>Active Officer</h2></div>
                     <div style="display:flex; align-items:center; gap: 1rem; margin-top: 1rem;">
@@ -419,7 +356,6 @@
                         <div><span style="color: var(--text-muted)">System Uptime:</span> <strong style="color:#fff;">98.5%</strong></div>
                     </div>
                 </div>
-
             </div>
         </div>
 
@@ -461,6 +397,7 @@
                         <div class="form-group new-driver-field"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" value="0596584562" placeholder="Enter contact parameter text"></div>
                         <div class="form-section-divider">Security & Facility Details</div>
                         
+                        <!-- SECURITY NAME FIELD NOW AUTO-FILLS based on custom Log In -->
                         <div class="form-group"><label class="badge-style">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required placeholder="Enter verification guard identity"></div>
                         <div class="form-group"><label class="badge-style">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required placeholder="Enter staff token number"></div>
                         
@@ -558,6 +495,7 @@
         </div>
     </div>
 
+    <!-- DRIVER PROFILE MODAL -->
     <div class="modal-overlay" id="driverProfileModal">
         <div class="modal-window">
             <div class="modal-header-container"><h2 id="modalTitleName">Driver Details</h2><button class="btn-modal-close" onclick="closeDriverProfileModal()">✕</button></div>
@@ -576,6 +514,7 @@
         </div>
     </div>
 
+    <!-- SIGN OUT MODAL -->
     <div class="modal-overlay" id="signOutModal">
         <div class="modal-window" style="max-width: 400px; text-align: center; border: 1px solid rgba(252, 194, 0, 0.4);">
             <div class="modal-body-content" style="padding: 2.5rem 2rem;">
@@ -629,32 +568,20 @@
                 return;
             }
 
-            // Save User Data globally
-            loggedInUser = {
-                name: nameInput,
-                email: emailInput,
-                picture: "👤"
-            };
+            loggedInUser = { name: nameInput, email: emailInput, picture: "👤" };
 
-            // Update UI elements dynamically
             document.getElementById('securityNameField').value = loggedInUser.name;
-            
-            // Update Sidebar User Info
             document.getElementById('sidebarUserName').innerText = loggedInUser.name;
             document.getElementById('sidebarUserEmail').innerText = loggedInUser.email;
             document.getElementById('sidebarUserPic').innerText = "👤";
-            
-            // Update Dashboard Hero Card Info
             document.getElementById('dashUserName').innerText = loggedInUser.name;
             document.getElementById('dashUserEmail').innerText = loggedInUser.email;
             document.getElementById('dashUserPic').innerText = "👤";
 
-            // Visual Animation to enter dashboard
             const statusBox = document.getElementById('authStatus');
             const authText = document.getElementById('authText');
             const container = document.getElementById('loginContainer');
             
-            // Hide custom form, show authenticating status
             document.getElementById('customLoginBox').style.display = 'none';
             statusBox.style.display = 'block';
 
@@ -666,9 +593,9 @@
                 
                 setTimeout(() => {
                     document.getElementById('introOverlay').classList.add('hidden');
-                    setTimeout(() => { introActive = false; cancelAnimationFrame(animationFrameId); }, 1000);
+                    setTimeout(() => { introActive = false; cancelAnimationFrame(animationFrameId); fetchLogs(); }, 1000);
                 }, 1200);
-            }, 1200); // 1.2 second fake authorization delay
+            }, 1200); 
         });
 
         /* ---------------- INTRO SCREEN PARTICLES ---------------- */
@@ -758,7 +685,6 @@
             document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = mode === "existing" ? "none" : "block"; f.querySelector('input').required = mode !== "existing"; });
         }
 
-        /* ---------------- TOGGLE INCOMING SEAL LOGIC ---------------- */
         document.getElementById('dispatchSelect').addEventListener('change', function() {
             const container = document.getElementById('sealNumberContainer');
             const input = document.getElementById('sealNumber');
@@ -772,7 +698,6 @@
             }
         });
 
-        /* ---------------- Existing-driver autocomplete ---------------- */
         const driverSearchBoxEl = document.getElementById('driverSearchBox');
         const suggestionsListEl = document.getElementById('driverSuggestionsList');
 
@@ -1115,64 +1040,84 @@
 
         window.handleLogsResponse = function(data) {
             let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; globalLogsCache = chronData;
-            const liveBody = document.getElementById('liveFeedBody'), activeBody = document.getElementById('activeYardTableBody');
-            liveBody.innerHTML = ''; activeBody.innerHTML = '';
+            
+            const activeBody = document.getElementById('activeYardTableBody');
+            const liveBody = document.getElementById('liveFeedBody');
+            if(activeBody) activeBody.innerHTML = '';
+            if(liveBody) liveBody.innerHTML = '';
 
             compileDriversRegistryCards(chronData);
             if(chronData.length === 0) { renderHistoryTable([]); return; }
             document.getElementById('metric-total-checkins').innerText = chronData.length;
 
             let activeYardMap = {}, historicalPairs = [];
+            
             chronData.forEach(row => {
+                let plate = (row.plateNumber || "").toString().trim().toUpperCase();
+                
+                // IMPORTANT FALLBACK: If guard forgot to enter a plate number, generate a unique placeholder
+                // so it doesn't accidentally overwrite other blank plates and vanish from the active tab.
+                if(!plate) plate = "NO-PLATE-" + row.timestamp;
+
                 if(row.direction !== "Outbound") {
-                    activeYardMap[row.plateNumber] = row;
+                    activeYardMap[plate] = row;
                 } else {
-                    let match = activeYardMap[row.plateNumber];
+                    let match = activeYardMap[plate];
                     historicalPairs.push({ 
                         ...row, 
-                        checkInTime: match ? match.timestamp : "", 
+                        checkInTime: match ? match.timestamp : row.timestamp, 
                         iqamaNumber: match ? match.iqamaNumber : row.iqamaNumber, 
                         entryReason: match ? match.direction : "Unknown",
                         sealNumber: row.sealNumber || (match ? match.sealNumber : '--')
                     });
-                    if(match) delete activeYardMap[row.plateNumber];
+                    if(match) delete activeYardMap[plate];
                 }
             });
 
             let activeList = Object.values(activeYardMap);
-            document.getElementById('metric-active-now').innerText = document.getElementById('activeYardCounter').innerText = activeList.length;
+            document.getElementById('metric-active-now').innerText = activeList.length;
+            
+            if (document.getElementById('activeYardCounter')) {
+                document.getElementById('activeYardCounter').innerText = activeList.length;
+            }
+            
             document.getElementById('metric-completed-today').innerText = historicalPairs.length;
 
-            [...chronData].reverse().slice(0, 5).forEach(r => {
-                let isOut = r.direction === "Outbound";
-                let displayDir = isOut ? "OUTBOUND" : (r.direction || '').split(' - ')[0].toUpperCase(); 
-                let cssClass = getBadgeClass(displayDir, isOut);
-                liveBody.innerHTML += `<tr><td><strong style="font-size:0.9rem;">${r.driverName}</strong></td><td><span style="font-family:monospace; font-weight:700;">${r.plateNumber}</span></td><td><strong style="font-size:0.85rem;">${r.dockNumber}</strong></td><td><span class="${cssClass}">${displayDir}</span></td></tr>`;
-            });
+            if (liveBody) {
+                [...chronData].reverse().slice(0, 5).forEach(r => {
+                    let isOut = r.direction === "Outbound";
+                    let displayDir = isOut ? "OUTBOUND" : (r.direction || '').split(' - ')[0].toUpperCase(); 
+                    let cssClass = getBadgeClass(displayDir, isOut);
+                    liveBody.innerHTML += `<tr><td><strong style="font-size:0.9rem;">${r.driverName}</strong></td><td><span style="font-family:monospace; font-weight:700;">${r.plateNumber || '--'}</span></td><td><strong style="font-size:0.85rem;">${r.dockNumber}</strong></td><td><span class="${cssClass}">${displayDir}</span></td></tr>`;
+                });
+            }
 
             if(activeBody) {
-                if(activeList.length === 0) activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
-                else activeList.reverse().forEach(r => {
-                    let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
-                    let cssClass = getBadgeClass(displayDir, false);
-                    let activeDispType = r.dispatchType || 'DISPATCHING';
-                    let activeSeal = r.sealNumber || '--';
-                    
-                    activeBody.innerHTML += `<tr>
-                        <td><strong>${r.driverName}</strong></td>
-                        <td>${generatePlateBumperUI(r.plateNumber)}</td>
-                        <td><span class="${cssClass}">${displayDir}</span></td>
-                        <td style="color:var(--accent-color); font-weight:700; font-size:0.75rem;">${activeDispType.toUpperCase()}</td>
-                        <td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${activeSeal}</td>
-                        <td><strong style="font-size:0.9rem;">${r.dockNumber}</strong></td>
-                        <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td>
-                        <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.timestamp, null)}</td>
-                        <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td>
-                        <td style="text-align:right; padding-right:1rem;">
-                            <button class="btn-signout-action" onclick="promptSignOut('${r.driverName}','${r.plateNumber}','${r.securityName || 'Guard'}','${r.dockNumber}','${activeDispType}')">SIGN OUT</button>
-                        </td>
-                    </tr>`;
-                });
+                if(activeList.length === 0) {
+                    activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
+                } else {
+                    activeList.reverse().forEach(r => {
+                        let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
+                        let cssClass = getBadgeClass(displayDir, false);
+                        let activeDispType = r.dispatchType || 'DISPATCHING';
+                        let activeSeal = r.sealNumber || '--';
+                        
+                        activeBody.innerHTML += `<tr>
+                            <td><strong>${r.driverName}</strong></td>
+                            <td>${generatePlateBumperUI(r.plateNumber)}</td>
+                            <td><span class="${cssClass}">${displayDir}</span></td>
+                            <td style="color:var(--accent-color); font-weight:700; font-size:0.75rem;">${activeDispType.toUpperCase()}</td>
+                            <td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${activeSeal}</td>
+                            <td><strong style="font-size:0.9rem;">${r.dockNumber}</strong></td>
+                            <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td>
+                            <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.timestamp, null)}</td>
+                            <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td>
+                            <td style="text-align:right; padding-right:1rem;">
+                                <button class="btn-signout-action" onclick="promptSignOut('${r.driverName}','${r.plateNumber || ''}','${r.securityName || 'Guard'}','${r.dockNumber}','${activeDispType}')">SIGN OUT</button>
+                            </td>
+                        </tr>`;
+                    });
+                }
             }
 
             globalHistoryListCache = [...historicalPairs, ...activeList.map(i => ({ ...i, checkInTime: i.timestamp, isInside: true }))].sort((a,b) => new Date(b.checkInTime) - new Date(a.checkInTime));
@@ -1219,7 +1164,7 @@
             }
         });
 
-        setInterval(fetchLogs, 15000); fetchLogs();
+        setInterval(fetchLogs, 15000);
     </script>
 </body>
 </html>
