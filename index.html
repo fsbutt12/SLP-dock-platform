@@ -117,7 +117,6 @@
         .dashboard-mid-split.guard-mode { grid-template-columns: minmax(0, 1fr); }
         @media (max-width: 1100px) { .dashboard-mid-split.admin-mode { grid-template-columns: minmax(0, 1fr); } }
 
-        /* ADVANCED ANALYTICS GRID & LISTS */
         .analytics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-bottom: 2rem; width: 100%; }
         @media (max-width: 1000px) { .analytics-grid { grid-template-columns: minmax(0, 1fr); } }
         
@@ -132,7 +131,6 @@
         .analytic-text-list li strong { color: #fff; white-space: nowrap; flex-shrink: 0; font-size: 0.85rem; text-align: end; }
         .analytic-text-list li.hidden-item { display: none; }
         .analytic-text-list.expanded li.hidden-item { display: flex; }
-        
         .btn-expand { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.35rem 0.6rem; font-size: 0.7rem; border-radius: 4px; cursor: pointer; margin-top: 0.75rem; width: 100%; transition: 0.2s; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
         .btn-expand:hover { background: var(--accent-color); color: #000; }
 
@@ -219,7 +217,6 @@
         .btn-icon-manage { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; transition: 0.2s;}
         .btn-icon-manage:hover { border-color: var(--accent-color); color: var(--accent-color); }
 
-        /* SETTINGS PAGE REDESIGN */
         .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-top: 1rem; }
         @media (max-width: 800px) { .settings-grid { grid-template-columns: minmax(0, 1fr); } }
         .settings-card { background: #12161f; border-radius: 8px; border: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; text-align: start; }
@@ -306,6 +303,7 @@
             
             <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 320px;">
                 
+                <!-- ERROR MESSAGE CONTAINER ADDED HERE -->
                 <div id="loginErrorMsg" style="color: var(--danger-color); font-size: 0.75rem; display: none; font-weight: 700; margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(248,81,73,0.1); border-radius: 4px; border: 1px solid rgba(248,81,73,0.3);"></div>
                 
                 <input type="text" id="loginName" class="input-box-styled" data-translate-placeholder placeholder="Enter Full Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);">
@@ -1347,6 +1345,7 @@
             if (pendingAdminAction.type === 'edit') {
                 payload = { action: 'editDriver', ...pendingAdminAction };
                 
+                // Optimistic Update locally
                 globalLogsCache.forEach(log => {
                     if(log.driverName === payload.oldName) {
                         log.driverName = payload.driverName;
@@ -1357,6 +1356,8 @@
                 });
             } else if (pendingAdminAction.type === 'delete') {
                 payload = { action: 'deleteDriver', driverName: pendingAdminAction.driverName };
+                
+                // Optimistic Update locally
                 globalLogsCache = globalLogsCache.filter(log => log.driverName !== payload.driverName);
             }
 
@@ -1710,6 +1711,130 @@
             renderHistoryTable(filterHistoryListByRange('custom', from, to));
         }
 
+        function exportHistoryToExcel() {
+            const rows = filterHistoryListByRange(currentHistoryDateRange, document.getElementById('customDateFrom').value, document.getElementById('customDateTo').value);
+            if (rows.length === 0) { alert('No rows to export for the current filter.'); return; }
+
+            const headers = ['Driver', 'Iqama Number', 'Plate', 'Direction', 'Dock', 'Seal Number', 'Check In', 'Check Out', 'Duration', 'Security'];
+            const csvLines = [headers.join(',')];
+
+            rows.forEach(r => {
+                const line = [
+                    r.driverName || '', r.iqamaNumber || '', r.plateNumber || '',
+                    r.isInside ? (r.direction || '') : (r.entryReason || 'Outbound'),
+                    r.dockNumber || '', r.sealNumber || '--',
+                    formatTimeText(r.checkInTime), r.isInside ? 'Inside' : formatTimeText(r.timestamp),
+                    calcDuration(r.checkInTime, r.isInside ? null : r.timestamp), r.securityName || ''
+                ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+                csvLines.push(line);
+            });
+
+            const csvContent = csvLines.join('\n');
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url;
+            a.download = `movement-history-${currentHistoryDateRange}-${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        }
+
+        /* ---------------- ADVANCED ANALYTICS CHARTING ---------------- */
+        function formatHour(h) {
+            let ampm = h >= 12 ? 'PM' : 'AM';
+            let hr = h % 12 || 12;
+            return currentLang === 'ar' ? `${hr} ${ampm === 'PM' ? 'م' : 'ص'}` : `${hr} ${ampm}`;
+        }
+
+        function renderTextList(containerId, labelsArray, dataArray, valLabel) {
+            let html = '<ul class="analytic-text-list">';
+            for(let i=0; i<labelsArray.length; i++) {
+                let cls = i >= 4 ? 'class="hidden-item"' : '';
+                let color = chartColorPalette[i % chartColorPalette.length];
+                html += `<li ${cls}>
+                    <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+                        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:${color}; flex-shrink:0;"></span>
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); font-weight:600;">${t(labelsArray[i])}</span>
+                    </div>
+                    <strong style="color: #fff; white-space: nowrap; flex-shrink: 0; font-size: 0.85rem;">${dataArray[i]} ${t(valLabel)}</strong>
+                </li>`;
+            }
+            html += '</ul>';
+
+            if(labelsArray.length > 4) {
+                html += `<button class="btn-expand" onclick="this.previousElementSibling.classList.toggle('expanded'); this.innerText = this.previousElementSibling.classList.contains('expanded') ? '${t('Show Less')}' : '${t('Show More')}'">${t('Show More')}</button>`;
+            }
+
+            document.getElementById(containerId).innerHTML = html;
+        }
+
+        function updateAnalyticsCharts(byDate, byHour, byMovement, byDock) {
+            const getSortedKeys = (obj, limit) => Object.keys(obj).sort((a,b) => obj[b] - obj[a]).slice(0, limit);
+            
+            // 1. Traffic Over Time
+            let dates = Object.keys(byDate).slice(-7); 
+            let datesData = dates.map(k => byDate[k]);
+            
+            if(!analyticsCharts.traffic) {
+                analyticsCharts.traffic = new Chart(document.getElementById('chartTrafficTime'), {
+                    type: 'doughnut',
+                    data: { labels: dates.map(d=>t(d)), datasets: [{ data: datesData, backgroundColor: chartColorPalette, borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+                });
+            } else {
+                analyticsCharts.traffic.data.labels = dates.map(d=>t(d));
+                analyticsCharts.traffic.data.datasets[0].data = datesData;
+                analyticsCharts.traffic.update();
+            }
+            renderTextList('listTrafficTime', dates, datesData, 'Trucks');
+
+            // 2. Movement Dist
+            let movKeys = Object.keys(byMovement);
+            let movData = movKeys.map(k => byMovement[k]);
+            if(!analyticsCharts.movement) {
+                analyticsCharts.movement = new Chart(document.getElementById('chartMovementDist'), {
+                    type: 'doughnut',
+                    data: { labels: movKeys.map(k=>t(k)), datasets: [{ data: movData, backgroundColor: chartColorPalette, borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+                });
+            } else {
+                analyticsCharts.movement.data.labels = movKeys.map(k=>t(k));
+                analyticsCharts.movement.data.datasets[0].data = movData;
+                analyticsCharts.movement.update();
+            }
+            renderTextList('listMovementDist', movKeys, movData, 'Logs');
+
+            // 3. Peak Hours
+            let topHours = getSortedKeys(byHour, 7);
+            let hoursData = topHours.map(k => byHour[k]);
+            if(!analyticsCharts.hours) {
+                analyticsCharts.hours = new Chart(document.getElementById('chartPeakHours'), {
+                    type: 'doughnut',
+                    data: { labels: topHours.map(k=>t(k)), datasets: [{ data: hoursData, backgroundColor: chartColorPalette, borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+                });
+            } else {
+                analyticsCharts.hours.data.labels = topHours.map(k=>t(k));
+                analyticsCharts.hours.data.datasets[0].data = hoursData;
+                analyticsCharts.hours.update();
+            }
+            renderTextList('listPeakHours', topHours, hoursData, 'Check-ins');
+
+            // 4. Dock Utilization
+            let dockKeys = getSortedKeys(byDock, 5);
+            let dockData = dockKeys.map(k => byDock[k]);
+            if(!analyticsCharts.docks) {
+                analyticsCharts.docks = new Chart(document.getElementById('chartDockUtil'), {
+                    type: 'doughnut',
+                    data: { labels: dockKeys.map(k=>t(k)), datasets: [{ data: dockData, backgroundColor: chartColorPalette, borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+                });
+            } else {
+                analyticsCharts.docks.data.labels = dockKeys.map(k=>t(k));
+                analyticsCharts.docks.data.datasets[0].data = dockData;
+                analyticsCharts.docks.update();
+            }
+            renderTextList('listDockUtil', dockKeys, dockData, 'Uses');
+        }
+
         /* ---------------- DATA PROCESSING ENGINE ---------------- */
         window.handleLogsResponse = function(data) {
             let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; 
@@ -1845,62 +1970,6 @@
             const old = document.getElementById('jsonp-fetcher'); if(old) old.remove();
             const s = document.createElement('script'); s.id = 'jsonp-fetcher'; s.src = API_URL + "?callback=handleLogsResponse&prefix=handleLogsResponse&_" + new Date().getTime(); document.body.appendChild(s);
         }
-
-        window.processLogin = function(e) {
-            if(e) e.preventDefault();
-            const errEl = document.getElementById('loginErrorMsg');
-            errEl.style.display = 'none';
-            
-            const nameInput = document.getElementById('loginName').value.trim();
-            const emailInput = document.getElementById('loginEmail').value.trim();
-
-            if(!nameInput || !emailInput) { 
-                errEl.innerText = t("Please enter your Full Name and Noon ID/Email to authorize access.");
-                errEl.style.display = 'block';
-                return; 
-            }
-
-            if (isAdminMode) {
-                const pass = document.getElementById('adminPassword').value;
-                if (pass !== 'admin123') { 
-                    errEl.innerText = t("Incorrect Administrator Password.");
-                    errEl.style.display = 'block';
-                    return; 
-                }
-                userRole = 'admin';
-            } else { 
-                userRole = 'guard'; 
-            }
-
-            loggedInUser = { name: nameInput, email: emailInput, picture: "👤" };
-
-            try { 
-                localStorage.setItem('noonSlpUserSession', JSON.stringify({ name: nameInput, email: emailInput, role: userRole })); 
-            } catch(err) { 
-                console.warn("Local storage disabled."); 
-            }
-
-            applyRBAC();
-
-            const statusBox = document.getElementById('authStatus');
-            const authText = document.getElementById('authText');
-            const container = document.getElementById('loginContainer');
-            
-            document.getElementById('customLoginBox').style.display = 'none';
-            statusBox.style.display = 'block';
-
-            setTimeout(() => {
-                authText.innerText = currentLang === 'ar' ? "اكتملت مصادقة النظام" : "SYSTEM AUTHENTICATION COMPLETE";
-                authText.style.color = "var(--success-color)";
-                authText.classList.remove('pulsing');
-                container.style.boxShadow = "0 0 80px rgba(46, 160, 67, 0.25), 0 20px 40px rgba(0,0,0,0.8)";
-                
-                setTimeout(() => {
-                    document.getElementById('introOverlay').classList.add('hidden');
-                    setTimeout(() => { introActive = false; cancelAnimationFrame(animationFrameId); fetchLogs(); }, 1000);
-                }, 1200);
-            }, 1200); 
-        };
 
         document.getElementById('entryForm').addEventListener('submit', async e => {
             e.preventDefault(); const btn = document.querySelector('.submit-btn-global'); btn.innerText = t("Processing..."); btn.disabled = true;
