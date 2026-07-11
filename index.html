@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noon SLP Dock Security Platform</title>
+    
+    <!-- CHART.JS LIBRARY -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         :root {
             --bg-color: #0b0e14; 
@@ -103,6 +107,8 @@
         .dashboard-mid-split { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
         @media (max-width: 1100px) { .dashboard-mid-split { grid-template-columns: 1fr; } }
 
+        .dashboard-bottom-full { margin-bottom: 2rem; }
+
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
         .card h2 { font-size: 0.95rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; font-weight: 700; }
@@ -181,8 +187,6 @@
         .info-block data { font-size: 0.9rem; color: #fff; font-weight: 700; font-family: monospace; }
         .btn-card-action { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; text-align: center; width: 100%; }
         .btn-card-action:hover { border-color: var(--accent-color); color: var(--accent-color); }
-        .card-management-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
-        .btn-icon-manage { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; }
 
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -230,11 +234,6 @@
         .camera-controls button { padding: 0.8rem 1.5rem; border-radius: 6px; border: none; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.8rem; }
         .btn-capture { background: var(--accent-color); color: #000; }
         .btn-cancel-cam { background: var(--danger-color); color: #fff; }
-
-        .custom-date-row { display: none; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
-        .custom-date-row.open { display: flex; }
-        .custom-date-row input[type="date"] { background: #0d1117; border: 1px solid var(--border-color); color: #fff; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.8rem; outline:none;}
-        .custom-date-row button { background: var(--accent-color); color: #000; border: none; padding: 0.55rem 1rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -343,10 +342,8 @@
                 <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label">Total Check-Ins</div><div class="metric-accent-line" style="background-color: #79c0ff;"></div></div>
                 <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
             </div>
-            
             <div class="dashboard-mid-split">
                 
-                <!-- NEW LIVE FLOOR ANALYTICS -->
                 <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;">
                     <div class="card-header-flex"><h2>Live Floor Analytics</h2></div>
                     
@@ -386,6 +383,19 @@
                     </div>
                 </div>
             </div>
+
+            <!-- NEW ANALYTICS CHART SECTION -->
+            <div class="dashboard-bottom-full">
+                <div class="card">
+                    <div class="card-header-flex">
+                        <h2>Vehicle Processing Volume by Category</h2>
+                    </div>
+                    <div style="position: relative; height: 350px; width: 100%;">
+                        <canvas id="trafficChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div id="view-checkin" class="app-view">
@@ -582,10 +592,15 @@
         let driversRegistryList = [];
         let globalHistoryListCache = [];
         let currentHistoryDateRange = 'all';
+        let trafficChartInstance = null; // Holds the Chart.js instance
         
         // Active User & Role Details 
         let loggedInUser = { name: "Guest User", email: "Not signed in", picture: "" };
         let userRole = 'guard'; // Default role is 'guard'. Admin unlocks special features.
+
+        // Chart.js Default Styling
+        Chart.defaults.color = '#8b949e';
+        Chart.defaults.font.family = "'Segoe UI', system-ui, -apple-system, sans-serif";
 
         function logoutUser() {
             localStorage.removeItem('noonSlpUserSession');
@@ -862,7 +877,7 @@
                 const img = new Image();
                 let triedFallback = false;
                 function fallbackToDataUrl() {
-                    if (triedFallback) { reject(new Error('image failed to load — try a JPG or PNG instead')); return; }
+                    if (triedFallback) { reject(new Error('image failed to load')); return; }
                     triedFallback = true;
                     const reader = new FileReader();
                     reader.onload = () => { img.onerror = () => reject(new Error('image failed to load')); img.onload = () => resolve(img); img.src = reader.result; };
@@ -1185,6 +1200,9 @@
             let topDock = "--", topDockCount = 0;
             let topDir = "--", topDirCount = 0;
             
+            // For Bar Chart
+            let purposeChartData = {};
+
             chronData.forEach(row => {
                 // Analytics gathering
                 if (row.dockNumber) {
@@ -1193,9 +1211,14 @@
                     if (dockCounts[dk] > topDockCount) { topDockCount = dockCounts[dk]; topDock = row.dockNumber; }
                 }
                 if (row.direction && row.direction !== "Outbound") {
-                    let dir = row.direction.trim();
+                    let rawDir = row.direction.trim();
+                    let dir = rawDir.split(' - ')[0]; // Just take English part for UI
+                    
                     dirCounts[dir] = (dirCounts[dir] || 0) + 1;
-                    if (dirCounts[dir] > topDirCount) { topDirCount = dirCounts[dir]; topDir = dir.split(' - ')[0]; }
+                    if (dirCounts[dir] > topDirCount) { topDirCount = dirCounts[dir]; topDir = dir; }
+
+                    // Chart data gathering
+                    purposeChartData[dir] = (purposeChartData[dir] || 0) + 1;
                 }
 
                 // Tracking Logic
@@ -1229,6 +1252,50 @@
             document.getElementById('statTopDockSub').innerText = topDockCount > 0 ? `${topDockCount} Operations recorded` : "Awaiting data";
             document.getElementById('statTopPurpose').innerText = topDirCount > 0 ? `${topDir}` : "--";
             document.getElementById('statTopPurposeSub').innerText = topDirCount > 0 ? `${topDirCount} Movements recorded` : "Awaiting data";
+
+            // Update Chart UI
+            if (trafficChartInstance) {
+                // Sort by highest value for better display
+                let sortableChart = Object.entries(purposeChartData).sort((a,b) => b[1] - a[1]);
+                trafficChartInstance.data.labels = sortableChart.map(x => x[0]);
+                trafficChartInstance.data.datasets[0].data = sortableChart.map(x => x[1]);
+                trafficChartInstance.update();
+            } else {
+                let sortableChart = Object.entries(purposeChartData).sort((a,b) => b[1] - a[1]);
+                const ctx = document.getElementById('trafficChart').getContext('2d');
+                trafficChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: sortableChart.map(x => x[0]),
+                        datasets: [{
+                            label: 'Total Volume',
+                            data: sortableChart.map(x => x[1]),
+                            backgroundColor: 'rgba(252, 194, 0, 0.25)',
+                            borderColor: '#fcc200',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: { precision: 0 }
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
 
             let activeList = Object.values(activeYardMap);
             document.getElementById('metric-active-now').innerText = activeList.length;
