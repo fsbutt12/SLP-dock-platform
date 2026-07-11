@@ -243,7 +243,6 @@
         .chart-legend li:last-child { border-bottom: none; padding-bottom: 0; }
         .chart-legend li span { color: #fff; font-weight: 700; }
 
-        /* Chart Legend Coloring Fixes */
         .chart-legend li .legend-label-group { display: flex; align-items: center; gap: 8px; }
         .chart-legend li .legend-color-box { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 
@@ -434,7 +433,7 @@
             <li class="nav-item" onclick="switchView('checkin', this)">
                 <span class="nav-icon">🚛</span><span class="nav-text">Check-in Truck</span>
             </li>
-            <li class="nav-item" onclick="switchView('active-trucks', this)">
+            <li class="nav-item" id="nav-active-trucks" onclick="switchView('active-trucks', this)">
                 <span class="nav-icon">⏱️</span><span class="nav-text">Active Trucks</span>
             </li>
             <li class="nav-item" onclick="switchView('history', this)">
@@ -444,9 +443,6 @@
             <!-- ADMIN ONLY NAV LINKS -->
             <li class="nav-item" id="nav-drivers" onclick="switchView('drivers', this)">
                 <span class="nav-icon">🪪</span><span class="nav-text">Drivers Database</span>
-            </li>
-            <li class="nav-item" id="nav-active-users" onclick="switchView('active-users', this)">
-                <span class="nav-icon">🟢</span><span class="nav-text">Active Users</span>
             </li>
         </ul>
         <div class="sidebar-footer">
@@ -581,17 +577,17 @@
             <header class="view-header-row"><div class="view-header-title"><h1>Truck Entry Form</h1><p>Record arriving and departing vehicles</p></div></header>
             <div class="card" style="max-width: 850px; margin: 0 auto; padding: 2rem;">
                 <div class="scanners-triple-row">
-                    <div class="scan-box-dashed" onclick="document.getElementById('driverPhotoInput').click()">
+                    <div class="scan-box-dashed" id="scanBoxDriver" onclick="document.getElementById('driverPhotoInput').click()">
                         <div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus">Driver Photo / Truck Photo</span></div>
                         <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatus', 'PLATE')">
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 Use Camera</div>
                     </div>
-                    <div class="scan-box-dashed" onclick="document.getElementById('iqamaScanner').click()">
+                    <div class="scan-box-dashed" id="scanBoxIqama" onclick="document.getElementById('iqamaScanner').click()">
                         <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus">Iqama (ID Card) Scanner</span></div>
                         <input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')">
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 Use Camera</div>
                     </div>
-                    <div class="scan-box-dashed" onclick="document.getElementById('officerScanner').click()">
+                    <div class="scan-box-dashed" id="scanBoxSecurity" onclick="document.getElementById('officerScanner').click()">
                         <div><span class="icon">🛡️</span><span class="label-text" id="officerStatus">Security ID Scanner</span></div>
                         <input type="file" id="officerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'officerStatus', 'OFFICER')">
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('officerStatus', 'OFFICER')">📸 Use Camera</div>
@@ -661,7 +657,7 @@
         <div id="view-active-trucks" class="app-view">
             <div class="view-header-row">
                 <div class="view-header-title"><h1>Active Trucks in Facility</h1><p>Currently Checked-In Vehicles</p><div class="counter-badge-orange">⏳ Total Inside: <span id="activeYardCounter">0</span></div></div>
-                <div class="header-search-box-container"><span>🔍</span><input type="text" id="yardSearchQuery" class="header-search-input" placeholder="Search records..." oninput="filterTable('activeYardTableBody', this.value)"></div>
+                <div class="header-search-box-container"><span>🔍</span><input type="text" id="yardSearchQuery" class="header-search-input" placeholder="Search records..." oninput="filterActiveTrucks()"></div>
             </div>
             <div class="card" style="overflow-x: auto; padding: 0.5rem; background: transparent; border: none;">
                 <table id="activeYardTable">
@@ -679,7 +675,7 @@
             </div>
             <div class="card" style="padding: 1.5rem; background: transparent; border:none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
-                    <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" placeholder="Filter by driver, plate, or security ID..." oninput="filterTable('historyLogTableBody', this.value)"></div>
+                    <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" placeholder="Filter by driver, plate, or security ID..." oninput="applyHistoryFilters()"></div>
                     <div class="filter-tabs-container">
                         <button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)">Today</button>
                         <button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)">Last 7 Days</button>
@@ -689,7 +685,7 @@
                 </div>
                 <div class="custom-date-row" id="customDateRow">
                     <input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;">TO</span> <input type="date" id="customDateTo">
-                    <button onclick="applyCustomDateFilter()">Apply</button>
+                    <button onclick="applyHistoryFilters()">Apply</button>
                 </div>
                 <div style="overflow-x: auto; margin-top: 1rem;">
                     <table id="historyLogTable">
@@ -706,16 +702,6 @@
                 <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="driverRegistrySearch" class="header-search-input" placeholder="Search name, id, number..." oninput="filterRegistryCards()"></div>
             </div>
             <div class="drivers-grid" id="driversRegistryContainer"></div>
-        </div>
-
-        <!-- NEW ACTIVE USERS VIEW -->
-        <div id="view-active-users" class="app-view">
-            <header class="view-header-row"><div class="view-header-title"><h1>Active Users</h1><p>Live personnel currently online</p></div></header>
-            <div class="card" style="max-width: 800px;">
-                <ul id="activeUsersList" style="list-style:none; display:flex; flex-direction:column; gap:1rem;">
-                    <!-- Populated dynamically via JS based on recent activity logs -->
-                </ul>
-            </div>
         </div>
     </div>
 
@@ -735,6 +721,24 @@
                 </div>
             </div>
             <div class="modal-footer-container"><button class="btn-modal-cancel" onclick="closeDriverProfileModal()">Close Window</button></div>
+        </div>
+    </div>
+
+    <!-- EDIT DRIVER MODAL -->
+    <div class="modal-overlay" id="editDriverModal">
+        <div class="modal-window" style="max-width: 500px;">
+            <div class="modal-header-container"><h2>Edit Driver Record</h2><button class="btn-modal-close" onclick="closeEditDriverModal()">✕</button></div>
+            <div class="modal-body-content">
+                <input type="hidden" id="editOriginalName">
+                <div class="form-group"><label class="badge-style">Driver Name</label><input type="text" id="editName" class="input-box-styled"></div>
+                <div class="form-group"><label class="badge-style">Iqama Number</label><input type="text" id="editIqama" class="input-box-styled"></div>
+                <div class="form-group"><label class="badge-style">Plate Number</label><input type="text" id="editPlate" class="input-box-styled"></div>
+                <div class="form-group"><label class="badge-style">Mobile Number</label><input type="text" id="editPhone" class="input-box-styled"></div>
+            </div>
+            <div class="modal-footer-container">
+                <button class="btn-modal-cancel" style="margin-right: 1rem;" onclick="closeEditDriverModal()">Cancel</button>
+                <button class="submit-btn-global" style="margin-top: 0; width: auto; padding: 0.6rem 1.5rem;" onclick="saveDriverEdits()">Save Updates</button>
+            </div>
         </div>
     </div>
 
@@ -856,13 +860,11 @@
 
             // Apply Role-Based Access Control (RBAC) to the UI
             if (userRole === 'guard') {
-                document.getElementById('nav-drivers').style.display = 'none';
-                document.getElementById('nav-active-users').style.display = 'none';
-                document.getElementById('btnExportExcel').style.display = 'none';
+                if(document.getElementById('nav-drivers')) document.getElementById('nav-drivers').style.display = 'none';
+                if(document.getElementById('btnExportExcel')) document.getElementById('btnExportExcel').style.display = 'none';
             } else {
-                document.getElementById('nav-drivers').style.display = 'flex';
-                document.getElementById('nav-active-users').style.display = 'flex';
-                document.getElementById('btnExportExcel').style.display = 'block';
+                if(document.getElementById('nav-drivers')) document.getElementById('nav-drivers').style.display = 'flex';
+                if(document.getElementById('btnExportExcel')) document.getElementById('btnExportExcel').style.display = 'block';
             }
 
             document.getElementById('sidebarUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
@@ -928,29 +930,24 @@
         window.addEventListener('resize', () => { if(introActive) initParticles(); });
 
         /* ---------------- ON LOAD SESSION CHECK ---------------- */
-        // Check if user is already logged in
         const sessionStr = localStorage.getItem('noonSlpUserSession');
         if (sessionStr) {
             const sessionData = JSON.parse(sessionStr);
             loggedInUser = { name: sessionData.name, email: sessionData.email, picture: "👤" };
             userRole = sessionData.role;
 
-            // Apply RBAC
             if (userRole === 'guard') {
-                document.getElementById('nav-drivers').style.display = 'none';
-                document.getElementById('nav-active-users').style.display = 'none';
-                document.getElementById('btnExportExcel').style.display = 'none';
+                if(document.getElementById('nav-drivers')) document.getElementById('nav-drivers').style.display = 'none';
+                if(document.getElementById('btnExportExcel')) document.getElementById('btnExportExcel').style.display = 'none';
             } else {
-                document.getElementById('nav-drivers').style.display = 'flex';
-                document.getElementById('nav-active-users').style.display = 'flex';
-                document.getElementById('btnExportExcel').style.display = 'block';
+                if(document.getElementById('nav-drivers')) document.getElementById('nav-drivers').style.display = 'flex';
+                if(document.getElementById('btnExportExcel')) document.getElementById('btnExportExcel').style.display = 'block';
             }
 
             document.getElementById('sidebarUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
             document.getElementById('sidebarUserEmail').innerText = loggedInUser.email;
             document.getElementById('sidebarUserPic').innerText = "👤";
 
-            // Hide overlay instantly
             document.getElementById('introOverlay').style.display = 'none';
             introActive = false;
         } else {
@@ -1001,10 +998,58 @@
         }
         function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
 
+        /* --- DRIVER EDIT MODAL LOGIC --- */
+        function openEditDriverModal(name, iqama, plate, phone) {
+            document.getElementById('editOriginalName').value = name;
+            document.getElementById('editName').value = name;
+            document.getElementById('editIqama').value = iqama;
+            document.getElementById('editPlate').value = plate;
+            document.getElementById('editPhone').value = phone;
+            document.getElementById('editDriverModal').classList.add('modal-active');
+        }
+
+        function closeEditDriverModal() {
+            document.getElementById('editDriverModal').classList.remove('modal-active');
+        }
+
+        function saveDriverEdits() {
+            const oldName = document.getElementById('editOriginalName').value;
+            const newName = document.getElementById('editName').value;
+            const newIqama = document.getElementById('editIqama').value;
+            const newPlate = document.getElementById('editPlate').value;
+            const newPhone = document.getElementById('editPhone').value;
+            
+            // Optimistically update all occurrences of this driver in the local cache
+            globalLogsCache.forEach(log => {
+                if (log.driverName === oldName) {
+                    log.driverName = newName;
+                    log.iqamaNumber = newIqama;
+                    log.plateNumber = newPlate;
+                    log.mobileNumber = newPhone;
+                }
+            });
+            
+            window.handleLogsResponse(globalLogsCache);
+            closeEditDriverModal();
+        }
+
+
         function setDriverMode(mode, element) {
             element.parentNode.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active')); element.classList.add('active');
-            document.getElementById('driverLookupGroup').style.display = mode === "existing" ? "block" : "none";
-            document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = mode === "existing" ? "none" : "block"; f.querySelector('input').required = mode !== "existing"; });
+            
+            if(mode === "existing") {
+                document.getElementById('driverLookupGroup').style.display = "block";
+                document.getElementById('scanBoxDriver').style.display = 'none';
+                document.getElementById('scanBoxIqama').style.display = 'none';
+                document.querySelector('.scanners-triple-row').style.gridTemplateColumns = '1fr';
+                document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = "none"; f.querySelector('input').required = false; });
+            } else {
+                document.getElementById('driverLookupGroup').style.display = "none";
+                document.getElementById('scanBoxDriver').style.display = 'block';
+                document.getElementById('scanBoxIqama').style.display = 'block';
+                document.querySelector('.scanners-triple-row').style.gridTemplateColumns = 'repeat(3, 1fr)';
+                document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = "block"; f.querySelector('input').required = true; });
+            }
         }
 
         document.getElementById('dispatchSelect').addEventListener('change', function() {
@@ -1024,12 +1069,14 @@
         const driverSearchBoxEl = document.getElementById('driverSearchBox');
         const suggestionsListEl = document.getElementById('driverSuggestionsList');
 
-        driverSearchBoxEl.addEventListener('input', function(e) {
-            let value = e.target.value.toUpperCase().trim();
+        function renderDriverSuggestions(value) {
             suggestionsListEl.innerHTML = '';
-            if (value.length < 1 || driversRegistryList.length === 0) { suggestionsListEl.classList.remove('open'); return; }
+            if (driversRegistryList.length === 0) { suggestionsListEl.classList.remove('open'); return; }
 
-            let matches = driversRegistryList.filter(d => d.name.toUpperCase().includes(value) || (d.plate || '').toUpperCase().includes(value)).slice(0, 8);
+            let matches = driversRegistryList.filter(d => 
+                d.name.toUpperCase().includes(value) || (d.plate || '').toUpperCase().includes(value)
+            ).slice(0, 8);
+
             if (matches.length === 0) { suggestionsListEl.classList.remove('open'); return; }
 
             matches.forEach(d => {
@@ -1047,6 +1094,14 @@
                 suggestionsListEl.appendChild(item);
             });
             suggestionsListEl.classList.add('open');
+        }
+
+        driverSearchBoxEl.addEventListener('focus', function() {
+            renderDriverSuggestions(this.value.toUpperCase().trim());
+        });
+
+        driverSearchBoxEl.addEventListener('input', function() {
+            renderDriverSuggestions(this.value.toUpperCase().trim());
         });
 
         document.addEventListener('click', function(e) {
@@ -1283,7 +1338,7 @@
                 let dateFormatted = fmtDate(driver.registered);
                 container.innerHTML += `
                     <div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${(driver.plate || '').toLowerCase()}">
-                        <div class="card-management-actions"><button class="btn-icon-manage">✏️</button></div>
+                        <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${driver.phone}')">✏️</button></div>
                         <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">Verified</span><span class="tag-badge carrier">SLP</span></div></div></div>
                         <div class="driver-card-info-grid"><div class="info-block"><p>🆔 IQAMA ID</p><data>${driver.id}</data></div><div class="info-block"><p>📅 Registered</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 Phone Number</p><data>${driver.phone}</data></div></div>
                         <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${driver.phone}')">View Records</button>
@@ -1296,12 +1351,12 @@
             document.querySelectorAll('.driver-registry-card').forEach(card => { card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none'; });
         }
 
-        /* ---------------- Tables Rendering ---------------- */
+        /* ---------------- Tables Rendering & Filters ---------------- */
         function renderHistoryTable(list) {
             const historyBody = document.getElementById('historyLogTableBody');
             historyBody.innerHTML = '';
             if (list.length === 0) {
-                historyBody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">No records match this range.</td></tr>';
+                historyBody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">No records match this filter.</td></tr>';
                 return;
             }
             list.forEach(r => {
@@ -1330,6 +1385,25 @@
             });
         }
 
+        function applyHistoryFilters() {
+            let range = currentHistoryDateRange;
+            let fromStr = document.getElementById('customDateFrom').value;
+            let toStr = document.getElementById('customDateTo').value;
+            let query = document.getElementById('historySearchQuery').value.toLowerCase().trim();
+
+            let filtered = filterHistoryListByRange(range, fromStr, toStr);
+
+            if (query) {
+                filtered = filtered.filter(r => 
+                    (r.driverName || '').toLowerCase().includes(query) ||
+                    (r.plateNumber || '').toLowerCase().includes(query) ||
+                    (r.securityName || '').toLowerCase().includes(query) ||
+                    (r.iqamaNumber || '').toLowerCase().includes(query)
+                );
+            }
+            renderHistoryTable(filtered);
+        }
+
         function setHistoryDateFilter(range, btnEl) {
             currentHistoryDateRange = range;
             document.querySelectorAll('.filter-tabs-container .tab-filter-item').forEach(b => b.classList.remove('active'));
@@ -1337,14 +1411,19 @@
             const customRow = document.getElementById('customDateRow');
             if (range === 'custom') { customRow.classList.add('open'); return; }
             customRow.classList.remove('open');
-            renderHistoryTable(filterHistoryListByRange(range));
+            applyHistoryFilters();
         }
 
-        function applyCustomDateFilter() {
-            const from = document.getElementById('customDateFrom').value;
-            const to = document.getElementById('customDateTo').value;
-            if (!from || !to) { alert('Pick both a start and end date.'); return; }
-            renderHistoryTable(filterHistoryListByRange('custom', from, to));
+        function filterActiveTrucks() {
+            let query = document.getElementById('yardSearchQuery').value.toLowerCase().trim();
+            let rows = document.querySelectorAll('#activeYardTableBody tr');
+            rows.forEach(row => {
+                if(row.innerText.toLowerCase().includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         }
 
         function exportHistoryToExcel() {
@@ -1373,92 +1452,15 @@
             document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         }
 
-        /* ---------------- ACTIVE USERS LOGIC ---------------- */
-        function updateActiveUsersList(data) {
-            const listEl = document.getElementById('activeUsersList');
-            if(!listEl) return;
-            listEl.innerHTML = '';
-            
-            // Maintain a dictionary of users
-            let users = {};
-            
-            // Current User is always online
-            users[loggedInUser.email] = { 
-                name: loggedInUser.name, 
-                email: loggedInUser.email, 
-                status: 'Online Now (You)', 
-                color: 'var(--success-color)',
-                lastActive: new Date()
-            };
-            
-            const now = new Date();
-            
-            // Go through all logs to find users
-            data.forEach(r => {
-                if (r.actionByEmail && r.actionByEmail !== loggedInUser.email) {
-                    let logTime = new Date(r.timestamp);
-                    // If we haven't tracked this user yet, or this log is newer
-                    if (!users[r.actionByEmail] || logTime > users[r.actionByEmail].lastActive) {
-                        users[r.actionByEmail] = {
-                            name: r.actionByName || 'Guard / Admin',
-                            email: r.actionByEmail,
-                            lastActive: logTime
-                        };
-                    }
-                }
-            });
-
-            // Now determine their status based on the entire historical record
-            Object.values(users).forEach(u => {
-                if (u.email === loggedInUser.email) return; // already set
-
-                let diffMs = now - u.lastActive;
-                let diffHours = diffMs / (1000 * 60 * 60);
-
-                if (diffHours < 1) {
-                    u.status = 'Online Now';
-                    u.color = 'var(--success-color)';
-                } else if (diffHours < 12) {
-                    u.status = 'Recently Active';
-                    u.color = 'var(--accent-color)';
-                } else {
-                    u.status = 'Offline';
-                    u.color = 'var(--text-muted)';
-                }
-            });
-            
-            // Sort so Online Now is at the top
-            let sortedUsers = Object.values(users).sort((a, b) => b.lastActive - a.lastActive);
-            
-            sortedUsers.forEach(u => {
-                listEl.innerHTML += `
-                    <li style="display:flex; align-items:center; gap:1rem; padding: 1rem; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:8px;">
-                        <div class="driver-avatar-img" style="background:${u.color === 'var(--text-muted)' ? '#333' : 'var(--accent-color)'}; color:${u.color === 'var(--text-muted)' ? 'var(--text-muted)' : '#000'}; font-weight:800; width:45px; height:45px;">👤</div>
-                        <div style="flex-grow:1;">
-                            <h4 style="color:#fff; font-size:1rem; margin-bottom: 2px;">${u.name}</h4>
-                            <p style="color:var(--text-muted); font-size:0.75rem;">${u.email}</p>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.75rem; font-weight:700; color:${u.color}; text-transform: uppercase;">
-                            <span style="width:8px; height:8px; border-radius:50%; background:${u.color}; box-shadow: 0 0 8px ${u.color};"></span>
-                            ${u.status}
-                        </div>
-                    </li>
-                `;
-            });
-        }
-
         /* ---------------- PAIRING ENGINE (BULLETPROOF UPDATES) ---------------- */
         window.handleLogsResponse = function(data) {
             let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; 
             globalLogsCache = chronData;
             
             const activeBody = document.getElementById('activeYardTableBody');
-            const liveBody = document.getElementById('liveFeedBody');
             if(activeBody) activeBody.innerHTML = '';
-            if(liveBody) liveBody.innerHTML = '';
 
             compileDriversRegistryCards(chronData);
-            updateActiveUsersList(chronData); // Populate Live Users
             
             if(chronData.length === 0) { renderHistoryTable([]); return; }
             document.getElementById('metric-total-checkins').innerText = chronData.length;
@@ -1469,9 +1471,7 @@
             chronData.forEach(row => {
                 let p = (row.plateNumber || "").toString().trim().toUpperCase();
                 let d = (row.driverName || "").toString().trim().toUpperCase();
-                // We use a super-key (Plate + Name) so if the plate is blank, it pairs based on the driver.
                 let trackingKey = p + "|||" + d;
-
                 let dirCheck = (row.direction || "").toString().trim();
                 
                 if(dirCheck !== "Outbound") {
@@ -1521,15 +1521,6 @@
                 }
             }
 
-            if (liveBody) {
-                [...chronData].reverse().slice(0, 5).forEach(r => {
-                    let isOut = (r.direction || '').trim() === "Outbound";
-                    let displayDir = isOut ? "OUTBOUND" : (r.direction || '').split(' - ')[0].toUpperCase(); 
-                    let cssClass = getBadgeClass(displayDir, isOut);
-                    liveBody.innerHTML += `<tr><td><strong style="font-size:0.9rem;">${r.driverName}</strong></td><td><span style="font-family:monospace; font-weight:700;">${r.plateNumber || '--'}</span></td><td><strong style="font-size:0.85rem;">${r.dockNumber}</strong></td><td><span class="${cssClass}">${displayDir}</span></td></tr>`;
-                });
-            }
-
             if(activeBody) {
                 if(activeList.length === 0) {
                     activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
@@ -1559,7 +1550,7 @@
             }
 
             globalHistoryListCache = [...historicalPairs, ...activeList.map(i => ({ ...i, checkInTime: i.timestamp, isInside: true }))].sort((a,b) => new Date(b.checkInTime) - new Date(a.checkInTime));
-            renderHistoryTable(filterHistoryListByRange(currentHistoryDateRange, document.getElementById('customDateFrom').value, document.getElementById('customDateTo').value));
+            applyHistoryFilters(); // Applies both date and search text filters
         };
 
         function fetchLogs() {
@@ -1598,7 +1589,8 @@
                 document.getElementById('entryForm').reset(); btn.innerText = "Check In Truck"; btn.disabled = false;
                 document.getElementById('sealNumberContainer').style.display = 'none'; document.getElementById('sealNumber').required = false;
                 
-                switchView('dashboard', document.querySelectorAll('.nav-item')[0]); 
+                // Switch exactly to Active Trucks Instead of Dashboard
+                switchView('active-trucks', document.getElementById('nav-active-trucks')); 
                 
                 setTimeout(fetchLogs, 3500); // Verify background fetch worked
             } catch (err) {
