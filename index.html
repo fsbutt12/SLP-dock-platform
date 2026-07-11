@@ -117,6 +117,7 @@
         .dashboard-mid-split.guard-mode { grid-template-columns: minmax(0, 1fr); }
         @media (max-width: 1100px) { .dashboard-mid-split.admin-mode { grid-template-columns: minmax(0, 1fr); } }
 
+        /* ADVANCED ANALYTICS GRID & LISTS */
         .analytics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-bottom: 2rem; width: 100%; }
         @media (max-width: 1000px) { .analytics-grid { grid-template-columns: minmax(0, 1fr); } }
         
@@ -131,6 +132,7 @@
         .analytic-text-list li strong { color: #fff; white-space: nowrap; flex-shrink: 0; font-size: 0.85rem; text-align: end; }
         .analytic-text-list li.hidden-item { display: none; }
         .analytic-text-list.expanded li.hidden-item { display: flex; }
+        
         .btn-expand { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.35rem 0.6rem; font-size: 0.7rem; border-radius: 4px; cursor: pointer; margin-top: 0.75rem; width: 100%; transition: 0.2s; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
         .btn-expand:hover { background: var(--accent-color); color: #000; }
 
@@ -217,6 +219,7 @@
         .btn-icon-manage { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; transition: 0.2s;}
         .btn-icon-manage:hover { border-color: var(--accent-color); color: var(--accent-color); }
 
+        /* SETTINGS PAGE REDESIGN */
         .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-top: 1rem; }
         @media (max-width: 800px) { .settings-grid { grid-template-columns: minmax(0, 1fr); } }
         .settings-card { background: #12161f; border-radius: 8px; border: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; text-align: start; }
@@ -313,14 +316,16 @@
                     <input type="password" id="adminPassword" class="input-box-styled" data-translate-placeholder placeholder="Enter Admin Password" style="text-align: center; border-color: rgba(248, 81, 73, 0.4); background: rgba(0,0,0,0.5);">
                 </div>
 
-                <button type="button" id="customSignInBtn" onclick="processLogin(event)" class="submit-btn-global" style="margin-top: 0.5rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+                <!-- PURE BUTTON, NO INLINE JAVASCRIPT EVENT -->
+                <button type="button" id="customSignInBtn" class="submit-btn-global" style="margin-top: 0.5rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
                     <svg style="pointer-events: none;" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
                     <span style="pointer-events: none;" data-translate>AUTHORIZE ACCESS</span>
                 </button>
 
-                <button type="button" id="adminToggle" onclick="toggleAdminMode()" style="background: transparent; border: none; margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; font-weight: 600; transition: color 0.2s; width: 100%;" data-translate>⚙️ Login as Administrator</button>
+                <!-- PURE BUTTON, NO INLINE JAVASCRIPT EVENT -->
+                <button type="button" id="adminToggle" style="background: transparent; border: none; margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; font-weight: 600; transition: color 0.2s; width: 100%;" data-translate>⚙️ Login as Administrator</button>
             </div>
             
             <div id="authStatus" class="auth-status">
@@ -977,7 +982,7 @@
             "FORCE PERMISSION PROMPT": "فرض طلب الإذن",
             "REFRESH STATUS": "تحديث الحالة",
             "STILL BLOCKED?": "لا يزال محظوراً؟",
-            "Click the lock icon in your browser's address bar next to the URL and toggle 'Camera' to ON. Then refresh the page.": "انقر على أيقونة القفل في شريط عنوان المتصفح بجوار الرابط وقم بتبديل 'الكاميرا' إلى التشغيل. ثم قم بتحديث الصفحة.",
+            "Click the lock icon in your browser's address bar next to the URL and toggle 'Camera' to ON. Then refresh the page.": "انقر على أيقونة القفل in شريط عنوان المتصفح بجوار الرابط وقم بتبديل 'الكاميرا' إلى التشغيل. ثم قم بتحديث الصفحة.",
             "LOCATION ACCESS": "الوصول للموقع",
             "REQUIRED FOR REGIONAL TRACKING": "مطلوب للتتبع الإقليمي",
             "To accurately track check-ins and show regional data, the system needs your location permission.": "لتتبع عمليات الدخول بدقة وإظهار البيانات الإقليمية، يحتاج النظام إلى إذن الموقع الخاص بك.",
@@ -1280,7 +1285,7 @@
         /* ---------------- EDIT DRIVER / DATABASE LOGIC ---------------- */
         let pendingAdminAction = null;
 
-        function openDriverProfileModal(name, iqama, plate, date, phone) {
+        window.openDriverProfileModal = function(name, iqama, plate, date, phone) {
             document.getElementById('modalDataName').innerText = name;
             document.getElementById('modalDataIqama').innerText = iqama;
             document.getElementById('modalDataDate').innerText = date;
@@ -1290,9 +1295,9 @@
             segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
             document.getElementById('driverProfileModal').classList.add('modal-active');
         }
-        function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
+        window.closeDriverProfileModal = function() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
 
-        function openEditDriverModal(name, iqama, plate, mobile) {
+        window.openEditDriverModal = function(name, iqama, plate, mobile) {
             document.getElementById('editOldDriverName').value = name;
             document.getElementById('editDriverName').value = name;
             document.getElementById('editIqama').value = iqama === '--' ? '' : iqama;
@@ -1301,11 +1306,11 @@
             document.getElementById('editDriverModal').classList.add('modal-active');
         }
 
-        function closeEditDriverModal() {
+        window.closeEditDriverModal = function() {
             document.getElementById('editDriverModal').classList.remove('modal-active');
         }
 
-        function confirmEditDriver() {
+        window.confirmEditDriver = function() {
             pendingAdminAction = {
                 type: 'edit',
                 oldName: document.getElementById('editOldDriverName').value,
@@ -1319,7 +1324,7 @@
             document.getElementById('confirmActionModal').classList.add('modal-active');
         }
 
-        function confirmDeleteDriver() {
+        window.confirmDeleteDriver = function() {
             pendingAdminAction = {
                 type: 'delete',
                 driverName: document.getElementById('editOldDriverName').value
@@ -1329,12 +1334,12 @@
             document.getElementById('confirmActionModal').classList.add('modal-active');
         }
 
-        function closeConfirmModal() {
+        window.closeConfirmModal = function() {
             document.getElementById('confirmActionModal').classList.remove('modal-active');
             pendingAdminAction = null;
         }
 
-        async function executeAdminAction() {
+        window.executeAdminAction = async function() {
             if (!pendingAdminAction) return;
             
             const btn = document.getElementById('btnConfirmAction');
@@ -1376,14 +1381,14 @@
             }
         }
 
-        function filterTable(tbodyId, val) {
+        window.filterTable = function(tbodyId, val) {
             let q = val.toLowerCase().trim();
             document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
                 tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
             });
         }
 
-        function setDriverMode(mode, element) {
+        window.setDriverMode = function(mode, element) {
             element.parentNode.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active')); element.classList.add('active');
             document.getElementById('driverLookupGroup').style.display = mode === "existing" ? "block" : "none";
             document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = mode === "existing" ? "none" : "block"; f.querySelector('input').required = mode !== "existing"; });
@@ -1476,19 +1481,19 @@
 
         let cameraStream = null, cameraTargetStatusId = null, cameraTargetScanType = null;
 
-        async function openCamera(statusLabelId, scanType) {
+        window.openCamera = async function(statusLabelId, scanType) {
             cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
             const overlay = document.getElementById('cameraOverlay'), video = document.getElementById('cameraVideo'); overlay.classList.add('open');
             try { cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 960 }, height: { ideal: 720 } } }); video.srcObject = cameraStream; } 
             catch (err) { alert('Could not access camera: ' + err.message); closeCamera(); }
         }
 
-        function closeCamera() {
+        window.closeCamera = function() {
             document.getElementById('cameraOverlay').classList.remove('open');
             if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
         }
 
-        function captureCameraFrame() {
+        window.captureCameraFrame = function() {
             const video = document.getElementById('cameraVideo'), canvas = document.getElementById('cameraCanvas');
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
@@ -1498,7 +1503,7 @@
             }, 'image/jpeg', 0.85);
         }
 
-        function handleFileSelected(inputEl, statusLabelId, scanType) {
+        window.handleFileSelected = function(inputEl, statusLabelId, scanType) {
             const file = inputEl.files[0]; if (!file) return; runLocalOcrEngine(file, statusLabelId, scanType);
         }
 
@@ -1550,14 +1555,14 @@
         /* ---------------- SIGN OUT MODAL LOGIC & OPTIMISTIC UPDATES ---------------- */
         let currentSignOutContext = null;
 
-        function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
+        window.promptSignOut = function(driverName, plateNumber, securityName, dockNumber, dispatchType) {
             currentSignOutContext = { driverName, plateNumber, securityName, dockNumber, dispatchType };
             document.getElementById('signOutModalSubtext').innerText = `${t("Completing SLP cycle...")} ${plateNumber || ''}`;
             document.getElementById('signOutSeal').value = '';
             document.getElementById('signOutModal').classList.add('modal-active');
         }
 
-        function closeSignOutModal() {
+        window.closeSignOutModal = function() {
             document.getElementById('signOutModal').classList.remove('modal-active');
             currentSignOutContext = null;
         }
@@ -1655,7 +1660,7 @@
             });
         }
 
-        function filterRegistryCards() {
+        window.filterRegistryCards = function() {
             let query = document.getElementById('driverRegistrySearch').value.toLowerCase();
             document.querySelectorAll('.driver-registry-card').forEach(card => { card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none'; });
         }
@@ -1694,7 +1699,7 @@
             });
         }
 
-        function setHistoryDateFilter(range, btnEl) {
+        window.setHistoryDateFilter = function(range, btnEl) {
             currentHistoryDateRange = range;
             document.querySelectorAll('.filter-tabs-container .tab-filter-item').forEach(b => b.classList.remove('active'));
             btnEl.classList.add('active');
@@ -1704,14 +1709,14 @@
             renderHistoryTable(filterHistoryListByRange(range));
         }
 
-        function applyCustomDateFilter() {
+        window.applyCustomDateFilter = function() {
             const from = document.getElementById('customDateFrom').value;
             const to = document.getElementById('customDateTo').value;
             if (!from || !to) { alert('Pick both a start and end date.'); return; }
             renderHistoryTable(filterHistoryListByRange('custom', from, to));
         }
 
-        function exportHistoryToExcel() {
+        window.exportHistoryToExcel = function() {
             const rows = filterHistoryListByRange(currentHistoryDateRange, document.getElementById('customDateFrom').value, document.getElementById('customDateTo').value);
             if (rows.length === 0) { alert('No rows to export for the current filter.'); return; }
 
@@ -1769,7 +1774,6 @@
         function updateAnalyticsCharts(byDate, byHour, byMovement, byDock) {
             const getSortedKeys = (obj, limit) => Object.keys(obj).sort((a,b) => obj[b] - obj[a]).slice(0, limit);
             
-            // 1. Traffic Over Time
             let dates = Object.keys(byDate).slice(-7); 
             let datesData = dates.map(k => byDate[k]);
             
@@ -1786,7 +1790,6 @@
             }
             renderTextList('listTrafficTime', dates, datesData, 'Trucks');
 
-            // 2. Movement Dist
             let movKeys = Object.keys(byMovement);
             let movData = movKeys.map(k => byMovement[k]);
             if(!analyticsCharts.movement) {
@@ -1802,7 +1805,6 @@
             }
             renderTextList('listMovementDist', movKeys, movData, 'Logs');
 
-            // 3. Peak Hours
             let topHours = getSortedKeys(byHour, 7);
             let hoursData = topHours.map(k => byHour[k]);
             if(!analyticsCharts.hours) {
@@ -1818,7 +1820,6 @@
             }
             renderTextList('listPeakHours', topHours, hoursData, 'Check-ins');
 
-            // 4. Dock Utilization
             let dockKeys = getSortedKeys(byDock, 5);
             let dockData = dockKeys.map(k => byDock[k]);
             if(!analyticsCharts.docks) {
