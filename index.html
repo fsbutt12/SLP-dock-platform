@@ -301,12 +301,16 @@
         </ul>
         <div class="sidebar-footer">
             
-            <div style="display:flex; align-items:center; gap: 0.75rem; margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border-color);">
-                <div class="driver-avatar-img" id="sidebarUserPic" style="width: 32px; height: 32px; background:var(--accent-color); color:#000; font-weight:800; font-size:0.8rem; border:none;">?</div>
-                <div style="overflow: hidden;">
-                    <h4 id="sidebarUserName" style="color:#fff; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Guest User</h4>
-                    <p id="sidebarUserEmail" style="font-size:0.65rem; color:var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Not signed in</p>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border-color);">
+                <div style="display:flex; align-items:center; gap: 0.75rem; overflow: hidden;">
+                    <div class="driver-avatar-img" id="sidebarUserPic" style="width: 32px; height: 32px; background:var(--accent-color); color:#000; font-weight:800; font-size:0.8rem; border:none; flex-shrink: 0;">?</div>
+                    <div style="overflow: hidden;">
+                        <h4 id="sidebarUserName" style="color:#fff; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Guest User</h4>
+                        <p id="sidebarUserEmail" style="font-size:0.65rem; color:var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Not signed in</p>
+                    </div>
                 </div>
+                <!-- LOGOUT BUTTON -->
+                <div onclick="logoutUser()" style="cursor: pointer; color: var(--danger-color); font-size: 1.1rem; padding-left: 5px;" title="Sign Out">🚪</div>
             </div>
 
             <div class="system-health">
@@ -562,6 +566,11 @@
         let loggedInUser = { name: "Guest User", email: "Not signed in", picture: "" };
         let userRole = 'guard'; // Default role is 'guard'. Admin unlocks special features.
 
+        function logoutUser() {
+            localStorage.removeItem('noonSlpUserSession');
+            location.reload();
+        }
+
         /* ---------------- CUSTOM LOGIN & ADMIN TOGGLE LOGIC ---------------- */
         let isAdminMode = false;
         
@@ -604,6 +613,13 @@
 
             loggedInUser = { name: nameInput, email: emailInput, picture: "👤" };
 
+            // Save to Local Storage so session persists
+            localStorage.setItem('noonSlpUserSession', JSON.stringify({
+                name: nameInput,
+                email: emailInput,
+                role: userRole
+            }));
+
             // Apply Role-Based Access Control (RBAC) to the UI
             if (userRole === 'guard') {
                 document.getElementById('nav-drivers').style.display = 'none';
@@ -615,7 +631,6 @@
                 document.getElementById('btnExportExcel').style.display = 'block';
             }
 
-            document.getElementById('securityNameField').value = loggedInUser.name;
             document.getElementById('sidebarUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
             document.getElementById('sidebarUserEmail').innerText = loggedInUser.email;
             document.getElementById('sidebarUserPic').innerText = "👤";
@@ -680,7 +695,40 @@
         }
 
         window.addEventListener('resize', () => { if(introActive) initParticles(); });
-        initParticles(); animateParticles();
+
+        /* ---------------- ON LOAD SESSION CHECK ---------------- */
+        // Check if user is already logged in
+        const sessionStr = localStorage.getItem('noonSlpUserSession');
+        if (sessionStr) {
+            const sessionData = JSON.parse(sessionStr);
+            loggedInUser = { name: sessionData.name, email: sessionData.email, picture: "👤" };
+            userRole = sessionData.role;
+
+            // Apply RBAC
+            if (userRole === 'guard') {
+                document.getElementById('nav-drivers').style.display = 'none';
+                document.getElementById('nav-settings').style.display = 'none';
+                document.getElementById('btnExportExcel').style.display = 'none';
+            } else {
+                document.getElementById('nav-drivers').style.display = 'flex';
+                document.getElementById('nav-settings').style.display = 'flex';
+                document.getElementById('btnExportExcel').style.display = 'block';
+            }
+
+            document.getElementById('sidebarUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
+            document.getElementById('sidebarUserEmail').innerText = loggedInUser.email;
+            document.getElementById('sidebarUserPic').innerText = "👤";
+            document.getElementById('dashUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
+            document.getElementById('dashUserEmail').innerText = loggedInUser.email;
+            document.getElementById('dashUserPic').innerText = "👤";
+
+            // Hide overlay instantly
+            document.getElementById('introOverlay').style.display = 'none';
+            introActive = false;
+        } else {
+            initParticles(); 
+            animateParticles();
+        }
 
         /* ---------------- CORE DASHBOARD LOGIC ---------------- */
         function updateHeroDate() {
@@ -1123,10 +1171,8 @@
                 let dirCheck = (row.direction || "").toString().trim();
                 
                 if(dirCheck !== "Outbound") {
-                    // Check In -> Add to active tracking map
                     activeYardMap[trackingKey] = row;
                 } else {
-                    // Check Out -> Find match and move to history
                     let match = activeYardMap[trackingKey];
                     if(match) {
                         historicalPairs.push({ 
@@ -1138,7 +1184,6 @@
                         });
                         delete activeYardMap[trackingKey];
                     } else {
-                        // Orphan Outbound (Checked out without checking in)
                         historicalPairs.push({ ...row, checkInTime: row.timestamp, entryReason: "Unknown" });
                     }
                 }
@@ -1222,7 +1267,6 @@
 
                 document.getElementById('entryForm').reset(); btn.innerText = "Check In Truck"; btn.disabled = false;
                 document.getElementById('sealNumberContainer').style.display = 'none'; document.getElementById('sealNumber').required = false;
-                document.getElementById('securityNameField').value = loggedInUser.name;
                 
                 switchView('dashboard', document.querySelectorAll('.nav-item')[0]); 
                 
@@ -1234,6 +1278,7 @@
         });
 
         setInterval(fetchLogs, 15000);
+        if(!introActive) { fetchLogs(); }
     </script>
 </body>
 </html>
