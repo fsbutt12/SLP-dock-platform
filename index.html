@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noon SLP Dock Security Platform</title>
     
-    <!-- CHART.JS LIBRARY -->
+    <!-- CHART.JS LIBRARY FOR ADVANCED ANALYTICS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -107,7 +107,12 @@
         .dashboard-mid-split { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
         @media (max-width: 1100px) { .dashboard-mid-split { grid-template-columns: 1fr; } }
 
-        .dashboard-bottom-full { margin-bottom: 2rem; }
+        /* ADVANCED ANALYTICS GRID */
+        .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        @media (max-width: 1000px) { .analytics-grid { grid-template-columns: 1fr; } }
+        .analytics-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; backdrop-filter: blur(10px); }
+        .analytics-card h3 { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; font-weight: 700; }
+        .chart-container { position: relative; height: 260px; width: 100%; flex-grow: 1; }
 
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
@@ -187,7 +192,7 @@
         .info-block data { font-size: 0.9rem; color: #fff; font-weight: 700; font-family: monospace; }
         .btn-card-action { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; text-align: center; width: 100%; }
         .btn-card-action:hover { border-color: var(--accent-color); color: var(--accent-color); }
-
+        
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
@@ -280,6 +285,12 @@
             <li class="nav-item active" onclick="switchView('dashboard', this)">
                 <span class="nav-icon">📊</span><span class="nav-text">Dashboard</span>
             </li>
+            
+            <!-- NEW ANALYTICS HUB (ADMIN ONLY) -->
+            <li class="nav-item" id="nav-analytics" onclick="switchView('analytics', this)">
+                <span class="nav-icon">📈</span><span class="nav-text">Analytics Hub</span>
+            </li>
+
             <li class="nav-item" onclick="switchView('checkin', this)">
                 <span class="nav-icon">🚛</span><span class="nav-text">Check-in Truck</span>
             </li>
@@ -290,7 +301,6 @@
                 <span class="nav-icon">📜</span><span class="nav-text">History Log</span>
             </li>
             
-            <!-- ADMIN ONLY NAV LINKS -->
             <li class="nav-item" id="nav-drivers" onclick="switchView('drivers', this)">
                 <span class="nav-icon">🪪</span><span class="nav-text">Drivers Database</span>
             </li>
@@ -299,7 +309,6 @@
             </li>
         </ul>
         <div class="sidebar-footer">
-            
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border-color);">
                 <div style="display:flex; align-items:center; gap: 0.75rem; overflow: hidden;">
                     <div class="driver-avatar-img" id="sidebarUserPic" style="width: 32px; height: 32px; background:var(--accent-color); color:#000; font-weight:800; font-size:0.8rem; border:none; flex-shrink: 0;">?</div>
@@ -323,8 +332,9 @@
     </div>
 
     <div class="main-content">
+        
+        <!-- DASHBOARD VIEW -->
         <div id="view-dashboard" class="app-view active-view">
-            
             <div class="dashboard-hero">
                 <div class="hero-badges-wrapper">
                     <span class="hero-badge">SYSTEM ONLINE</span>
@@ -342,8 +352,9 @@
                 <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label">Total Check-Ins</div><div class="metric-accent-line" style="background-color: #79c0ff;"></div></div>
                 <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
             </div>
+            
             <div class="dashboard-mid-split">
-                
+                <!-- LIVE FLOOR ANALYTICS -->
                 <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;">
                     <div class="card-header-flex"><h2>Live Floor Analytics</h2></div>
                     
@@ -383,19 +394,38 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- NEW ANALYTICS CHART SECTION -->
-            <div class="dashboard-bottom-full">
-                <div class="card">
-                    <div class="card-header-flex">
-                        <h2>Vehicle Processing Volume by Category</h2>
-                    </div>
-                    <div style="position: relative; height: 350px; width: 100%;">
-                        <canvas id="trafficChart"></canvas>
-                    </div>
-                </div>
+        <!-- NEW ANALYTICS HUB VIEW -->
+        <div id="view-analytics" class="app-view">
+            <div class="view-header-row">
+                <div class="view-header-title"><h1>Platform Analytics</h1><p>Deep-dive metrics and operational intelligence</p></div>
+            </div>
+            
+            <div class="metrics-bar-four" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="metric-card-slate"><div class="card-icon">📈</div><div class="num" id="statTotalOps">0</div><div class="label">Total Historical Operations</div><div class="metric-accent-line"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="statAvgTurnaround">--</div><div class="label">Avg. Turnaround Time</div><div class="metric-accent-line" style="background-color: #388bfd;"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">⚡</div><div class="num" id="statPeakHour">--</div><div class="label">Busiest Operating Hour</div><div class="metric-accent-line" style="background-color: #a371f7;"></div></div>
             </div>
 
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3>Vehicle Processing Growth (7 Days)</h3>
+                    <div class="chart-container"><canvas id="chartTrafficTime"></canvas></div>
+                </div>
+                <div class="analytics-card">
+                    <h3>Movement Cohorts</h3>
+                    <div class="chart-container"><canvas id="chartMovementDist"></canvas></div>
+                </div>
+                <div class="analytics-card">
+                    <h3>Peak Operating Hours</h3>
+                    <div class="chart-container"><canvas id="chartPeakHours"></canvas></div>
+                </div>
+                <div class="analytics-card">
+                    <h3>Dock Utilization Ranking</h3>
+                    <div class="chart-container"><canvas id="chartDockUtil"></canvas></div>
+                </div>
+            </div>
         </div>
 
         <div id="view-checkin" class="app-view">
@@ -592,13 +622,15 @@
         let driversRegistryList = [];
         let globalHistoryListCache = [];
         let currentHistoryDateRange = 'all';
-        let trafficChartInstance = null; // Holds the Chart.js instance
         
+        // Chart Objects
+        let analyticsCharts = {};
+
         // Active User & Role Details 
         let loggedInUser = { name: "Guest User", email: "Not signed in", picture: "" };
-        let userRole = 'guard'; // Default role is 'guard'. Admin unlocks special features.
+        let userRole = 'guard';
 
-        // Chart.js Default Styling
+        // Chart.js Configuration
         Chart.defaults.color = '#8b949e';
         Chart.defaults.font.family = "'Segoe UI', system-ui, -apple-system, sans-serif";
 
@@ -629,49 +661,19 @@
             const nameInput = document.getElementById('loginName').value.trim();
             const emailInput = document.getElementById('loginEmail').value.trim();
 
-            if(!nameInput || !emailInput) {
-                alert("Please enter your Full Name and Noon ID/Email to authorize access.");
-                return;
-            }
+            if(!nameInput || !emailInput) { alert("Please enter your Full Name and Noon ID/Email to authorize access."); return; }
 
-            // Role check if Admin mode is active
             if (isAdminMode) {
                 const pass = document.getElementById('adminPassword').value;
-                if (pass !== 'admin123') { 
-                    alert("Incorrect Administrator Password.");
-                    return;
-                }
+                if (pass !== 'admin123') { alert("Incorrect Administrator Password."); return; }
                 userRole = 'admin';
-            } else {
-                userRole = 'guard';
-            }
+            } else { userRole = 'guard'; }
 
             loggedInUser = { name: nameInput, email: emailInput, picture: "👤" };
 
-            // Save to Local Storage so session persists
-            localStorage.setItem('noonSlpUserSession', JSON.stringify({
-                name: nameInput,
-                email: emailInput,
-                role: userRole
-            }));
+            localStorage.setItem('noonSlpUserSession', JSON.stringify({ name: nameInput, email: emailInput, role: userRole }));
 
-            // Apply Role-Based Access Control (RBAC) to the UI
-            if (userRole === 'guard') {
-                document.getElementById('nav-drivers').style.display = 'none';
-                document.getElementById('nav-settings').style.display = 'none';
-                document.getElementById('btnExportExcel').style.display = 'none';
-            } else {
-                document.getElementById('nav-drivers').style.display = 'flex';
-                document.getElementById('nav-settings').style.display = 'flex';
-                document.getElementById('btnExportExcel').style.display = 'block';
-            }
-
-            document.getElementById('sidebarUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
-            document.getElementById('sidebarUserEmail').innerText = loggedInUser.email;
-            document.getElementById('sidebarUserPic').innerText = "👤";
-            document.getElementById('dashUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
-            document.getElementById('dashUserEmail').innerText = loggedInUser.email;
-            document.getElementById('dashUserPic').innerText = "👤";
+            applyRBAC();
 
             const statusBox = document.getElementById('authStatus');
             const authText = document.getElementById('authText');
@@ -692,6 +694,25 @@
                 }, 1200);
             }, 1200); 
         });
+
+        function applyRBAC() {
+            if (userRole === 'guard') {
+                document.getElementById('nav-analytics').style.display = 'none';
+                document.getElementById('nav-drivers').style.display = 'none';
+                document.getElementById('nav-settings').style.display = 'none';
+                document.getElementById('btnExportExcel').style.display = 'none';
+            } else {
+                document.getElementById('nav-analytics').style.display = 'flex';
+                document.getElementById('nav-drivers').style.display = 'flex';
+                document.getElementById('nav-settings').style.display = 'flex';
+                document.getElementById('btnExportExcel').style.display = 'block';
+            }
+
+            document.getElementById('sidebarUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
+            document.getElementById('sidebarUserEmail').innerText = loggedInUser.email;
+            document.getElementById('dashUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
+            document.getElementById('dashUserEmail').innerText = loggedInUser.email;
+        }
 
         /* ---------------- INTRO SCREEN PARTICLES ---------------- */
         const canvas = document.getElementById('particleCanvas');
@@ -738,30 +759,12 @@
             loggedInUser = { name: sessionData.name, email: sessionData.email, picture: "👤" };
             userRole = sessionData.role;
 
-            // Apply RBAC
-            if (userRole === 'guard') {
-                document.getElementById('nav-drivers').style.display = 'none';
-                document.getElementById('nav-settings').style.display = 'none';
-                document.getElementById('btnExportExcel').style.display = 'none';
-            } else {
-                document.getElementById('nav-drivers').style.display = 'flex';
-                document.getElementById('nav-settings').style.display = 'flex';
-                document.getElementById('btnExportExcel').style.display = 'block';
-            }
+            applyRBAC();
 
-            document.getElementById('sidebarUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
-            document.getElementById('sidebarUserEmail').innerText = loggedInUser.email;
-            document.getElementById('sidebarUserPic').innerText = "👤";
-            document.getElementById('dashUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
-            document.getElementById('dashUserEmail').innerText = loggedInUser.email;
-            document.getElementById('dashUserPic').innerText = "👤";
-
-            // Hide overlay instantly
             document.getElementById('introOverlay').style.display = 'none';
             introActive = false;
         } else {
-            initParticles(); 
-            animateParticles();
+            initParticles(); animateParticles();
         }
 
         /* ---------------- CORE DASHBOARD LOGIC ---------------- */
@@ -783,16 +786,8 @@
             const fsBtnText = document.getElementById('fsBtnLabel');
             const fsIcon = document.getElementById('fsIcon');
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().then(() => { 
-                    fsBtnText.innerText = "Exit Fullscreen"; 
-                    fsIcon.innerText = "📉"; 
-                }).catch(() => alert("Fullscreen error."));
-            } else {
-                document.exitFullscreen().then(() => { 
-                    fsBtnText.innerText = "Fullscreen"; 
-                    fsIcon.innerText = "🖥️"; 
-                });
-            }
+                document.documentElement.requestFullscreen().then(() => { fsBtnText.innerText = "Exit Fullscreen"; fsIcon.innerText = "📉"; }).catch(() => alert("Fullscreen error."));
+            } else { document.exitFullscreen().then(() => { fsBtnText.innerText = "Fullscreen"; fsIcon.innerText = "🖥️"; }); }
         }
 
         function openDriverProfileModal(name, iqama, plate, date, phone) {
@@ -816,17 +811,10 @@
         document.getElementById('dispatchSelect').addEventListener('change', function() {
             const container = document.getElementById('sealNumberContainer');
             const input = document.getElementById('sealNumber');
-            if (this.value === 'Receiving') {
-                container.style.display = 'block';
-                input.required = true;
-            } else {
-                container.style.display = 'none';
-                input.required = false;
-                input.value = '';
-            }
+            if (this.value === 'Receiving') { container.style.display = 'block'; input.required = true; } 
+            else { container.style.display = 'none'; input.required = false; input.value = ''; }
         });
 
-        /* ---------------- Existing-driver autocomplete ---------------- */
         const driverSearchBoxEl = document.getElementById('driverSearchBox');
         const suggestionsListEl = document.getElementById('driverSuggestionsList');
 
@@ -855,37 +843,29 @@
             suggestionsListEl.classList.add('open');
         });
 
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.search-input-wrapper')) suggestionsListEl.classList.remove('open');
-        });
+        document.addEventListener('click', function(e) { if (!e.target.closest('.search-input-wrapper')) suggestionsListEl.classList.remove('open'); });
 
         function convertArabicNumeralsToDigits(str) {
             const map = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' };
             return str.replace(/[٠-٩]/g, match => map[match]);
         }
 
-        /* ---------------- Image preprocessing & Camera ---------------- */
         function isLikelyHeic(file) {
-            const type = (file.type || '').toLowerCase();
-            const name = (file.name || '').toLowerCase();
+            const type = (file.type || '').toLowerCase(); const name = (file.name || '').toLowerCase();
             return type.includes('heic') || type.includes('heif') || name.endsWith('.heic') || name.endsWith('.heif');
         }
 
         function loadImageRobust(file) {
             return new Promise((resolve, reject) => {
                 if (isLikelyHeic(file)) { reject(new Error('HEIC_UNSUPPORTED')); return; }
-                const img = new Image();
-                let triedFallback = false;
+                const img = new Image(); let triedFallback = false;
                 function fallbackToDataUrl() {
                     if (triedFallback) { reject(new Error('image failed to load')); return; }
-                    triedFallback = true;
-                    const reader = new FileReader();
+                    triedFallback = true; const reader = new FileReader();
                     reader.onload = () => { img.onerror = () => reject(new Error('image failed to load')); img.onload = () => resolve(img); img.src = reader.result; };
-                    reader.onerror = () => reject(new Error('could not read the selected file'));
-                    reader.readAsDataURL(file);
+                    reader.onerror = () => reject(new Error('could not read the selected file')); reader.readAsDataURL(file);
                 }
-                img.onload = () => resolve(img);
-                img.onerror = fallbackToDataUrl;
+                img.onload = () => resolve(img); img.onerror = fallbackToDataUrl;
                 try { img.src = URL.createObjectURL(file); } catch (e) { fallbackToDataUrl(); }
             });
         }
@@ -894,19 +874,13 @@
             const img = await loadImageRobust(file);
             let sx = 0, sy = 0, sw = img.width, sh = img.height;
             if (scanType === 'PLATE') { sw = img.width * 0.7; sh = img.height * 0.42; sx = (img.width - sw) / 2; sy = img.height * 0.52; }
-            const targetWidth = scanType === 'PLATE' ? 1100 : 1400;
-            const scale = sw < targetWidth ? targetWidth / sw : 1;
-            const canvas = document.createElement('canvas');
-            canvas.width = Math.round(sw * scale); canvas.height = Math.round(sh * scale);
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const d = imageData.data; const contrast = 50; const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+            const targetWidth = scanType === 'PLATE' ? 1100 : 1400; const scale = sw < targetWidth ? targetWidth / sw : 1;
+            const canvas = document.createElement('canvas'); canvas.width = Math.round(sw * scale); canvas.height = Math.round(sh * scale);
+            const ctx = canvas.getContext('2d'); ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height); const d = imageData.data; const contrast = 50; const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
             for (let i = 0; i < d.length; i += 4) {
                 let gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-                gray = factor * (gray - 128) + 128;
-                gray = Math.min(255, Math.max(0, gray));
-                d[i] = d[i + 1] = d[i + 2] = gray;
+                gray = factor * (gray - 128) + 128; gray = Math.min(255, Math.max(0, gray)); d[i] = d[i + 1] = d[i + 2] = gray;
             }
             ctx.putImageData(imageData, 0, 0);
             return new Promise((resolve, reject) => { canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('canvas toBlob failed')), 'image/jpeg', 0.85); });
@@ -923,8 +897,7 @@
 
         async function openCamera(statusLabelId, scanType) {
             cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
-            const overlay = document.getElementById('cameraOverlay'), video = document.getElementById('cameraVideo');
-            overlay.classList.add('open');
+            const overlay = document.getElementById('cameraOverlay'), video = document.getElementById('cameraVideo'); overlay.classList.add('open');
             try { cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 960 }, height: { ideal: 720 } } }); video.srcObject = cameraStream; } 
             catch (err) { alert('Could not access camera: ' + err.message); closeCamera(); }
         }
@@ -936,8 +909,7 @@
 
         function captureCameraFrame() {
             const video = document.getElementById('cameraVideo'), canvas = document.getElementById('cameraCanvas');
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight; canvas.getContext('2d').drawImage(video, 0, 0);
             canvas.toBlob(blob => {
                 const file = new File([blob], 'camera_capture.jpg', { type: 'image/jpeg' });
                 closeCamera(); runLocalOcrEngine(file, cameraTargetStatusId, cameraTargetScanType);
@@ -945,8 +917,7 @@
         }
 
         function handleFileSelected(inputEl, statusLabelId, scanType) {
-            const file = inputEl.files[0];
-            if (!file) return; runLocalOcrEngine(file, statusLabelId, scanType);
+            const file = inputEl.files[0]; if (!file) return; runLocalOcrEngine(file, statusLabelId, scanType);
         }
 
         async function runLocalOcrEngine(file, statusLabelId, scanType) {
@@ -986,7 +957,6 @@
 
                 if (matched) { status.innerHTML = "✅ Extracted — please double-check the fields"; status.style.color = "var(--success-color)"; } 
                 else { status.innerHTML = "⚠️ Couldn't confidently read this image — enter details manually"; status.style.color = "#ef4444"; }
-
             } catch (err) {
                 if (err.message === 'HEIC_UNSUPPORTED') { status.innerHTML = "⚠️ iPhone HEIC photos aren't supported — use 📸 Camera above"; } 
                 else { status.innerHTML = "❌ OCR failed — enter details manually"; }
@@ -1021,11 +991,9 @@
             try {
                 const payload = { driverName, plateNumber, securityName, dockNumber, direction: "Outbound", sealNumber: sealVal, actionByEmail: loggedInUser.email, actionByName: loggedInUser.name };
                 
-                // Fire post request in background
                 fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
                     .catch(e => console.error("Background save issue:", e));
                 
-                // Optimistic UI Update instantly
                 globalLogsCache.push({ ...payload, timestamp: new Date().toISOString() });
                 window.handleLogsResponse(globalLogsCache);
                 
@@ -1039,7 +1007,7 @@
 
         /* ---------------- Formatting Tools ---------------- */
         function fmtDate(s) {
-            if(!s) return "May 10, 2026"; let d = new Date(s); if(isNaN(d.getTime())) return s;
+            if(!s) return "--"; let d = new Date(s); if(isNaN(d.getTime())) return s;
             return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
         }
         function formatTimeText(s) {
@@ -1179,7 +1147,80 @@
             document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         }
 
-        /* ---------------- PAIRING ENGINE & ANALYTICS ---------------- */
+        /* ---------------- ADVANCED ANALYTICS CHARTING ---------------- */
+        function formatHour(h) {
+            let ampm = h >= 12 ? 'PM' : 'AM';
+            let hr = h % 12 || 12;
+            return hr + ' ' + ampm;
+        }
+
+        function updateAnalyticsCharts(byDate, byHour, byMovement, byDock) {
+            const getSortedKeys = (obj, limit) => Object.keys(obj).sort((a,b) => obj[b] - obj[a]).slice(0, limit);
+            
+            // 1. Traffic Over Time (Line)
+            let dates = Object.keys(byDate).slice(-7); 
+            let datesData = dates.map(k => byDate[k]);
+            
+            if(!analyticsCharts.traffic) {
+                analyticsCharts.traffic = new Chart(document.getElementById('chartTrafficTime'), {
+                    type: 'line',
+                    data: { labels: dates, datasets: [{ label: 'Trucks Processed', data: datesData, borderColor: '#fcc200', backgroundColor: 'rgba(252, 194, 0, 0.1)', fill: true, tension: 0.4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
+                });
+            } else {
+                analyticsCharts.traffic.data.labels = dates;
+                analyticsCharts.traffic.data.datasets[0].data = datesData;
+                analyticsCharts.traffic.update();
+            }
+
+            // 2. Peak Hours (Bar)
+            let topHours = getSortedKeys(byHour, 7);
+            let hoursData = topHours.map(k => byHour[k]);
+            
+            if(!analyticsCharts.hours) {
+                analyticsCharts.hours = new Chart(document.getElementById('chartPeakHours'), {
+                    type: 'bar',
+                    data: { labels: topHours, datasets: [{ label: 'Check-ins', data: hoursData, backgroundColor: '#388bfd', borderRadius: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
+                });
+            } else {
+                analyticsCharts.hours.data.labels = topHours;
+                analyticsCharts.hours.data.datasets[0].data = hoursData;
+                analyticsCharts.hours.update();
+            }
+
+            // 3. Movement Dist (Doughnut)
+            let movKeys = Object.keys(byMovement);
+            let movData = movKeys.map(k => byMovement[k]);
+            if(!analyticsCharts.movement) {
+                analyticsCharts.movement = new Chart(document.getElementById('chartMovementDist'), {
+                    type: 'doughnut',
+                    data: { labels: movKeys, datasets: [{ data: movData, backgroundColor: ['#fcc200', '#2ea043', '#388bfd', '#a371f7', '#f85149', '#ff7b72'], borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { color: '#8b949e', font: { size: 10 } } } } }
+                });
+            } else {
+                analyticsCharts.movement.data.labels = movKeys;
+                analyticsCharts.movement.data.datasets[0].data = movData;
+                analyticsCharts.movement.update();
+            }
+
+            // 4. Dock Utilization (Horizontal Bar)
+            let dockKeys = getSortedKeys(byDock, 5);
+            let dockData = dockKeys.map(k => byDock[k]);
+            if(!analyticsCharts.docks) {
+                analyticsCharts.docks = new Chart(document.getElementById('chartDockUtil'), {
+                    type: 'bar',
+                    data: { labels: dockKeys, datasets: [{ label: 'Usage Count', data: dockData, backgroundColor: '#2ea043', borderRadius: 4 }] },
+                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { grid: { display: false } } } }
+                });
+            } else {
+                analyticsCharts.docks.data.labels = dockKeys;
+                analyticsCharts.docks.data.datasets[0].data = dockData;
+                analyticsCharts.docks.update();
+            }
+        }
+
+        /* ---------------- DATA PROCESSING ENGINE ---------------- */
         window.handleLogsResponse = function(data) {
             let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; 
             globalLogsCache = chronData;
@@ -1190,21 +1231,40 @@
             compileDriversRegistryCards(chronData);
             if(chronData.length === 0) { renderHistoryTable([]); return; }
             document.getElementById('metric-total-checkins').innerText = chronData.length;
+            document.getElementById('statTotalOps').innerText = chronData.length;
 
             let activeYardMap = {}; 
             let historicalPairs = [];
             
-            // For Analytics
+            // Analytics Containers
             let dockCounts = {};
             let dirCounts = {};
             let topDock = "--", topDockCount = 0;
             let topDir = "--", topDirCount = 0;
-            
-            // For Bar Chart
-            let purposeChartData = {};
 
+            // Advanced Analytics Containers
+            let trafficByDate = {};
+            let trafficByHour = {};
+            let movementDist = {};
+            let dockUtil = {};
+            let totalTurnaroundMins = 0;
+            let completedCount = 0;
+
+            // Process all chronological data
             chronData.forEach(row => {
-                // Analytics gathering
+                
+                // Analytics - Check-in Timestamps
+                if (row.direction !== "Outbound") {
+                    let d = new Date(row.timestamp);
+                    if (!isNaN(d.getTime())) {
+                        let dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        trafficByDate[dateStr] = (trafficByDate[dateStr] || 0) + 1;
+                        let hourStr = formatHour(d.getHours());
+                        trafficByHour[hourStr] = (trafficByHour[hourStr] || 0) + 1;
+                    }
+                }
+
+                // Dashboard Live Analytics
                 if (row.dockNumber) {
                     let dk = row.dockNumber.toUpperCase().trim();
                     dockCounts[dk] = (dockCounts[dk] || 0) + 1;
@@ -1212,20 +1272,15 @@
                 }
                 if (row.direction && row.direction !== "Outbound") {
                     let rawDir = row.direction.trim();
-                    let dir = rawDir.split(' - ')[0]; // Just take English part for UI
-                    
+                    let dir = rawDir.split(' - ')[0];
                     dirCounts[dir] = (dirCounts[dir] || 0) + 1;
                     if (dirCounts[dir] > topDirCount) { topDirCount = dirCounts[dir]; topDir = dir; }
-
-                    // Chart data gathering
-                    purposeChartData[dir] = (purposeChartData[dir] || 0) + 1;
                 }
 
-                // Tracking Logic
+                // Core Match Logic
                 let p = (row.plateNumber || "").toString().trim().toUpperCase();
-                let d = (row.driverName || "").toString().trim().toUpperCase();
-                let trackingKey = p + "|||" + d;
-
+                let dName = (row.driverName || "").toString().trim().toUpperCase();
+                let trackingKey = p + "|||" + dName;
                 let dirCheck = (row.direction || "").toString().trim();
                 
                 if(dirCheck !== "Outbound") {
@@ -1247,71 +1302,47 @@
                 }
             });
 
-            // Update Analytics UI
+            // Process Completed Pairs for Advanced Analytics
+            historicalPairs.forEach(r => {
+                if(r.checkInTime && r.timestamp) {
+                    let diff = new Date(r.timestamp) - new Date(r.checkInTime);
+                    if(diff > 0) { totalTurnaroundMins += (diff / 60000); completedCount++; }
+                }
+                let dir = r.entryReason && r.entryReason !== "Unknown" ? r.entryReason.split(' - ')[0] : (r.direction ? r.direction.split(' - ')[0] : 'Other');
+                movementDist[dir] = (movementDist[dir] || 0) + 1;
+                
+                if(r.dockNumber) { dockUtil[r.dockNumber.toUpperCase()] = (dockUtil[r.dockNumber.toUpperCase()] || 0) + 1; }
+            });
+
+            // Update Basic Dashboard UI
             document.getElementById('statTopDock').innerText = topDockCount > 0 ? `${topDock}` : "--";
             document.getElementById('statTopDockSub').innerText = topDockCount > 0 ? `${topDockCount} Operations recorded` : "Awaiting data";
             document.getElementById('statTopPurpose').innerText = topDirCount > 0 ? `${topDir}` : "--";
             document.getElementById('statTopPurposeSub').innerText = topDirCount > 0 ? `${topDirCount} Movements recorded` : "Awaiting data";
 
-            // Update Chart UI
-            if (trafficChartInstance) {
-                // Sort by highest value for better display
-                let sortableChart = Object.entries(purposeChartData).sort((a,b) => b[1] - a[1]);
-                trafficChartInstance.data.labels = sortableChart.map(x => x[0]);
-                trafficChartInstance.data.datasets[0].data = sortableChart.map(x => x[1]);
-                trafficChartInstance.update();
-            } else {
-                let sortableChart = Object.entries(purposeChartData).sort((a,b) => b[1] - a[1]);
-                const ctx = document.getElementById('trafficChart').getContext('2d');
-                trafficChartInstance = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: sortableChart.map(x => x[0]),
-                        datasets: [{
-                            label: 'Total Volume',
-                            data: sortableChart.map(x => x[1]),
-                            backgroundColor: 'rgba(252, 194, 0, 0.25)',
-                            borderColor: '#fcc200',
-                            borderWidth: 1,
-                            borderRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                                ticks: { precision: 0 }
-                            },
-                            x: {
-                                grid: { display: false }
-                            }
-                        }
-                    }
-                });
-            }
+            // Update Advanced Analytics KPI Cards
+            let avgTurnaround = completedCount > 0 ? Math.round(totalTurnaroundMins / completedCount) : 0;
+            let avgH = Math.floor(avgTurnaround / 60);
+            let avgM = avgTurnaround % 60;
+            document.getElementById('statAvgTurnaround').innerText = completedCount > 0 ? `${avgH}h ${avgM}m` : '--';
+            let busiestHour = Object.keys(trafficByHour).length > 0 ? Object.keys(trafficByHour).reduce((a, b) => trafficByHour[a] > trafficByHour[b] ? a : b) : "--";
+            document.getElementById('statPeakHour').innerText = busiestHour;
 
+            // Paint Advanced Charts
+            updateAnalyticsCharts(trafficByDate, trafficByHour, movementDist, dockUtil);
 
             let activeList = Object.values(activeYardMap);
             document.getElementById('metric-active-now').innerText = activeList.length;
             if (document.getElementById('activeYardCounter')) { document.getElementById('activeYardCounter').innerText = activeList.length; }
             document.getElementById('metric-completed-today').innerText = historicalPairs.length;
 
-            // Render Currently Occupied Docks
             const occupiedDocksContainer = document.getElementById('occupiedDocksContainer');
             if (activeList.length === 0) {
                 occupiedDocksContainer.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">All Docks Available</span>';
             } else {
                 occupiedDocksContainer.innerHTML = '';
                 let occupied = [...new Set(activeList.map(t => t.dockNumber))].filter(Boolean);
-                occupied.forEach(dock => {
-                    occupiedDocksContainer.innerHTML += `<span class="badge in" style="font-size: 0.75rem; padding: 0.4rem 0.8rem;">${dock}</span>`;
-                });
+                occupied.forEach(dock => { occupiedDocksContainer.innerHTML += `<span class="badge in" style="font-size: 0.75rem; padding: 0.4rem 0.8rem;">${dock}</span>`; });
             }
 
             if(activeBody) {
@@ -1368,11 +1399,9 @@
                     actionByName: loggedInUser.name
                 };
                 
-                // Fire post request in background
                 fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
                     .catch(e => console.error(e));
                 
-                // Optimistic UI Update instantly
                 globalLogsCache.push({ ...payload, timestamp: new Date().toISOString() });
                 window.handleLogsResponse(globalLogsCache);
 
@@ -1381,7 +1410,7 @@
                 
                 switchView('dashboard', document.querySelectorAll('.nav-item')[0]); 
                 
-                setTimeout(fetchLogs, 3500); // Verify background fetch worked
+                setTimeout(fetchLogs, 3500);
             } catch (err) {
                 alert("Error saving log: " + err.message);
                 btn.innerText = "Check In Truck"; btn.disabled = false;
