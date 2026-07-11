@@ -219,8 +219,30 @@
         .info-block data { font-size: 0.9rem; color: #fff; font-weight: 700; font-family: monospace; display: block; text-align: start;}
         .btn-card-action { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; text-align: center; width: 100%; }
         .btn-card-action:hover { border-color: var(--accent-color); color: var(--accent-color); }
-        .card-management-actions { position: absolute; top: 1.5rem; inset-inline-end: 1.5rem; display: flex; gap: 0.5rem; }
-        .btn-icon-manage { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; }
+
+        /* SETTINGS PAGE REDESIGN */
+        .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-top: 1rem; }
+        @media (max-width: 800px) { .settings-grid { grid-template-columns: minmax(0, 1fr); } }
+        .settings-card { background: #12161f; border-radius: 8px; border: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; text-align: start; }
+        .settings-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; }
+        .settings-title-group { display: flex; align-items: center; gap: 1rem; }
+        .settings-icon-box { background: rgba(255,255,255,0.05); color: var(--accent-color); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+        .settings-title-text h3 { font-size: 0.85rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
+        .settings-title-text p { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+        .settings-status-badge { padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-blocked { background: rgba(248,81,73,0.1); color: var(--danger-color); }
+        .status-windowed { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+        .settings-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+        .settings-btn-primary { background: var(--accent-color); color: #000; width: 100%; border: none; padding: 0.8rem; border-radius: 6px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 0.5rem; }
+        .settings-btn-primary:hover { opacity: 0.9; }
+        .settings-btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-muted); width: 100%; padding: 0.8rem; border-radius: 6px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 0.5rem; }
+        .settings-btn-secondary:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .settings-alert-box { background: rgba(248,81,73,0.05); border: 1px solid rgba(248,81,73,0.2); border-radius: 6px; padding: 1rem; }
+        .settings-alert-box h4 { color: var(--danger-color); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .settings-alert-box p { color: var(--text-muted); font-size: 0.75rem; line-height: 1.5; }
+        .theme-toggle-group { display: flex; gap: 0.5rem; background: rgba(0,0,0,0.4); padding: 0.35rem; border-radius: 8px; border: 1px solid var(--border-color); }
+        .theme-btn { flex: 1; padding: 0.6rem; border: none; background: transparent; color: var(--text-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; cursor: pointer; border-radius: 6px; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 0.5rem;}
+        .theme-btn.active { background: var(--card-bg); color: var(--accent-color); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
         .modal-overlay {
             position: fixed; inset: 0;
@@ -268,30 +290,6 @@
         .camera-controls button { padding: 0.8rem 1.5rem; border-radius: 6px; border: none; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.8rem; }
         .btn-capture { background: var(--accent-color); color: #000; }
         .btn-cancel-cam { background: var(--danger-color); color: #fff; }
-
-        /* SETTINGS PAGE REDESIGN */
-        .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-top: 1rem; }
-        @media (max-width: 800px) { .settings-grid { grid-template-columns: minmax(0, 1fr); } }
-        .settings-card { background: #12161f; border-radius: 8px; border: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
-        .settings-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; }
-        .settings-title-group { display: flex; align-items: center; gap: 1rem; }
-        .settings-icon-box { background: rgba(255,255,255,0.05); color: var(--accent-color); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .settings-title-text h3 { font-size: 0.85rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
-        .settings-title-text p { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-        .settings-status-badge { padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .status-blocked { background: rgba(248,81,73,0.1); color: var(--danger-color); }
-        .status-windowed { background: rgba(255,255,255,0.05); color: var(--text-muted); }
-        .settings-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
-        .settings-btn-primary { background: var(--accent-color); color: #000; width: 100%; border: none; padding: 0.8rem; border-radius: 6px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 0.5rem; }
-        .settings-btn-primary:hover { opacity: 0.9; }
-        .settings-btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-muted); width: 100%; padding: 0.8rem; border-radius: 6px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 0.5rem; }
-        .settings-btn-secondary:hover { background: rgba(255,255,255,0.1); color: #fff; }
-        .settings-alert-box { background: rgba(248,81,73,0.05); border: 1px solid rgba(248,81,73,0.2); border-radius: 6px; padding: 1rem; }
-        .settings-alert-box h4 { color: var(--danger-color); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
-        .settings-alert-box p { color: var(--text-muted); font-size: 0.75rem; line-height: 1.5; }
-        .theme-toggle-group { display: flex; gap: 0.5rem; background: rgba(0,0,0,0.4); padding: 0.35rem; border-radius: 8px; border: 1px solid var(--border-color); }
-        .theme-btn { flex: 1; padding: 0.6rem; border: none; background: transparent; color: var(--text-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; cursor: pointer; border-radius: 6px; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 0.5rem;}
-        .theme-btn.active { background: var(--card-bg); color: var(--accent-color); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -378,10 +376,11 @@
                 <span class="nav-icon" id="fsIcon">🖥️</span><span class="nav-text" id="fsBtnLabel" data-translate>Fullscreen</span>
             </div>
             
-            <!-- NEW LOGOUT PLACEMENT -->
-            <div class="nav-item" onclick="logoutUser()" style="color: var(--danger-color);">
+            <!-- EXPLICIT LOGOUT BUTTON -->
+            <div class="nav-item" onclick="logoutUser()" style="color: var(--danger-color); margin-top: 2px;">
                 <span class="nav-icon">🚪</span><span class="nav-text" data-translate>Log out</span>
             </div>
+            
         </div>
     </div>
 
@@ -848,7 +847,7 @@
             "Action": "إجراء",
             "SIGN OUT": "خروج",
             "Deep-Dive Analytics Hub": "مركز التحليلات المتعمقة",
-            "Total Historical Operations": "إجمالي العمليات التاريخية",
+            "Total Historical Operations": "العمليات التاريخية",
             "Avg. Turnaround Time": "متوسط وقت الإنجاز",
             "Busiest Operating Hour": "ساعة الذروة",
             "Vehicle Processing Growth (7 Days)": "نمو معالجة المركبات (7 أيام)",
@@ -913,6 +912,7 @@
             "BT Minutes": "رجيع مينيتس",
             "Liquidation": "إعادة بيع التالف",
             "Unknown": "غير معروف",
+            // Correcting the exact strings from CSS uppercase
             "DRIVERS DATABASE": "قاعدة بيانات السائقين",
             "TOTAL CHECK-INS": "إجمالي الدخول",
             "COMPLETED TODAY": "اكتمل اليوم",
@@ -965,6 +965,7 @@
 
             document.querySelectorAll('[data-translate]').forEach(el => {
                 if(!el.hasAttribute('data-en-text')) {
+                    // We grab textContent so CSS text-transform doesn't mess with dictionary keys
                     el.setAttribute('data-en-text', el.textContent.trim());
                 }
                 let enText = el.getAttribute('data-en-text');
@@ -987,12 +988,38 @@
         /* ---------------- SAFE DATE PARSER (TABLET FIX) ---------------- */
         function safeDate(dStr) {
             if(!dStr) return new Date();
+            // 1. Native Parse
             let d = new Date(dStr);
-            if(isNaN(d.getTime())) {
-                // Aggressive fallback for older iOS Safari WebViews
-                d = new Date(String(dStr).replace(/-/g, '/').replace('T', ' ').split('.')[0]);
+            if(!isNaN(d.getTime())) return d;
+            
+            // 2. Strict Safari ISO fallback
+            let str = String(dStr).trim();
+            if(str.includes('T')) {
+                let parts = str.split(/\D+/);
+                if(parts.length >= 6) {
+                    let isUTC = str.endsWith('Z');
+                    let parsed = isUTC ? 
+                        new Date(Date.UTC(parts[0], parts[1]-1, parts[2], parts[3], parts[4], parts[5])) : 
+                        new Date(parts[0], parts[1]-1, parts[2], parts[3], parts[4], parts[5]);
+                    if(!isNaN(parsed.getTime())) return parsed;
+                }
             }
-            return d;
+
+            // 3. Slash fallback
+            d = new Date(str.replace(/-/g, '/').replace('T', ' ').split('.')[0]);
+            if(!isNaN(d.getTime())) return d;
+            
+            return new Date();
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('noonSlpUserSession');
+            location.reload();
+        }
+        
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+            document.querySelector('.main-content').classList.toggle('expanded');
         }
 
         /* ---------------- CUSTOM LOGIN & ADMIN TOGGLE LOGIC ---------------- */
@@ -1075,8 +1102,10 @@
 
             document.getElementById('sidebarUserName').innerText = loggedInUser.name + (userRole === 'admin' ? (currentLang==='ar'?" (مسؤول)":" (Admin)") : "");
             document.getElementById('sidebarUserEmail').innerText = loggedInUser.email;
+            document.getElementById('sidebarUserPic').innerText = "👤";
             document.getElementById('dashUserName').innerText = loggedInUser.name + (userRole === 'admin' ? (currentLang==='ar'?" (مسؤول)":" (Admin)") : "");
             document.getElementById('dashUserEmail').innerText = loggedInUser.email;
+            document.getElementById('dashUserPic').innerText = "👤";
         }
 
         /* ---------------- INTRO SCREEN PARTICLES ---------------- */
@@ -1396,10 +1425,15 @@
             if(!t1) return "--"; 
             let d1 = safeDate(t1);
             let d2 = t2 ? safeDate(t2) : new Date();
-            let diff = d2 - d1;
+            let diff = d2.getTime() - d1.getTime();
+            
             if(isNaN(diff)) return "0h 0m";
-            if(diff < 0) diff = 0; // Fixes tablet sync issues
-            let mins = Math.floor(diff / 60000); return `${Math.floor(mins/60)}h ${mins%60}m`;
+            
+            // Fix for Safari tablet negative math timezone issues
+            if(diff < 0) diff = Math.abs(diff); 
+            
+            let mins = Math.floor(diff / 60000); 
+            return `${Math.floor(mins/60)}h ${mins%60}m`;
         }
         function generatePlateBumperUI(plateStr) {
             let parts = plateStr ? plateStr.split(' ') : ['--'];
@@ -1563,8 +1597,10 @@
         function updateAnalyticsCharts(byDate, byHour, byMovement, byDock) {
             const getSortedKeys = (obj, limit) => Object.keys(obj).sort((a,b) => obj[b] - obj[a]).slice(0, limit);
             
+            // 1. Traffic Over Time
             let dates = Object.keys(byDate).slice(-7); 
             let datesData = dates.map(k => byDate[k]);
+            
             if(!analyticsCharts.traffic) {
                 analyticsCharts.traffic = new Chart(document.getElementById('chartTrafficTime'), {
                     type: 'doughnut',
@@ -1578,6 +1614,7 @@
             }
             renderTextList('listTrafficTime', dates, datesData, 'Trucks');
 
+            // 2. Movement Dist
             let movKeys = Object.keys(byMovement);
             let movData = movKeys.map(k => byMovement[k]);
             if(!analyticsCharts.movement) {
@@ -1593,6 +1630,7 @@
             }
             renderTextList('listMovementDist', movKeys, movData, 'Logs');
 
+            // 3. Peak Hours
             let topHours = getSortedKeys(byHour, 7);
             let hoursData = topHours.map(k => byHour[k]);
             if(!analyticsCharts.hours) {
@@ -1608,6 +1646,7 @@
             }
             renderTextList('listPeakHours', topHours, hoursData, 'Check-ins');
 
+            // 4. Dock Utilization
             let dockKeys = getSortedKeys(byDock, 5);
             let dockData = dockKeys.map(k => byDock[k]);
             if(!analyticsCharts.docks) {
@@ -1651,6 +1690,7 @@
             const monthsAr = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
 
             chronData.forEach(row => {
+                
                 if (row.direction !== "Outbound") {
                     let d = safeDate(row.timestamp);
                     if (!isNaN(d.getTime())) {
