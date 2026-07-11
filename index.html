@@ -117,7 +117,7 @@
         .dashboard-mid-split.guard-mode { grid-template-columns: minmax(0, 1fr); }
         @media (max-width: 1100px) { .dashboard-mid-split.admin-mode { grid-template-columns: minmax(0, 1fr); } }
 
-        /* ADVANCED ANALYTICS GRID & LISTS - RESPONSIVE FIXES */
+        /* ADVANCED ANALYTICS GRID & LISTS */
         .analytics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-bottom: 2rem; width: 100%; }
         @media (max-width: 1000px) { .analytics-grid { grid-template-columns: minmax(0, 1fr); } }
         
@@ -132,8 +132,6 @@
         .analytic-text-list { list-style: none; margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); padding: 0; width: 100%; }
         .analytic-text-list li { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px dashed rgba(255,255,255,0.05); gap: 1rem; width: 100%; }
         .analytic-text-list li:last-child { border-bottom: none; }
-        .analytic-text-list li span { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); flex-grow: 1; text-align: start;}
-        .analytic-text-list li strong { color: #fff; white-space: nowrap; flex-shrink: 0; font-size: 0.85rem; text-align: end; }
         .analytic-text-list li.hidden-item { display: none; }
         .analytic-text-list.expanded li.hidden-item { display: flex; }
         
@@ -314,6 +312,7 @@
             <li class="nav-item active" onclick="switchView('dashboard', this)">
                 <span class="nav-icon">📊</span><span class="nav-text" data-translate>Dashboard</span>
             </li>
+            
             <li class="nav-item" onclick="switchView('checkin', this)">
                 <span class="nav-icon">🚛</span><span class="nav-text" data-translate>Check-in Truck</span>
             </li>
@@ -809,7 +808,14 @@
             "BT SuperMall": "رجيع سوبر مول",
             "BT Minutes": "رجيع مينيتس",
             "Liquidation": "إعادة بيع التالف",
-            "Unknown": "غير معروف"
+            "Unknown": "غير معروف",
+            // Correcting the exact strings from CSS uppercase
+            "DRIVERS DATABASE": "قاعدة بيانات السائقين",
+            "TOTAL CHECK-INS": "إجمالي الدخول",
+            "COMPLETED TODAY": "اكتمل اليوم",
+            "ACTIVE NOW": "نشط الآن",
+            "CURRENTLY OCCUPIED DOCKS": "الأرصفة المشغولة حالياً",
+            "ACTIVE USER": "المستخدم النشط"
         };
 
         function t(text) {
@@ -1323,7 +1329,7 @@
                 let displayDir = r.isInside ? dirSafe.split(' - ')[0].toUpperCase() : entryReasonSafe.split(' - ')[0].toUpperCase();
                 let cssClass = getBadgeClass(displayDir, !r.isInside && displayDir==='OUTBOUND');
                 
-                historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.65rem; color:var(--text-muted); font-weight:600;">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${cssClass}">${displayDir}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${r.sealNumber || '--'}</td><td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${r.isInside?`<span style="color:var(--accent-color); font-weight:700;">Inside</span>`:formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td></tr>`;
+                historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.65rem; color:var(--text-muted); font-weight:600;">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${cssClass}">${t(displayDir)}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${r.sealNumber || '--'}</td><td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${r.isInside?`<span style="color:var(--accent-color); font-weight:700;">Inside</span>`:formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td></tr>`;
             });
         }
 
@@ -1393,23 +1399,22 @@
             return currentLang === 'ar' ? `${hr} ${ampm === 'PM' ? 'م' : 'ص'}` : `${hr} ${ampm}`;
         }
 
-        function renderTextList(containerId, dataObj, valLabel, reverseSort = false) {
-            let entries = Object.entries(dataObj);
-            
-            if (reverseSort) {
-                entries.reverse();
-            } else {
-                entries.sort((a, b) => b[1] - a[1]);
-            }
-
+        function renderTextList(containerId, labelsArray, dataArray, valLabel) {
             let html = '<ul class="analytic-text-list">';
-            for(let i=0; i<entries.length; i++) {
+            for(let i=0; i<labelsArray.length; i++) {
                 let cls = i >= 4 ? 'class="hidden-item"' : '';
-                html += `<li ${cls}><span>${t(entries[i][0])}</span> <strong>${entries[i][1]} ${t(valLabel)}</strong></li>`;
+                let color = chartColorPalette[i % chartColorPalette.length];
+                html += `<li ${cls}>
+                    <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+                        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:${color}; flex-shrink:0;"></span>
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); font-weight:600;">${t(labelsArray[i])}</span>
+                    </div>
+                    <strong style="color: #fff; white-space: nowrap; flex-shrink: 0; font-size: 0.85rem;">${dataArray[i]} ${t(valLabel)}</strong>
+                </li>`;
             }
             html += '</ul>';
 
-            if(entries.length > 4) {
+            if(labelsArray.length > 4) {
                 html += `<button class="btn-expand" onclick="this.previousElementSibling.classList.toggle('expanded'); this.innerText = this.previousElementSibling.classList.contains('expanded') ? '${t('Show Less')}' : '${t('Show More')}'">${t('Show More')}</button>`;
             }
 
@@ -1419,6 +1424,7 @@
         function updateAnalyticsCharts(byDate, byHour, byMovement, byDock) {
             const getSortedKeys = (obj, limit) => Object.keys(obj).sort((a,b) => obj[b] - obj[a]).slice(0, limit);
             
+            // 1. Traffic Over Time
             let dates = Object.keys(byDate).slice(-7); 
             let datesData = dates.map(k => byDate[k]);
             
@@ -1433,8 +1439,9 @@
                 analyticsCharts.traffic.data.datasets[0].data = datesData;
                 analyticsCharts.traffic.update();
             }
-            renderTextList('listTrafficTime', byDate, 'Trucks', true);
+            renderTextList('listTrafficTime', dates, datesData, 'Trucks');
 
+            // 2. Movement Dist
             let movKeys = Object.keys(byMovement);
             let movData = movKeys.map(k => byMovement[k]);
             if(!analyticsCharts.movement) {
@@ -1448,8 +1455,9 @@
                 analyticsCharts.movement.data.datasets[0].data = movData;
                 analyticsCharts.movement.update();
             }
-            renderTextList('listMovementDist', byMovement, 'Logs');
+            renderTextList('listMovementDist', movKeys, movData, 'Logs');
 
+            // 3. Peak Hours
             let topHours = getSortedKeys(byHour, 7);
             let hoursData = topHours.map(k => byHour[k]);
             
@@ -1464,8 +1472,9 @@
                 analyticsCharts.hours.data.datasets[0].data = hoursData;
                 analyticsCharts.hours.update();
             }
-            renderTextList('listPeakHours', byHour, 'Check-ins');
+            renderTextList('listPeakHours', topHours, hoursData, 'Check-ins');
 
+            // 4. Dock Utilization
             let dockKeys = getSortedKeys(byDock, 5);
             let dockData = dockKeys.map(k => byDock[k]);
             if(!analyticsCharts.docks) {
@@ -1479,7 +1488,7 @@
                 analyticsCharts.docks.data.datasets[0].data = dockData;
                 analyticsCharts.docks.update();
             }
-            renderTextList('listDockUtil', byDock, 'Uses');
+            renderTextList('listDockUtil', dockKeys, dockData, 'Uses');
         }
 
         /* ---------------- DATA PROCESSING ENGINE ---------------- */
