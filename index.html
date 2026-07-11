@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noon SLP Dock Security Platform</title>
-    
+
     <!-- CHART.JS LIBRARY FOR ADVANCED ANALYTICS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -23,7 +23,7 @@
             --transform-dir: 1;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
+
         body {
             background-color: var(--bg-color);
             background-image: linear-gradient(rgba(11, 14, 20, 0.92), rgba(11, 14, 20, 0.92)), url('background.jpg.jpeg');
@@ -77,7 +77,7 @@
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
         .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 8px; padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 0.5rem; }
         .health-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 8px var(--success-color); }
-        
+
         .main-content { margin-inline-start: 260px; flex-grow: 1; padding: 1.5rem 3rem; width: calc(100% - 260px); transition: margin-inline-start 0.3s ease, width 0.3s ease; }
         .main-content.expanded { margin-inline-start: 0; width: 100%; }
 
@@ -120,11 +120,15 @@
         /* ADVANCED ANALYTICS GRID & LISTS */
         .analytics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-bottom: 2rem; width: 100%; }
         @media (max-width: 1000px) { .analytics-grid { grid-template-columns: minmax(0, 1fr); } }
-        
-        .analytics-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; backdrop-filter: blur(10px); min-width: 0; min-height: 0; overflow: hidden; }
+
+        .analytics-card { 
+            background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; 
+            display: flex; flex-direction: column; backdrop-filter: blur(10px); 
+            min-width: 0; min-height: 0; overflow: hidden; 
+        }
         .analytics-card h3 { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; font-weight: 700; text-align: start; }
         .chart-container { position: relative; height: 220px; width: 100%; flex-shrink: 0; min-height: 200px; }
-        
+
         .analytic-text-list { list-style: none; margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted); padding: 0; width: 100%; }
         .analytic-text-list li { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px dashed rgba(255,255,255,0.05); gap: 1rem; width: 100%; }
         .analytic-text-list li:last-child { border-bottom: none; }
@@ -132,6 +136,7 @@
         .analytic-text-list li strong { color: #fff; white-space: nowrap; flex-shrink: 0; font-size: 0.85rem; text-align: end; }
         .analytic-text-list li.hidden-item { display: none; }
         .analytic-text-list.expanded li.hidden-item { display: flex; }
+
         .btn-expand { background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.35rem 0.6rem; font-size: 0.7rem; border-radius: 4px; cursor: pointer; margin-top: 0.75rem; width: 100%; transition: 0.2s; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
         .btn-expand:hover { background: var(--accent-color); color: #000; }
 
@@ -142,8 +147,8 @@
         .view-header-title h1 { font-size: 1.75rem; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
         .view-header-title p { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; font-weight: 600; }
         .counter-badge-orange { display: inline-block; background: rgba(252, 194, 0, 0.15); color: var(--accent-color); border: 1px solid rgba(252, 194, 0, 0.3); font-size: 0.7rem; font-weight: bold; padding: 0.25rem 0.6rem; border-radius: 4px; margin-top: 8px; }
-        
-        .filter-tabs-container { display: flex; gap: 0.25rem; background: rgba(0,0,0,0.4); padding: 0.25rem; border-radius: 6px; border: 1px solid var(--border-color); flex-wrap: wrap; }
+
+        .filter-tabs-container { display: flex; gap: 0.25rem; background: rgba(0,0,0,0.4); padding: 0.25rem; border-radius: 6px; border: 1px solid var(--border-color); }
         .tab-filter-item { background: transparent; border: none; color: var(--text-muted); font-size: 0.7rem; font-weight: 700; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; }
         .tab-filter-item.active { background: var(--accent-color); color: #000; }
         .btn-excel { background-color: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; }
@@ -154,7 +159,7 @@
         td { padding: 1rem 0.85rem; text-align: start; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background-color: rgba(255,255,255,0.02); }
-        
+
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
         .badge.in { background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid rgba(46, 160, 67, 0.3); }
         .badge.out { background: rgba(248, 81, 73, 0.15); color: #ff7b72; border: 1px solid rgba(248, 81, 73, 0.3); }
@@ -174,28 +179,28 @@
         .scan-box-dashed span.label-text { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
         .camera-btn-inline { display: inline-flex; align-items: center; justify-content: center; margin-top: 0.75rem; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--accent-color); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; padding: 0.35rem 0.75rem; border-radius: 4px; cursor: pointer; }
         .camera-btn-inline:hover { background: var(--accent-color); color: #000; }
-        
+
         .toggle-container { display: flex; justify-content: center; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.25rem; margin-bottom: 2rem; max-width: 320px; margin-left: auto; margin-right: auto; }
         .toggle-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
         .toggle-btn.active { background: var(--accent-color); color: #000; }
-        
+
         .form-grid-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem 2rem; }
         @media (max-width: 768px) { .form-grid-columns { grid-template-columns: 1fr; } }
         .form-group { text-align: start; }
         .form-section-divider { grid-column: 1 / -1; background: rgba(56, 139, 253, 0.15); color: #79c0ff; border: 1px solid rgba(56, 139, 253, 0.3); padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; margin-top: 1rem; margin-bottom: 0.5rem; letter-spacing: 0.5px; max-width: fit-content; text-align: start; }
-        
+
         .badge-style { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem; font-weight: 700; letter-spacing: 0.5px; }
         .input-box-styled { width: 100%; background-color: #0d1117; border: 1px solid var(--border-color); color: var(--text-main); padding: 0.85rem 1rem; border-radius: 6px; font-size: 0.9rem; outline: none; transition: border 0.2s; }
         .input-box-styled:focus { border-color: var(--accent-color); background-color: #161b22; }
-        
-        .header-search-box-container { position: relative; width: 280px; max-width: 100%; }
+
+        .header-search-box-container { position: relative; width: 280px; }
         .header-search-box-container span { position: absolute; inset-inline-start: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; }
         .header-search-input { width: 100%; background: #0d1117; border: 1px solid var(--border-color); color: #fff; padding-block: 0.6rem; padding-inline-start: 2.25rem; padding-inline-end: 1rem; border-radius: 6px; font-size: 0.85rem; outline: none; }
         .header-search-input:focus { border-color: var(--accent-color); }
-        
+
         .plate-box-split { display: inline-flex; flex-direction: column; gap: 2px; }
         .plate-segment { border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background: rgba(0,0,0,0.4); text-align: center; min-width: 50px; font-family: monospace; }
-        
+
         .submit-btn-global { width: 100%; background-color: var(--accent-color); color: #000; border: none; padding: 1rem; font-size: 0.95rem; font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 2.5rem; letter-spacing: 1px; transition: opacity 0.2s; }
         .submit-btn-global:hover { opacity: 0.9; }
 
@@ -215,8 +220,7 @@
         .btn-card-action { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; text-align: center; width: 100%; }
         .btn-card-action:hover { border-color: var(--accent-color); color: var(--accent-color); }
         .card-management-actions { position: absolute; top: 1.5rem; inset-inline-end: 1.5rem; display: flex; gap: 0.5rem; }
-        .btn-icon-manage { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; transition: 0.2s;}
-        .btn-icon-manage:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .btn-icon-manage { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; }
 
         /* SETTINGS PAGE REDESIGN */
         .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-top: 1rem; }
@@ -248,7 +252,7 @@
             display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;
         }
         .modal-overlay.modal-active { display: flex; }
-        
+
         .modal-window {
             background: #0d1117; border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 580px;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); display: flex; flex-direction: column; text-align: start;
@@ -288,11 +292,30 @@
         .camera-controls button { padding: 0.8rem 1.5rem; border-radius: 6px; border: none; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.8rem; }
         .btn-capture { background: var(--accent-color); color: #000; }
         .btn-cancel-cam { background: var(--danger-color); color: #fff; }
-        
-        .custom-date-row { display: none; gap: 0.5rem; align-items: center; margin-top: 0.75rem; flex-wrap: wrap;}
-        .custom-date-row.open { display: flex; }
-        .custom-date-row input[type="date"] { background: #0d1117; border: 1px solid var(--border-color); color: #fff; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.8rem; outline:none; min-width: 120px;}
-        .custom-date-row button { background: var(--accent-color); color: #000; border: none; padding: 0.55rem 1rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+
+        /* SETTINGS PAGE REDESIGN */
+        .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin-top: 1rem; }
+        @media (max-width: 800px) { .settings-grid { grid-template-columns: minmax(0, 1fr); } }
+        .settings-card { background: #12161f; border-radius: 8px; border: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+        .settings-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; }
+        .settings-title-group { display: flex; align-items: center; gap: 1rem; }
+        .settings-icon-box { background: rgba(255,255,255,0.05); color: var(--accent-color); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .settings-title-text h3 { font-size: 0.85rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; }
+        .settings-title-text p { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+        .settings-status-badge { padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-blocked { background: rgba(248,81,73,0.1); color: var(--danger-color); }
+        .status-windowed { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+        .settings-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+        .settings-btn-primary { background: var(--accent-color); color: #000; width: 100%; border: none; padding: 0.8rem; border-radius: 6px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 0.5rem; }
+        .settings-btn-primary:hover { opacity: 0.9; }
+        .settings-btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-muted); width: 100%; padding: 0.8rem; border-radius: 6px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 0.5rem; }
+        .settings-btn-secondary:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .settings-alert-box { background: rgba(248,81,73,0.05); border: 1px solid rgba(248,81,73,0.2); border-radius: 6px; padding: 1rem; }
+        .settings-alert-box h4 { color: var(--danger-color); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .settings-alert-box p { color: var(--text-muted); font-size: 0.75rem; line-height: 1.5; }
+        .theme-toggle-group { display: flex; gap: 0.5rem; background: rgba(0,0,0,0.4); padding: 0.35rem; border-radius: 8px; border: 1px solid var(--border-color); }
+        .theme-btn { flex: 1; padding: 0.6rem; border: none; background: transparent; color: var(--text-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; cursor: pointer; border-radius: 6px; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 0.5rem;}
+        .theme-btn.active { background: var(--card-bg); color: var(--accent-color); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -302,25 +325,25 @@
         <canvas id="particleCanvas"></canvas>
         <div class="login-container" id="loginContainer">
             <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
-            
+
             <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 320px;">
                 <input type="text" id="loginName" class="input-box-styled" data-translate-placeholder placeholder="Enter Full Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);">
                 <input type="text" id="loginEmail" class="input-box-styled" data-translate-placeholder placeholder="Enter Noon Email / Guard ID" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);">
-                
+
                 <div id="adminPasswordContainer" style="display: none; width: 100%;">
                     <input type="password" id="adminPassword" class="input-box-styled" data-translate-placeholder placeholder="Enter Admin Password" style="text-align: center; border-color: rgba(248, 81, 73, 0.4); background: rgba(0,0,0,0.5);">
                 </div>
 
-                <button type="button" id="customSignInBtn" class="submit-btn-global" style="margin-top: 0.5rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+                <button id="customSignInBtn" class="submit-btn-global" style="margin-top: 0.5rem; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
                     <span data-translate>AUTHORIZE ACCESS</span>
                 </button>
 
-                <button type="button" id="adminToggle" onclick="toggleAdminMode()" style="background: transparent; border: none; margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; font-weight: 600; transition: color 0.2s; width: 100%;" data-translate>⚙️ Login as Administrator</button>
+                <div id="adminToggle" style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; font-weight: 600; transition: color 0.2s;" data-translate>⚙️ Login as Administrator</div>
             </div>
-            
+
             <div id="authStatus" class="auth-status">
                 <p id="authText" class="pulsing" data-translate>AUTHENTICATING...</p>
             </div>
@@ -339,7 +362,7 @@
             <li class="nav-item active" onclick="switchView('dashboard', this)">
                 <span class="nav-icon">📊</span><span class="nav-text" data-translate>Dashboard</span>
             </li>
-            
+
             <li class="nav-item" onclick="switchView('checkin', this)">
                 <span class="nav-icon">🚛</span><span class="nav-text" data-translate>Check-in Truck</span>
             </li>
@@ -349,7 +372,7 @@
             <li class="nav-item" onclick="switchView('history', this)">
                 <span class="nav-icon">📜</span><span class="nav-text" data-translate>History Log</span>
             </li>
-            
+
             <!-- ADMIN ONLY NAV LINKS -->
             <li class="nav-item" id="nav-drivers" onclick="switchView('drivers', this)">
                 <span class="nav-icon">🪪</span><span class="nav-text" data-translate>Drivers Database</span>
@@ -359,7 +382,7 @@
             </li>
         </ul>
         <div class="sidebar-footer">
-            
+
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border-color);">
                 <div style="display:flex; align-items:center; gap: 0.75rem; overflow: hidden;">
                     <div class="driver-avatar-img" id="sidebarUserPic" style="width: 32px; height: 32px; background:var(--accent-color); color:#000; font-weight:800; font-size:0.8rem; border:none; flex-shrink: 0;">?</div>
@@ -374,11 +397,14 @@
                 <div><span data-translate>System Health</span><div style="font-weight:700; color:var(--success-color); margin-top:2px;" data-translate>Operational</div></div>
                 <div class="health-dot"></div>
             </div>
-            
+
             <div class="nav-item" onclick="toggleFullscreen()" style="margin-bottom: 4px;">
                 <span class="nav-icon" id="fsIcon">🖥️</span><span class="nav-text" id="fsBtnLabel" data-translate>Fullscreen</span>
             </div>
-            
+
+            <!-- NEW LOGOUT PLACEMENT -->
+            <div class="nav-item" onclick="logoutUser()" style="color: var(--danger-color);">
+            <!-- EXPLICIT LOGOUT BUTTON -->
             <div class="nav-item" onclick="logoutUser()" style="color: var(--danger-color); margin-top: 2px;">
                 <span class="nav-icon">🚪</span><span class="nav-text" data-translate>Log out</span>
             </div>
@@ -387,7 +413,7 @@
     </div>
 
     <div class="main-content">
-        
+
         <!-- SIDEBAR & LANGUAGE TOGGLE BUTTONS -->
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
             <button class="btn-mini" onclick="toggleSidebar()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; display: flex; align-items: center; gap: 6px; background: var(--card-bg); border-color: rgba(255,255,255,0.1);">
@@ -398,7 +424,7 @@
 
         <!-- MAIN DASHBOARD -->
         <div id="view-dashboard" class="app-view active-view">
-            
+
             <div class="dashboard-hero">
                 <div class="hero-badges-wrapper">
                     <span class="hero-badge" data-translate>SYSTEM ONLINE</span>
@@ -416,9 +442,9 @@
                 <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label" data-translate>Total Check-Ins</div><div class="metric-accent-line" style="background-color: #79c0ff;"></div></div>
                 <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label" data-translate>Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
             </div>
-            
+
             <div class="dashboard-mid-split admin-mode" id="dashMidSplit">
-                
+
                 <div class="card" id="occupiedDocksCard" style="display: flex; flex-direction: column; min-height: 200px;">
                     <div class="card-header-flex"><h2 data-translate>Currently Occupied Docks</h2></div>
                     <div id="occupiedDocksContainer" style="display: flex; flex-wrap: wrap; gap: 0.5rem; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1); flex-grow: 1; align-items: flex-start; align-content: flex-start;">
@@ -445,7 +471,7 @@
             <!-- ANALYTICS SECTION (ADMIN ONLY) -->
             <div id="analyticsSectionContainer" style="display: none;">
                 <div class="form-section-divider" style="margin: 3.5rem 0 2rem 0; width: 100%; max-width: 100%;" data-translate>Deep-Dive Analytics Hub</div>
-                
+
                 <div class="metrics-bar-four" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
                     <div class="metric-card-slate"><div class="card-icon">📈</div><div class="num" id="statTotalOps">0</div><div class="label" data-translate>Total Historical Operations</div><div class="metric-accent-line"></div></div>
                     <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="statAvgTurnaround">--</div><div class="label" data-translate>Avg. Turnaround Time</div><div class="metric-accent-line" style="background-color: #388bfd;"></div></div>
@@ -515,14 +541,14 @@
                         <div class="form-group new-driver-field"><label class="badge-style" data-translate>Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" data-translate-placeholder placeholder="Enter bumper plate sequence"></div>
                         <div class="form-group new-driver-field"><label class="badge-style" data-translate>Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" data-translate-placeholder placeholder="Enter mobile number"></div>
                         <div class="form-section-divider" data-translate>Security & Facility Details</div>
-                        
+
                         <div class="form-group"><label class="badge-style" data-translate>Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required data-translate-placeholder placeholder="Enter verification guard identity"></div>
                         <div class="form-group"><label class="badge-style" data-translate>Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required data-translate-placeholder placeholder="Enter staff token number"></div>
-                        
+
                         <div class="form-group"><label class="badge-style" data-translate>Dock Number *</label>
                             <input type="text" id="dockNumber" class="input-box-styled" required data-translate-placeholder placeholder="e.g. 25 or Dock 4">
                         </div>
-                        
+
                         <div class="form-group"><label class="badge-style" data-translate>Purpose / Direction *</label>
                             <select id="direction" class="input-box-styled" style="font-size: 0.85rem;">
                                 <option value="Inbound - تنزيل بضائع">Inbound - تنزيل بضائع</option>
@@ -547,12 +573,12 @@
                                 <option value="Receiving" data-translate>Receiving</option>
                             </select>
                         </div>
-                        
+
                         <div class="form-group" id="sealNumberContainer" style="display: none; grid-column: 1 / -1;">
                             <label class="badge-style" style="color:var(--accent-color);" data-translate>Incoming Seal Number *</label>
                             <input type="text" id="sealNumber" class="input-box-styled" data-translate-placeholder placeholder="Enter incoming seal number" style="border-color: rgba(252, 194, 0, 0.4);">
                         </div>
-                        
+
                     </div>
                     <button type="submit" class="submit-btn-global" id="btnSubmitCheckin" data-translate>Check In Truck</button>
                 </form>
@@ -611,9 +637,9 @@
 
         <div id="view-settings" class="app-view">
             <header class="view-header-row"><div class="view-header-title"><h1 data-translate>Settings</h1><p data-translate>Manage system preferences and permissions</p></div></header>
-            
+
             <div class="settings-grid">
-                
+
                 <div class="settings-card">
                     <div class="settings-header">
                         <div class="settings-title-group">
@@ -689,46 +715,6 @@
         </div>
     </div>
 
-    <!-- EDIT DRIVER MODAL -->
-    <div class="modal-overlay" id="editDriverModal">
-        <div class="modal-window">
-            <div class="modal-header-container">
-                <h2 data-translate>Edit Driver</h2>
-                <button class="btn-modal-close" onclick="closeEditDriverModal()">✕</button>
-            </div>
-            <div class="modal-body-content" style="gap: 1rem;">
-                <input type="hidden" id="editOldDriverName">
-                <div class="form-group"><label class="badge-style" data-translate>Driver Name</label><input type="text" id="editDriverName" class="input-box-styled"></div>
-                <div class="form-group"><label class="badge-style" data-translate>Iqama Number</label><input type="text" id="editIqama" class="input-box-styled"></div>
-                <div class="form-group"><label class="badge-style" data-translate>Plate Number</label><input type="text" id="editPlate" class="input-box-styled"></div>
-                <div class="form-group"><label class="badge-style" data-translate>Mobile Number</label><input type="text" id="editMobile" class="input-box-styled"></div>
-            </div>
-            <div class="modal-footer-container" style="justify-content: space-between;">
-                <button class="btn-modal-cancel" style="color: var(--danger-color); border-color: var(--danger-color);" onclick="confirmDeleteDriver()" data-translate>Delete Driver</button>
-                <div style="display: flex; gap: 0.5rem;">
-                    <button class="btn-modal-cancel" onclick="closeEditDriverModal()" data-translate>Close Window</button>
-                    <button class="btn-modal-cancel" style="background: var(--success-color); color: #fff; border: none;" onclick="confirmEditDriver()" data-translate>Save Changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CONFIRM ADMIN ACTION MODAL -->
-    <div class="modal-overlay" id="confirmActionModal">
-        <div class="modal-window" style="max-width: 400px; text-align: center; border: 1px solid var(--accent-color);">
-            <div class="modal-body-content" style="padding: 2.5rem 2rem;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⚠️</div>
-                <h2 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem;" id="confirmModalTitle" data-translate>Confirm Action</h2>
-                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 2.5rem;" id="confirmModalText"></p>
-                
-                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <button id="btnConfirmAction" class="submit-btn-global" style="margin-top: 0; border-radius: 6px;" onclick="executeAdminAction()" data-translate>Confirm</button>
-                    <button class="btn-modal-cancel" style="background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; letter-spacing:0.5px;" onclick="closeConfirmModal()" data-translate>Decline</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- DRIVER PROFILE MODAL -->
     <div class="modal-overlay" id="driverProfileModal">
         <div class="modal-window">
@@ -755,7 +741,7 @@
                 <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛡️</div>
                 <h2 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem;" data-translate>Authorize Departure</h2>
                 <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 2.5rem;" id="signOutModalSubtext">Completing SLP cycle...</p>
-                
+
                 <div class="form-group" style="text-align: start; margin-bottom: 2rem;">
                     <label class="badge-style" style="color: var(--accent-color);" data-translate>ATTACH DEPARTURE SEAL *</label>
                     <input type="text" id="signOutSeal" class="input-box-styled" data-translate-placeholder placeholder="e.g. SEAL-9022-X" style="border-color: rgba(252, 194, 0, 0.5); background:#0b0e14;">
@@ -781,12 +767,12 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxJe0TiXyU47-DCQfi44OztKNHaxmsM8n31wzg53fUw6BBnYkgcVmVhEIE5ViKvGQiWDg/exec";
         const OCR_API_URL = "https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
-        
+
         let globalLogsCache = [];
         let driversRegistryList = [];
         let globalHistoryListCache = [];
         let currentHistoryDateRange = 'all';
-        
+
         // Chart Objects
         let analyticsCharts = {};
 
@@ -794,19 +780,13 @@
         let loggedInUser = { name: "Guest User", email: "Not signed in", picture: "" };
         let userRole = 'guard';
 
-        // SAFE CHART INITIALIZATION
-        try {
-            if (typeof Chart !== 'undefined') {
-                Chart.defaults.color = '#8b949e';
-                Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-            }
-        } catch(e) { console.warn("Chart.js warning:", e); }
-        
+        // Chart.js Configuration
+        Chart.defaults.color = '#8b949e';
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
         const chartColorPalette = ['#fcc200', '#2ea043', '#388bfd', '#a371f7', '#f85149', '#ff7b72', '#d2a8ff', '#58a6ff'];
 
         /* ---------------- TRANSLATION DICTIONARY & LOGIC ---------------- */
-        let currentLang = 'en';
-        try { currentLang = localStorage.getItem('noonSlpLang') || 'en'; } catch(e) {}
+        let currentLang = localStorage.getItem('noonSlpLang') || 'en';
 
         const arDict = {
             "Dashboard": "لوحة القيادة",
@@ -896,6 +876,7 @@
             "SIGN OUT": "خروج",
             "Deep-Dive Analytics Hub": "مركز التحليلات المتعمقة",
             "Total Historical Operations": "إجمالي العمليات التاريخية",
+            "Total Historical Operations": "العمليات التاريخية",
             "Avg. Turnaround Time": "متوسط وقت الإنجاز",
             "Busiest Operating Hour": "ساعة الذروة",
             "Vehicle Processing Growth (7 Days)": "نمو معالجة المركبات (7 أيام)",
@@ -960,6 +941,7 @@
             "BT Minutes": "رجيع مينيتس",
             "Liquidation": "إعادة بيع التالف",
             "Unknown": "غير معروف",
+            // Correcting the exact strings from CSS uppercase
             "DRIVERS DATABASE": "قاعدة بيانات السائقين",
             "TOTAL CHECK-INS": "إجمالي الدخول",
             "COMPLETED TODAY": "اكتمل اليوم",
@@ -988,15 +970,7 @@
             "THEME": "المظهر",
             "CUSTOMIZE LOOK AND FEEL": "تخصيص المظهر والانطباع",
             "LIGHT": "فاتح",
-            "DARK": "داكن",
-            "Edit Driver": "تعديل بيانات السائق",
-            "Save Changes": "حفظ التغييرات",
-            "Delete Driver": "حذف السائق",
-            "Confirm Action": "تأكيد الإجراء",
-            "Confirm": "تأكيد",
-            "Decline": "تراجع",
-            "Are you sure you want to save these changes?": "هل أنت متأكد من حفظ التعديلات؟",
-            "Are you sure you want to permanently delete this driver and all their history?": "هل أنت متأكد من حذف هذا السائق وسجلاته نهائياً؟"
+            "DARK": "داكن"
         };
 
         function t(text) {
@@ -1006,7 +980,7 @@
 
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'ar' : 'en';
-            try { localStorage.setItem('noonSlpLang', currentLang); } catch(e) {}
+            localStorage.setItem('noonSlpLang', currentLang);
             applyLanguage();
         }
 
@@ -1014,12 +988,13 @@
             document.documentElement.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
             document.documentElement.setAttribute('lang', currentLang);
             document.documentElement.style.setProperty('--transform-dir', currentLang === 'ar' ? '-1' : '1');
-            
+
             const langBtn = document.getElementById('langBtn');
             if (langBtn) langBtn.innerText = currentLang === 'ar' ? 'English' : 'العربية';
 
             document.querySelectorAll('[data-translate]').forEach(el => {
                 if(!el.hasAttribute('data-en-text')) {
+                    // We grab textContent so CSS text-transform doesn't mess with dictionary keys
                     el.setAttribute('data-en-text', el.textContent.trim());
                 }
                 let enText = el.getAttribute('data-en-text');
@@ -1042,9 +1017,14 @@
         /* ---------------- SAFE DATE PARSER (TABLET FIX) ---------------- */
         function safeDate(dStr) {
             if(!dStr) return new Date();
+            // 1. Native Parse
             let d = new Date(dStr);
+            if(isNaN(d.getTime())) {
+                // Aggressive fallback for older iOS Safari WebViews
+                d = new Date(String(dStr).replace(/-/g, '/').replace('T', ' ').split('.')[0]);
             if(!isNaN(d.getTime())) return d;
             
+            // 2. Strict Safari ISO fallback
             let str = String(dStr).trim();
             if(str.includes('T')) {
                 let parts = str.split(/\D+/);
@@ -1056,6 +1036,9 @@
                     if(!isNaN(parsed.getTime())) return parsed;
                 }
             }
+            return d;
+
+            // 3. Slash fallback
             d = new Date(str.replace(/-/g, '/').replace('T', ' ').split('.')[0]);
             if(!isNaN(d.getTime())) return d;
             
@@ -1063,7 +1046,7 @@
         }
 
         function logoutUser() {
-            try { localStorage.removeItem('noonSlpUserSession'); } catch(e) {}
+            localStorage.removeItem('noonSlpUserSession');
             location.reload();
         }
         
@@ -1074,66 +1057,58 @@
 
         /* ---------------- CUSTOM LOGIN & ADMIN TOGGLE LOGIC ---------------- */
         let isAdminMode = false;
-        
-        function toggleAdminMode() {
+
+        document.getElementById('adminToggle').addEventListener('click', function() {
             isAdminMode = !isAdminMode;
-            const toggleBtn = document.getElementById('adminToggle');
             if (isAdminMode) {
                 document.getElementById('adminPasswordContainer').style.display = 'block';
-                toggleBtn.innerText = t('Back to Standard Login');
-                toggleBtn.setAttribute('data-en-text', 'Back to Standard Login');
-                toggleBtn.style.color = 'var(--danger-color)';
+                this.innerText = t('Back to Standard Login');
+                this.style.color = 'var(--danger-color)';
             } else {
                 document.getElementById('adminPasswordContainer').style.display = 'none';
-                toggleBtn.innerText = t('⚙️ Login as Administrator');
-                toggleBtn.setAttribute('data-en-text', '⚙️ Login as Administrator');
-                toggleBtn.style.color = 'var(--text-muted)';
+                this.innerText = t('⚙️ Login as Administrator');
+                this.style.color = 'var(--text-muted)';
             }
-        }
+        });
 
         document.getElementById('customSignInBtn').addEventListener('click', function(e) {
-            try {
-                e.preventDefault();
-                
-                const nameInput = document.getElementById('loginName').value.trim();
-                const emailInput = document.getElementById('loginEmail').value.trim();
+            e.preventDefault();
 
-                if(!nameInput || !emailInput) { alert("Please enter your Full Name and Noon ID/Email to authorize access."); return; }
+            const nameInput = document.getElementById('loginName').value.trim();
+            const emailInput = document.getElementById('loginEmail').value.trim();
 
-                if (isAdminMode) {
-                    const pass = document.getElementById('adminPassword').value;
-                    if (pass !== 'admin123') { alert("Incorrect Administrator Password."); return; }
-                    userRole = 'admin';
-                } else { userRole = 'guard'; }
+            if(!nameInput || !emailInput) { alert("Please enter your Full Name and Noon ID/Email to authorize access."); return; }
 
-                loggedInUser = { name: nameInput, email: emailInput, picture: "👤" };
+            if (isAdminMode) {
+                const pass = document.getElementById('adminPassword').value;
+                if (pass !== 'admin123') { alert("Incorrect Administrator Password."); return; }
+                userRole = 'admin';
+            } else { userRole = 'guard'; }
 
-                try { localStorage.setItem('noonSlpUserSession', JSON.stringify({ name: nameInput, email: emailInput, role: userRole })); } catch(err) { console.warn("Local storage disabled."); }
+            loggedInUser = { name: nameInput, email: emailInput, picture: "👤" };
 
-                applyRBAC();
+            localStorage.setItem('noonSlpUserSession', JSON.stringify({ name: nameInput, email: emailInput, role: userRole }));
 
-                const statusBox = document.getElementById('authStatus');
-                const authText = document.getElementById('authText');
-                const container = document.getElementById('loginContainer');
-                
-                document.getElementById('customLoginBox').style.display = 'none';
-                statusBox.style.display = 'block';
+            applyRBAC();
+
+            const statusBox = document.getElementById('authStatus');
+            const authText = document.getElementById('authText');
+            const container = document.getElementById('loginContainer');
+
+            document.getElementById('customLoginBox').style.display = 'none';
+            statusBox.style.display = 'block';
+
+            setTimeout(() => {
+                authText.innerText = currentLang === 'ar' ? "اكتملت مصادقة النظام" : "SYSTEM AUTHENTICATION COMPLETE";
+                authText.style.color = "var(--success-color)";
+                authText.classList.remove('pulsing');
+                container.style.boxShadow = "0 0 80px rgba(46, 160, 67, 0.25), 0 20px 40px rgba(0,0,0,0.8)";
 
                 setTimeout(() => {
-                    authText.innerText = currentLang === 'ar' ? "اكتملت مصادقة النظام" : "SYSTEM AUTHENTICATION COMPLETE";
-                    authText.style.color = "var(--success-color)";
-                    authText.classList.remove('pulsing');
-                    container.style.boxShadow = "0 0 80px rgba(46, 160, 67, 0.25), 0 20px 40px rgba(0,0,0,0.8)";
-                    
-                    setTimeout(() => {
-                        document.getElementById('introOverlay').classList.add('hidden');
-                        setTimeout(() => { introActive = false; cancelAnimationFrame(animationFrameId); fetchLogs(); }, 1000);
-                    }, 1200);
-                }, 1200); 
-            } catch(error) {
-                alert("Login Error: " + error.message);
-                console.error(error);
-            }
+                    document.getElementById('introOverlay').classList.add('hidden');
+                    setTimeout(() => { introActive = false; cancelAnimationFrame(animationFrameId); fetchLogs(); }, 1000);
+                }, 1200);
+            }, 1200); 
         });
 
         function applyRBAC() {
@@ -1143,7 +1118,7 @@
                 document.getElementById('nav-settings').style.display = 'none';
                 document.getElementById('btnExportExcel').style.display = 'none';
                 document.getElementById('analyticsSectionContainer').style.display = 'none';
-                
+
                 document.getElementById('activeUserCard').style.display = 'none';
                 midSplit.classList.remove('admin-mode');
                 midSplit.classList.add('guard-mode');
@@ -1152,7 +1127,7 @@
                 document.getElementById('nav-settings').style.display = 'flex';
                 document.getElementById('btnExportExcel').style.display = 'block';
                 document.getElementById('analyticsSectionContainer').style.display = 'block';
-                
+
                 document.getElementById('activeUserCard').style.display = 'flex';
                 midSplit.classList.remove('guard-mode');
                 midSplit.classList.add('admin-mode');
@@ -1160,19 +1135,20 @@
 
             document.getElementById('sidebarUserName').innerText = loggedInUser.name + (userRole === 'admin' ? (currentLang==='ar'?" (مسؤول)":" (Admin)") : "");
             document.getElementById('sidebarUserEmail').innerText = loggedInUser.email;
+            document.getElementById('sidebarUserPic').innerText = "👤";
             document.getElementById('dashUserName').innerText = loggedInUser.name + (userRole === 'admin' ? (currentLang==='ar'?" (مسؤول)":" (Admin)") : "");
             document.getElementById('dashUserEmail').innerText = loggedInUser.email;
+            document.getElementById('dashUserPic').innerText = "👤";
         }
 
         /* ---------------- INTRO SCREEN PARTICLES ---------------- */
         const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
+        const ctx = canvas.getContext('2d');
         let width, height, particles;
         let animationFrameId;
         let introActive = true;
 
         function initParticles() {
-            if(!ctx) return;
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
             particles = [];
@@ -1183,7 +1159,7 @@
         }
 
         function animateParticles() {
-            if (!introActive || !ctx) return;
+            if (!introActive) return;
             ctx.clearRect(0, 0, width, height);
             ctx.fillStyle = 'rgba(252, 194, 0, 0.6)'; ctx.strokeStyle = 'rgba(252, 194, 0, 0.15)';
             for (let i = 0; i < particles.length; i++) {
@@ -1206,9 +1182,7 @@
         /* ---------------- ON LOAD SESSION CHECK ---------------- */
         applyLanguage();
 
-        let sessionStr = null;
-        try { sessionStr = localStorage.getItem('noonSlpUserSession'); } catch(e) {}
-
+        const sessionStr = localStorage.getItem('noonSlpUserSession');
         if (sessionStr) {
             const sessionData = JSON.parse(sessionStr);
             loggedInUser = { name: sessionData.name, email: sessionData.email, picture: "👤" };
@@ -1256,9 +1230,6 @@
             }
         }
 
-        /* ---------------- EDIT DRIVER / DATABASE LOGIC ---------------- */
-        let pendingAdminAction = null;
-
         function openDriverProfileModal(name, iqama, plate, date, phone) {
             document.getElementById('modalDataName').innerText = name;
             document.getElementById('modalDataIqama').innerText = iqama;
@@ -1270,94 +1241,6 @@
             document.getElementById('driverProfileModal').classList.add('modal-active');
         }
         function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
-
-        function openEditDriverModal(name, iqama, plate, mobile) {
-            document.getElementById('editOldDriverName').value = name;
-            document.getElementById('editDriverName').value = name;
-            document.getElementById('editIqama').value = iqama === '--' ? '' : iqama;
-            document.getElementById('editPlate').value = plate === '--' ? '' : plate;
-            document.getElementById('editMobile').value = mobile === '--' ? '' : mobile;
-            document.getElementById('editDriverModal').classList.add('modal-active');
-        }
-
-        function closeEditDriverModal() {
-            document.getElementById('editDriverModal').classList.remove('modal-active');
-        }
-
-        function confirmEditDriver() {
-            pendingAdminAction = {
-                type: 'edit',
-                oldName: document.getElementById('editOldDriverName').value,
-                driverName: document.getElementById('editDriverName').value.trim(),
-                iqamaNumber: document.getElementById('editIqama').value.trim(),
-                plateNumber: document.getElementById('editPlate').value.trim(),
-                mobileNumber: document.getElementById('editMobile').value.trim()
-            };
-            document.getElementById('confirmModalTitle').innerText = t("Confirm Action");
-            document.getElementById('confirmModalText').innerText = t("Are you sure you want to save these changes?");
-            document.getElementById('confirmActionModal').classList.add('modal-active');
-        }
-
-        function confirmDeleteDriver() {
-            pendingAdminAction = {
-                type: 'delete',
-                driverName: document.getElementById('editOldDriverName').value
-            };
-            document.getElementById('confirmModalTitle').innerText = t("Delete Driver");
-            document.getElementById('confirmModalText').innerText = t("Are you sure you want to permanently delete this driver and all their history?");
-            document.getElementById('confirmActionModal').classList.add('modal-active');
-        }
-
-        function closeConfirmModal() {
-            document.getElementById('confirmActionModal').classList.remove('modal-active');
-            pendingAdminAction = null;
-        }
-
-        async function executeAdminAction() {
-            if (!pendingAdminAction) return;
-            
-            const btn = document.getElementById('btnConfirmAction');
-            btn.innerText = t("Processing...");
-            btn.disabled = true;
-
-            let payload = {};
-            if (pendingAdminAction.type === 'edit') {
-                payload = { action: 'editDriver', ...pendingAdminAction };
-                
-                globalLogsCache.forEach(log => {
-                    if(log.driverName === payload.oldName) {
-                        log.driverName = payload.driverName;
-                        log.iqamaNumber = payload.iqamaNumber;
-                        log.plateNumber = payload.plateNumber;
-                        log.mobileNumber = payload.mobileNumber;
-                    }
-                });
-            } else if (pendingAdminAction.type === 'delete') {
-                payload = { action: 'deleteDriver', driverName: pendingAdminAction.driverName };
-                globalLogsCache = globalLogsCache.filter(log => log.driverName !== payload.driverName);
-            }
-
-            try {
-                fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) }).catch(e=>console.error(e));
-                
-                window.handleLogsResponse(globalLogsCache); 
-                closeConfirmModal();
-                closeEditDriverModal();
-                setTimeout(fetchLogs, 3000);
-            } catch (e) {
-                alert(e.message);
-            } finally {
-                btn.innerText = t("Confirm");
-                btn.disabled = false;
-            }
-        }
-
-        function filterTable(tbodyId, val) {
-            let q = val.toLowerCase().trim();
-            document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
-                tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
-            });
-        }
 
         function setDriverMode(mode, element) {
             element.parentNode.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active')); element.classList.add('active');
@@ -1542,20 +1425,20 @@
             const sealVal = document.getElementById('signOutSeal').value.trim();
             if (!sealVal) { alert('Please attach a departure seal number.'); return; }
             if(!currentSignOutContext) return;
-            
+
             const { driverName, plateNumber, securityName, dockNumber } = currentSignOutContext;
             const btn = document.getElementById('btnConfirmSignOut');
             btn.innerText = t("Processing..."); btn.disabled = true;
 
             try {
                 const payload = { driverName, plateNumber, securityName, dockNumber, direction: "Outbound", sealNumber: sealVal, actionByEmail: loggedInUser.email, actionByName: loggedInUser.name };
-                
+
                 fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
                     .catch(e => console.error("Background save issue:", e));
-                
+
                 globalLogsCache.push({ ...payload, timestamp: new Date().toISOString() });
                 window.handleLogsResponse(globalLogsCache);
-                
+
                 closeSignOutModal();
                 setTimeout(fetchLogs, 3000);
             } finally {
@@ -1575,9 +1458,14 @@
             if(!t1) return "--"; 
             let d1 = safeDate(t1);
             let d2 = t2 ? safeDate(t2) : new Date();
+            let diff = d2 - d1;
             let diff = d2.getTime() - d1.getTime();
             
             if(isNaN(diff)) return "0h 0m";
+            if(diff < 0) diff = 0; // Fixes tablet sync issues
+            let mins = Math.floor(diff / 60000); return `${Math.floor(mins/60)}h ${mins%60}m`;
+            
+            // Fix for Safari tablet negative math timezone issues
             if(diff < 0) diff = Math.abs(diff); 
             
             let mins = Math.floor(diff / 60000); 
@@ -1588,7 +1476,7 @@
             if(parts.length >= 2) { return `<div class="plate-box-split"><div class="plate-segment">${parts[0]}</div><div class="plate-segment">${parts[1]}</div></div>`; }
             return `<div class="plate-box-split"><div class="plate-segment">${plateStr || '--'}</div></div>`;
         }
-        
+
         function getBadgeClass(displayDir, isOut) {
             if(isOut || displayDir.includes("OUTBOUND")) return "badge out";
             if(displayDir.includes("INBOUND")) return "badge in";
@@ -1620,10 +1508,10 @@
             list.forEach(driver => {
                 let dObj = safeDate(driver.registered);
                 let dateFormatted = isNaN(dObj.getTime()) ? '--' : `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][dObj.getMonth()]} ${dObj.getDate()}, ${dObj.getFullYear()}`;
-                
+
                 container.innerHTML += `
                     <div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${(driver.plate || '').toLowerCase()}">
-                        <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${driver.phone}')">✏️</button></div>
+                        <div class="card-management-actions"><button class="btn-icon-manage">✏️</button></div>
                         <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">Verified</span><span class="tag-badge carrier">SLP</span></div></div></div>
                         <div class="driver-card-info-grid"><div class="info-block"><p>🆔 IQAMA ID</p><data>${driver.id}</data></div><div class="info-block"><p>📅 ${t("Registered Date")}</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 ${t("Mobile Number")}</p><data>${driver.phone}</data></div></div>
                         <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${driver.phone}')">${t("View Records")}</button>
@@ -1649,7 +1537,7 @@
                 let entryReasonSafe = r.entryReason && r.entryReason !== "Unknown" ? r.entryReason : 'OUTBOUND';
                 let displayDir = r.isInside ? dirSafe.split(' - ')[0].toUpperCase() : entryReasonSafe.split(' - ')[0].toUpperCase();
                 let cssClass = getBadgeClass(displayDir, !r.isInside && displayDir==='OUTBOUND');
-                
+
                 historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.65rem; color:var(--text-muted); font-weight:600;">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${cssClass}">${t(displayDir)}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${r.sealNumber || '--'}</td><td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${r.isInside?`<span style="color:var(--accent-color); font-weight:700;">Inside</span>`:formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td></tr>`;
             });
         }
@@ -1713,11 +1601,109 @@
             document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         }
 
+        /* ---------------- ADVANCED ANALYTICS CHARTING ---------------- */
+        function formatHour(h) {
+            let ampm = h >= 12 ? 'PM' : 'AM';
+            let hr = h % 12 || 12;
+            return currentLang === 'ar' ? `${hr} ${ampm === 'PM' ? 'م' : 'ص'}` : `${hr} ${ampm}`;
+        }
+
+        function renderTextList(containerId, labelsArray, dataArray, valLabel) {
+            let html = '<ul class="analytic-text-list">';
+            for(let i=0; i<labelsArray.length; i++) {
+                let cls = i >= 4 ? 'class="hidden-item"' : '';
+                let color = chartColorPalette[i % chartColorPalette.length];
+                html += `<li ${cls}>
+                    <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+                        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:${color}; flex-shrink:0;"></span>
+                        <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-muted); font-weight:600;">${t(labelsArray[i])}</span>
+                    </div>
+                    <strong style="color: #fff; white-space: nowrap; flex-shrink: 0; font-size: 0.85rem;">${dataArray[i]} ${t(valLabel)}</strong>
+                </li>`;
+            }
+            html += '</ul>';
+
+            if(labelsArray.length > 4) {
+                html += `<button class="btn-expand" onclick="this.previousElementSibling.classList.toggle('expanded'); this.innerText = this.previousElementSibling.classList.contains('expanded') ? '${t('Show Less')}' : '${t('Show More')}'">${t('Show More')}</button>`;
+            }
+
+            document.getElementById(containerId).innerHTML = html;
+        }
+
+        function updateAnalyticsCharts(byDate, byHour, byMovement, byDock) {
+            const getSortedKeys = (obj, limit) => Object.keys(obj).sort((a,b) => obj[b] - obj[a]).slice(0, limit);
+
+            // 1. Traffic Over Time
+            let dates = Object.keys(byDate).slice(-7); 
+            let datesData = dates.map(k => byDate[k]);
+            
+            if(!analyticsCharts.traffic) {
+                analyticsCharts.traffic = new Chart(document.getElementById('chartTrafficTime'), {
+                    type: 'doughnut',
+                    data: { labels: dates.map(d=>t(d)), datasets: [{ data: datesData, backgroundColor: chartColorPalette, borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+                });
+            } else {
+                analyticsCharts.traffic.data.labels = dates.map(d=>t(d));
+                analyticsCharts.traffic.data.datasets[0].data = datesData;
+                analyticsCharts.traffic.update();
+            }
+            renderTextList('listTrafficTime', dates, datesData, 'Trucks');
+
+            // 2. Movement Dist
+            let movKeys = Object.keys(byMovement);
+            let movData = movKeys.map(k => byMovement[k]);
+            if(!analyticsCharts.movement) {
+                analyticsCharts.movement = new Chart(document.getElementById('chartMovementDist'), {
+                    type: 'doughnut',
+                    data: { labels: movKeys.map(k=>t(k)), datasets: [{ data: movData, backgroundColor: chartColorPalette, borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+                });
+            } else {
+                analyticsCharts.movement.data.labels = movKeys.map(k=>t(k));
+                analyticsCharts.movement.data.datasets[0].data = movData;
+                analyticsCharts.movement.update();
+            }
+            renderTextList('listMovementDist', movKeys, movData, 'Logs');
+
+            // 3. Peak Hours
+            let topHours = getSortedKeys(byHour, 7);
+            let hoursData = topHours.map(k => byHour[k]);
+            if(!analyticsCharts.hours) {
+                analyticsCharts.hours = new Chart(document.getElementById('chartPeakHours'), {
+                    type: 'doughnut',
+                    data: { labels: topHours.map(k=>t(k)), datasets: [{ data: hoursData, backgroundColor: chartColorPalette, borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+                });
+            } else {
+                analyticsCharts.hours.data.labels = topHours.map(k=>t(k));
+                analyticsCharts.hours.data.datasets[0].data = hoursData;
+                analyticsCharts.hours.update();
+            }
+            renderTextList('listPeakHours', topHours, hoursData, 'Check-ins');
+
+            // 4. Dock Utilization
+            let dockKeys = getSortedKeys(byDock, 5);
+            let dockData = dockKeys.map(k => byDock[k]);
+            if(!analyticsCharts.docks) {
+                analyticsCharts.docks = new Chart(document.getElementById('chartDockUtil'), {
+                    type: 'doughnut',
+                    data: { labels: dockKeys.map(k=>t(k)), datasets: [{ data: dockData, backgroundColor: chartColorPalette, borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+                });
+            } else {
+                analyticsCharts.docks.data.labels = dockKeys.map(k=>t(k));
+                analyticsCharts.docks.data.datasets[0].data = dockData;
+                analyticsCharts.docks.update();
+            }
+            renderTextList('listDockUtil', dockKeys, dockData, 'Uses');
+        }
+
         /* ---------------- DATA PROCESSING ENGINE ---------------- */
         window.handleLogsResponse = function(data) {
             let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; 
             globalLogsCache = chronData;
-            
+
             const activeBody = document.getElementById('activeYardTableBody');
             if(activeBody) activeBody.innerHTML = '';
 
@@ -1728,7 +1714,7 @@
 
             let activeYardMap = {}; 
             let historicalPairs = [];
-            
+
             let trafficByDate = {};
             let trafficByHour = {};
             let movementDist = {};
@@ -1756,7 +1742,7 @@
                 let dName = (row.driverName || "").toString().trim().toUpperCase();
                 let trackingKey = p + "|||" + dName;
                 let dirCheck = (row.direction || "").toString().trim();
-                
+
                 if(dirCheck !== "Outbound") {
                     activeYardMap[trackingKey] = row;
                 } else {
@@ -1783,7 +1769,7 @@
                 }
                 let dir = r.entryReason && r.entryReason !== "Unknown" ? r.entryReason.split(' - ')[0].trim() : (r.direction ? r.direction.split(' - ')[0].trim() : 'Other');
                 movementDist[dir] = (movementDist[dir] || 0) + 1;
-                
+
                 if(r.dockNumber) { dockUtil[r.dockNumber.toUpperCase()] = (dockUtil[r.dockNumber.toUpperCase()] || 0) + 1; }
             });
 
@@ -1794,9 +1780,7 @@
             let busiestHour = Object.keys(trafficByHour).length > 0 ? Object.keys(trafficByHour).reduce((a, b) => trafficByHour[a] > trafficByHour[b] ? a : b) : "--";
             document.getElementById('statPeakHour').innerText = busiestHour;
 
-            if (userRole === 'admin' && typeof Chart !== 'undefined') {
-                updateAnalyticsCharts(trafficByDate, trafficByHour, movementDist, dockUtil);
-            }
+            updateAnalyticsCharts(trafficByDate, trafficByHour, movementDist, dockUtil);
 
             let activeList = Object.values(activeYardMap);
             document.getElementById('metric-active-now').innerText = activeList.length;
@@ -1821,7 +1805,7 @@
                         let cssClass = getBadgeClass(displayDir, false);
                         let activeDispType = r.dispatchType || 'DISPATCHING';
                         let activeSeal = r.sealNumber || '--';
-                        
+
                         activeBody.innerHTML += `<tr>
                             <td><strong>${r.driverName}</strong></td>
                             <td>${generatePlateBumperUI(r.plateNumber)}</td>
@@ -1865,19 +1849,19 @@
                     actionByEmail: loggedInUser.email,
                     actionByName: loggedInUser.name
                 };
-                
+
                 fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
                     .catch(e => console.error(e));
-                
+
                 globalLogsCache.push({ ...payload, timestamp: new Date().toISOString() });
                 window.handleLogsResponse(globalLogsCache);
 
                 document.getElementById('entryForm').reset(); btn.innerText = t("Check In Truck"); btn.disabled = false;
                 document.getElementById('sealNumberContainer').style.display = 'none'; document.getElementById('sealNumber').required = false;
                 document.getElementById('securityNameField').value = loggedInUser.name;
-                
+
                 switchView('dashboard', document.querySelectorAll('.nav-item')[0]); 
-                
+
                 setTimeout(fetchLogs, 3500); 
             } catch (err) {
                 alert("Error saving log: " + err.message);
