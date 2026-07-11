@@ -1317,30 +1317,54 @@
             users[loggedInUser.email] = { 
                 name: loggedInUser.name, 
                 email: loggedInUser.email, 
-                status: 'Online Now', 
-                color: 'var(--success-color)' 
+                status: 'Online Now (You)', 
+                color: 'var(--success-color)',
+                lastActive: new Date()
             };
             
-            // Extract recent users from logs (e.g., last 2 hours)
             const now = new Date();
+            
+            // Go through all logs to find users
             data.forEach(r => {
-                let logTime = new Date(r.timestamp);
-                if ((now - logTime) < 2 * 60 * 60 * 1000 && r.actionByEmail) {
-                    if(r.actionByEmail !== loggedInUser.email) {
-                        users[r.actionByEmail] = { 
-                            name: r.actionByName || 'Guard', 
-                            email: r.actionByEmail, 
-                            status: 'Recently Active', 
-                            color: 'var(--accent-color)' 
+                if (r.actionByEmail && r.actionByEmail !== loggedInUser.email) {
+                    let logTime = new Date(r.timestamp);
+                    // If we haven't tracked this user yet, or this log is newer
+                    if (!users[r.actionByEmail] || logTime > users[r.actionByEmail].lastActive) {
+                        users[r.actionByEmail] = {
+                            name: r.actionByName || 'Guard / Admin',
+                            email: r.actionByEmail,
+                            lastActive: logTime
                         };
                     }
                 }
             });
-            
+
+            // Now determine their status based on the entire historical record
             Object.values(users).forEach(u => {
+                if (u.email === loggedInUser.email) return; // already set
+
+                let diffMs = now - u.lastActive;
+                let diffHours = diffMs / (1000 * 60 * 60);
+
+                if (diffHours < 1) {
+                    u.status = 'Online Now';
+                    u.color = 'var(--success-color)';
+                } else if (diffHours < 12) {
+                    u.status = 'Recently Active';
+                    u.color = 'var(--accent-color)';
+                } else {
+                    u.status = 'Offline';
+                    u.color = 'var(--text-muted)';
+                }
+            });
+            
+            // Sort so Online Now is at the top
+            let sortedUsers = Object.values(users).sort((a, b) => b.lastActive - a.lastActive);
+            
+            sortedUsers.forEach(u => {
                 listEl.innerHTML += `
                     <li style="display:flex; align-items:center; gap:1rem; padding: 1rem; background:rgba(0,0,0,0.3); border:1px solid var(--border-color); border-radius:8px;">
-                        <div class="driver-avatar-img" style="background:var(--accent-color); color:#000; font-weight:800; width:45px; height:45px;">👤</div>
+                        <div class="driver-avatar-img" style="background:${u.color === 'var(--text-muted)' ? '#333' : 'var(--accent-color)'}; color:${u.color === 'var(--text-muted)' ? 'var(--text-muted)' : '#000'}; font-weight:800; width:45px; height:45px;">👤</div>
                         <div style="flex-grow:1;">
                             <h4 style="color:#fff; font-size:1rem; margin-bottom: 2px;">${u.name}</h4>
                             <p style="color:var(--text-muted); font-size:0.75rem;">${u.email}</p>
