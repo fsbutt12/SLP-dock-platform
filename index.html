@@ -1411,7 +1411,10 @@
                     .catch(e => console.error(e));
                 
                 // Optimistic UI Update instantly
-                globalLogsCache.push({ ...payload, timestamp: new Date().toISOString() });
+                globalLogsCache.push({
+    ...payload,
+    timestamp: new Date().toISOString()
+});
                 window.handleLogsResponse(globalLogsCache);
 
                 document.getElementById('entryForm').reset(); btn.innerText = "Check In Truck"; btn.disabled = false;
