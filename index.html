@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Noon SLP Dock Security Platform</title>
     <style>
         :root {
-            --bg-color: #0b0e14; 
             --card-bg: rgba(18, 22, 31, 0.85); 
-            --card-solid: #12161f;
-            --sidebar-bg: #07090c;
+            --card-solid: rgba(18, 22, 31, 0.95);
+            --sidebar-bg: rgba(7, 9, 12, 0.85);
             --accent-color: #fcc200; 
             --text-main: #f0f2f5;
             --text-muted: #8b949e;
@@ -21,12 +20,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
         
         body {
-            background-color: var(--bg-color);
-            background-image: linear-gradient(rgba(11, 14, 20, 0.92), rgba(11, 14, 20, 0.92)), url('background.jpg.jpeg');
-            background-size: 55%;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+            background-color: transparent;
             color: var(--text-main); 
             display: flex; 
             min-height: 100vh; 
@@ -36,9 +30,10 @@
         /* INTRO SCREEN & PARTICLES */
         .intro-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--bg-color); z-index: 99999;
+            background-color: transparent; z-index: 99999;
             display: flex; align-items: center; justify-content: center;
             transition: opacity 1s ease, transform 1s ease;
+            backdrop-filter: blur(8px);
         }
         .intro-overlay.hidden { opacity: 0; pointer-events: none; transform: scale(1.05); }
         #particleCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
@@ -57,6 +52,7 @@
         .sidebar {
             width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color);
             display: flex; flex-direction: column; padding: 1.5rem 1rem; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100; transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
         .sidebar.hidden {
             transform: translateX(-100%);
@@ -66,41 +62,15 @@
         .brand-text p { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px;}
         
         /* Sidebar Toggle Buttons */
-        .sidebar-close-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.25rem;
-            cursor: pointer;
-            margin-left: auto;
-            transition: color 0.2s;
-            display: block;
-        }
+        .sidebar-close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; margin-left: auto; transition: color 0.2s; display: block; }
         .sidebar-close-btn:hover { color: var(--accent-color); }
         
         .btn-floating-toggle {
-            position: fixed; 
-            top: 1.5rem; 
-            left: 1.5rem; 
-            z-index: 1000; 
-            background: var(--sidebar-bg); 
-            border: 1px solid var(--border-color); 
-            color: var(--text-main); 
-            padding: 0.6rem 0.85rem; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            display: none; /* Shown via JS */
-            align-items: center; 
-            gap: 0.5rem; 
-            font-weight: 700; 
-            font-size: 0.8rem; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
-            transition: all 0.2s;
+            position: fixed; top: 1.5rem; left: 1.5rem; z-index: 1000; background: var(--sidebar-bg); border: 1px solid var(--border-color); 
+            color: var(--text-main); padding: 0.6rem 0.85rem; border-radius: 6px; cursor: pointer; display: none; align-items: center; gap: 0.5rem; 
+            font-weight: 700; font-size: 0.8rem; box-shadow: 0 4px 12px rgba(0,0,0,0.5); transition: all 0.2s;
         }
-        .btn-floating-toggle:hover {
-            border-color: var(--accent-color);
-            background: var(--card-bg);
-        }
+        .btn-floating-toggle:hover { border-color: var(--accent-color); background: var(--card-bg); }
 
         .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; flex-grow: 1; }
         .nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s ease; border-left: 3px solid transparent; }
@@ -114,6 +84,24 @@
         
         .main-content { margin-left: 260px; flex-grow: 1; padding: 2.5rem 3rem; width: calc(100% - 260px); transition: all 0.3s ease; }
         .main-content.expanded { margin-left: 0 !important; width: 100% !important; }
+
+        /* ------------------ RTL SPECIFIC OVERRIDES ------------------ */
+        html[dir="rtl"] .sidebar { left: auto; right: 0; border-right: none; border-left: 1px solid var(--border-color); }
+        html[dir="rtl"] .main-content { margin-left: 0; margin-right: 260px; }
+        html[dir="rtl"] .main-content.expanded { margin-right: 0 !important; }
+        html[dir="rtl"] .nav-item { border-left: none; border-right: 3px solid transparent; }
+        html[dir="rtl"] .nav-item.active { border-left: none; border-right: 3px solid var(--accent-color); }
+        html[dir="rtl"] .sidebar-close-btn { margin-left: 0; margin-right: auto; }
+        html[dir="rtl"] .header-search-box-container span { left: auto; right: 12px; }
+        html[dir="rtl"] .header-search-input { padding: 0.6rem 2.25rem 0.6rem 1rem; }
+        html[dir="rtl"] .search-icon-inside { left: auto !important; right: 12px !important; }
+        html[dir="rtl"] .metric-accent-line { right: auto; left: 15px; }
+        html[dir="rtl"] .card-management-actions { right: auto; left: 1.5rem; }
+        html[dir="rtl"] th, html[dir="rtl"] td { text-align: right; }
+        html[dir="rtl"] .btn-modal-cancel { margin-right: 0 !important; margin-left: 1rem !important; }
+        html[dir="rtl"] #floatingOpenBtn { left: auto; right: 1.5rem; }
+        html[dir="rtl"] #langToggleBtn { right: auto; left: 1.5rem; }
+        /* ------------------------------------------------------------ */
         
         @media (max-width: 900px) {
             .sidebar { width: 75px; padding: 1.5rem 0.5rem; align-items: center; }
@@ -125,6 +113,10 @@
             .nav-item.active { border-left: none; border-bottom: 3px solid var(--accent-color); }
             .nav-icon { font-size: 1.4rem; margin: 0; }
             .main-content { margin-left: 75px; width: calc(100% - 75px); padding: 1.5rem 1rem; }
+            
+            html[dir="rtl"] .main-content { margin-right: 75px; margin-left: 0; }
+            html[dir="rtl"] .sidebar { transform: translateX(0); }
+            html[dir="rtl"] .sidebar.hidden { transform: translateX(100%); }
         }
 
         .app-view { display: none; } .app-view.active-view { display: block; }
@@ -141,6 +133,7 @@
         @media (max-width: 1200px) { .metrics-bar-four { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px) { .metrics-bar-four { grid-template-columns: 1fr; } }
         .metric-card-slate { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: left; position: relative; backdrop-filter: blur(10px); }
+        html[dir="rtl"] .metric-card-slate { text-align: right; }
         .metric-card-slate .card-icon { font-size: 1.1rem; margin-bottom: 1rem; opacity: 0.9; }
         .metric-card-slate .num { font-size: 2.25rem; font-weight: 700; color: #fff; line-height: 1.1; }
         .metric-card-slate .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 8px; font-weight: 600; }
@@ -149,102 +142,23 @@
         .dashboard-mid-split { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
 
         /* ACTIVE DOCKS BADGES */
-        .dock-badge-active {
-            background: rgba(46, 160, 67, 0.1);
-            border: 1px solid rgba(46, 160, 67, 0.4);
-            color: var(--success-color);
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            font-family: monospace;
-            display: inline-block;
-        }
+        .dock-badge-active { background: rgba(46, 160, 67, 0.1); border: 1px solid rgba(46, 160, 67, 0.4); color: var(--success-color); padding: 0.5rem 1rem; border-radius: 4px; font-weight: 700; font-size: 0.85rem; font-family: monospace; display: inline-block; }
 
         /* DEEP-DIVE ANALYTICS CHARTS SECTION */
-        .analytics-hub-title {
-            background: rgba(56, 139, 253, 0.1);
-            border: 1px solid rgba(56, 139, 253, 0.3);
-            color: #79c0ff;
-            padding: 0.75rem 1rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-radius: 6px;
-            margin-bottom: 1.5rem;
-        }
-        
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
+        .analytics-hub-title { background: rgba(56, 139, 253, 0.1); border: 1px solid rgba(56, 139, 253, 0.3); color: #79c0ff; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-radius: 6px; margin-bottom: 1.5rem; }
+        .analytics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
         @media (max-width: 1100px) { .analytics-grid { grid-template-columns: 1fr; } }
         
-        .chart-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            backdrop-filter: blur(10px);
-            display: flex;
-            flex-direction: column;
-        }
+        .chart-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); display: flex; flex-direction: column; }
+        .chart-card h3 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2rem; }
+        .donut-container { position: relative; width: 180px; height: 180px; margin: 0 auto 2rem auto; }
+        .donut-chart { width: 100%; height: 100%; border-radius: 50%; transition: background 0.5s ease; }
+        .donut-hole { position: absolute; top: 22%; left: 22%; width: 56%; height: 56%; background-color: var(--card-solid); border-radius: 50%; }
         
-        .chart-card h3 {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 2rem;
-        }
-        
-        .donut-container {
-            position: relative;
-            width: 180px;
-            height: 180px;
-            margin: 0 auto 2rem auto;
-        }
-        
-        .donut-chart {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            transition: background 0.5s ease;
-        }
-        
-        .donut-hole {
-            position: absolute;
-            top: 22%;
-            left: 22%;
-            width: 56%;
-            height: 56%;
-            background-color: var(--card-solid);
-            border-radius: 50%;
-        }
-        
-        .chart-legend {
-            list-style: none;
-            margin-top: auto;
-            border-top: 1px solid var(--border-color);
-            padding-top: 1rem;
-        }
-        
-        .chart-legend li {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.02);
-        }
-        
+        .chart-legend { list-style: none; margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 1rem; }
+        .chart-legend li { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
         .chart-legend li:last-child { border-bottom: none; padding-bottom: 0; }
         .chart-legend li span { color: #fff; font-weight: 700; }
-
-        /* Chart Legend Coloring Fixes */
         .chart-legend li .legend-label-group { display: flex; align-items: center; gap: 8px; }
         .chart-legend li .legend-color-box { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 
@@ -329,17 +243,10 @@
         .card-management-actions { position: absolute; top: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; }
         .btn-icon-manage { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.75rem; }
 
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
-            display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
         .modal-overlay.modal-active { display: flex; }
         
-        .modal-window {
-            background: #0d1117; border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 580px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); display: flex; flex-direction: column;
-        }
+        .modal-window { background: #0d1117; border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 580px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); display: flex; flex-direction: column; }
         .modal-header-container { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); }
         .modal-header-container h2 { font-size: 1.1rem; color: #fff; font-weight: 700; text-transform: uppercase; }
         .btn-modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
@@ -354,28 +261,20 @@
         .modal-footer-container { padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; border-radius: 0 0 12px 12px; }
         .btn-modal-cancel { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.6rem 1.5rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
 
-        .suggestions-dropdown {
-            position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
-            background: #161b22; border: 1px solid var(--border-color); border-radius: 6px;
-            max-height: 220px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-        }
+        .suggestions-dropdown { position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: #161b22; border: 1px solid var(--border-color); border-radius: 6px; max-height: 220px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
         .suggestions-dropdown.open { display: block; }
         .suggestion-item { padding: 0.75rem 1rem; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid var(--border-color); }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background: rgba(252, 194, 0, 0.1); }
         .suggestion-item small { display: block; color: var(--text-muted); font-size: 0.7rem; margin-top: 4px; }
 
-        .camera-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000;
-            display: none; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; padding: 1rem;
-        }
+        .camera-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; padding: 1rem; }
         .camera-overlay.open { display: flex; }
         .camera-overlay video, .camera-overlay canvas { max-width: 100%; max-height: 65vh; border-radius: 8px; border: 2px solid var(--accent-color); }
         .camera-controls { display: flex; gap: 1rem; }
         .camera-controls button { padding: 0.8rem 1.5rem; border-radius: 6px; border: none; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.8rem; }
         .btn-capture { background: var(--accent-color); color: #000; }
         .btn-cancel-cam { background: var(--danger-color); color: #fff; }
-
         .custom-date-row { display: none; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
         .custom-date-row.open { display: flex; }
         .custom-date-row input[type="date"] { background: #0d1117; border: 1px solid var(--border-color); color: #fff; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.8rem; outline:none;}
@@ -384,10 +283,12 @@
 </head>
 <body>
 
-    <!-- FLOATING TOGGLE BUTTON (SHOWN WHEN SIDEBAR IS HIDDEN) -->
-    <button id="floatingOpenBtn" class="btn-floating-toggle" onclick="toggleSidebar()" title="Open Sidebar">
-        <span style="color:var(--accent-color); font-size:1.2rem;">☰</span> Menu
+    <!-- TOGGLE BUTTONS FOR SIDEBAR AND ARABIC -->
+    <button id="floatingOpenBtn" class="btn-floating-toggle" style="top: 1.5rem; left: 1.5rem;" onclick="toggleSidebar()" title="Menu">
+        <span style="color:var(--accent-color); font-size:1.2rem;">☰</span> <span data-i18n="Menu">Menu</span>
     </button>
+    
+    <button id="langToggleBtn" class="btn-floating-toggle" style="display: flex; top: 1.5rem; right: 1.5rem; left: auto; z-index: 1000;" onclick="toggleLang()">🌐 EN / AR</button>
 
     <!-- CUSTOM INTRO SCREEN OVERLAY -->
     <div id="introOverlay" class="intro-overlay">
@@ -423,38 +324,35 @@
     <div class="sidebar" id="appSidebar">
         <div class="brand-section">
             <div class="brand-text">
-                <h2>Noon <span style="color:var(--accent-color);">SLP</span></h2>
-                <p>Dock Security Platform</p>
+                <h2><span data-i18n="Noon">Noon</span> <span style="color:var(--accent-color);">SLP</span></h2>
+                <p data-i18n="Dock Security Platform">Dock Security Platform</p>
             </div>
-            <button class="sidebar-close-btn" onclick="toggleSidebar()" title="Toggle Sidebar">☰</button>
+            <button class="sidebar-close-btn" onclick="toggleSidebar()" title="Toggle Sidebar">✕</button>
         </div>
         <ul class="nav-links">
             <li class="nav-item active" onclick="switchView('dashboard', this)">
-                <span class="nav-icon">📊</span><span class="nav-text">Dashboard</span>
+                <span class="nav-icon">📊</span><span class="nav-text" data-i18n="Dashboard">Dashboard</span>
             </li>
             <li class="nav-item" onclick="switchView('checkin', this)">
-                <span class="nav-icon">🚛</span><span class="nav-text">Check-in Truck</span>
+                <span class="nav-icon">🚛</span><span class="nav-text" data-i18n="Check-in Truck">Check-in Truck</span>
             </li>
             <li class="nav-item" id="nav-active-trucks" onclick="switchView('active-trucks', this)">
-                <span class="nav-icon">⏱️</span><span class="nav-text">Active Trucks</span>
+                <span class="nav-icon">⏱️</span><span class="nav-text" data-i18n="Active Trucks">Active Trucks</span>
             </li>
             <li class="nav-item" onclick="switchView('history', this)">
-                <span class="nav-icon">📜</span><span class="nav-text">History Log</span>
+                <span class="nav-icon">📜</span><span class="nav-text" data-i18n="History Log">History Log</span>
             </li>
-            
-            <!-- ADMIN ONLY NAV LINKS -->
             <li class="nav-item" id="nav-drivers" onclick="switchView('drivers', this)">
-                <span class="nav-icon">🪪</span><span class="nav-text">Drivers Database</span>
+                <span class="nav-icon">🪪</span><span class="nav-text" data-i18n="Drivers Database">Drivers Database</span>
             </li>
         </ul>
         <div class="sidebar-footer">
-            
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border-color);">
                 <div style="display:flex; align-items:center; gap: 0.75rem; overflow: hidden;">
                     <div class="driver-avatar-img" id="sidebarUserPic" style="width: 32px; height: 32px; background:var(--accent-color); color:#000; font-weight:800; font-size:0.8rem; border:none; flex-shrink: 0;">?</div>
                     <div style="overflow: hidden;">
-                        <h4 id="sidebarUserName" style="color:#fff; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Guest User</h4>
-                        <p id="sidebarUserEmail" style="font-size:0.65rem; color:var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Not signed in</p>
+                        <h4 id="sidebarUserName" style="color:#fff; font-size:0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" data-i18n="Guest User">Guest User</h4>
+                        <p id="sidebarUserEmail" style="font-size:0.65rem; color:var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" data-i18n="Not signed in">Not signed in</p>
                     </div>
                 </div>
                 <!-- LOGOUT BUTTON -->
@@ -462,11 +360,11 @@
             </div>
 
             <div class="system-health">
-                <div><span>System Health</span><div style="font-weight:700; color:var(--success-color); margin-top:2px;">Operational</div></div>
+                <div><span data-i18n="System Health">System Health</span><div data-i18n="Operational" style="font-weight:700; color:var(--success-color); margin-top:2px;">Operational</div></div>
                 <div class="health-dot"></div>
             </div>
             <div class="nav-item" onclick="toggleFullscreen()">
-                <span class="nav-icon" id="fsIcon">🖥️</span><span class="nav-text" id="fsBtnLabel">Fullscreen</span>
+                <span class="nav-icon" id="fsIcon">🖥️</span><span class="nav-text" id="fsBtnLabel" data-i18n="Fullscreen">Fullscreen</span>
             </div>
         </div>
     </div>
@@ -476,141 +374,136 @@
             
             <div class="dashboard-hero">
                 <div class="hero-badges-wrapper">
-                    <span class="hero-badge">SYSTEM ONLINE</span>
+                    <span class="hero-badge" data-i18n="SYSTEM ONLINE">SYSTEM ONLINE</span>
                     <span class="hero-badge" id="heroDateBadge">--</span>
                 </div>
                 <div class="hero-title-box">
-                    <h1>Noon <span style="color: var(--accent-color);">SLP</span></h1>
-                    <p>Dock Security Platform</p>
+                    <h2><span data-i18n="Noon">Noon</span> <span style="color:var(--accent-color);">SLP</span></h2>
+                    <p data-i18n="Dock Security Platform">Dock Security Platform</p>
                 </div>
             </div>
 
             <div class="metrics-bar-four">
-                <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="metric-active-now">0</div><div class="label">Active Now</div><div class="metric-accent-line"></div></div>
-                <div class="metric-card-slate"><div class="card-icon">✅</div><div class="num" id="metric-completed-today">0</div><div class="label">Completed Today</div><div class="metric-accent-line" style="background-color: var(--success-color);"></div></div>
-                <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label">Total Check-Ins</div><div class="metric-accent-line" style="background-color: #79c0ff;"></div></div>
-                <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">⏱️</div><div class="num" id="metric-active-now">0</div><div class="label" data-i18n="Active Now">Active Now</div><div class="metric-accent-line"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">✅</div><div class="num" id="metric-completed-today">0</div><div class="label" data-i18n="Completed Today">Completed Today</div><div class="metric-accent-line" style="background-color: var(--success-color);"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">🚛</div><div class="num" id="metric-total-checkins">0</div><div class="label" data-i18n="Total Check-Ins">Total Check-Ins</div><div class="metric-accent-line" style="background-color: #79c0ff;"></div></div>
+                <div class="metric-card-slate"><div class="card-icon">🪪</div><div class="num" id="metric-drivers-count">0</div><div class="label" data-i18n="Drivers Database">Drivers Database</div><div class="metric-accent-line" style="background-color: #d2a8ff;"></div></div>
             </div>
 
-            <!-- DASHBOARD MIDDLE SECTION (FULL WIDTH DOCKS) -->
             <div class="dashboard-mid-split">
-                
                 <!-- CURRENTLY OCCUPIED DOCKS -->
                 <div class="card" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 250px;">
                     <div class="card-header-flex">
-                        <h2>Currently Occupied Docks</h2>
-                        <span id="occupiedDocksCount" style="font-size:0.75rem; background: rgba(46,160,67,0.15); color: var(--success-color); padding: 0.2rem 0.5rem; border-radius:4px; font-weight:700;">0 Docks In Use</span>
+                        <h2 data-i18n="Currently Occupied Docks">Currently Occupied Docks</h2>
+                        <span id="occupiedDocksCount" style="font-size:0.75rem; background: rgba(46,160,67,0.15); color: var(--success-color); padding: 0.2rem 0.5rem; border-radius:4px; font-weight:700;">0 <span data-i18n="Docks In Use">Docks In Use</span></span>
                     </div>
                     <div id="occupiedDocksContainer" style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; align-content: flex-start; flex-grow: 1; padding: 1.5rem; border: 1px dashed rgba(255,255,255,0.05); border-radius: 8px;">
-                        <div style="width:100%; text-align:center; color:var(--text-muted); font-size:0.8rem; margin-top:2rem;">All docks are currently clear.</div>
+                        <div style="width:100%; text-align:center; color:var(--text-muted); font-size:0.8rem; margin-top:2rem;" data-i18n="All docks are currently clear.">All docks are currently clear.</div>
                     </div>
                 </div>
-
             </div>
 
             <!-- DEEP-DIVE ANALYTICS HUB -->
-            <div class="analytics-hub-title">DEEP-DIVE ANALYTICS HUB</div>
+            <div class="analytics-hub-title" data-i18n="DEEP-DIVE ANALYTICS HUB">DEEP-DIVE ANALYTICS HUB</div>
             
             <div class="analytics-grid">
-                
                 <!-- Chart 1: Vehicle Processing Growth -->
                 <div class="chart-card">
-                    <h3>Vehicle Processing Growth (7 Days)</h3>
+                    <h3 data-i18n="Vehicle Processing Growth (7 Days)">Vehicle Processing Growth (7 Days)</h3>
                     <div class="donut-container">
                         <div class="donut-chart" id="chartGrowthDonut" style="background: var(--card-solid);"></div>
                         <div class="donut-hole"></div>
                     </div>
                     <ul class="chart-legend" id="chartGrowthLegend">
-                        <li><div class="legend-label-group">No Data</div></li>
+                        <li><div class="legend-label-group" data-i18n="No Data">No Data</div></li>
                     </ul>
                 </div>
 
                 <!-- Chart 2: Movement Cohorts -->
                 <div class="chart-card">
-                    <h3>Movement Cohorts</h3>
+                    <h3 data-i18n="Movement Cohorts">Movement Cohorts</h3>
                     <div class="donut-container">
                         <div class="donut-chart" id="chartCohortsDonut" style="background: var(--card-solid);"></div>
                         <div class="donut-hole"></div>
                     </div>
                     <ul class="chart-legend" id="chartCohortsLegend">
-                        <li><div class="legend-label-group">No Data</div></li>
+                        <li><div class="legend-label-group" data-i18n="No Data">No Data</div></li>
                     </ul>
                 </div>
 
                 <!-- Chart 3: Peak Operating Hours -->
                 <div class="chart-card">
-                    <h3>Peak Operating Hours</h3>
+                    <h3 data-i18n="Peak Operating Hours">Peak Operating Hours</h3>
                     <div class="donut-container">
                         <div class="donut-chart" id="chartHoursDonut" style="background: var(--card-solid);"></div>
                         <div class="donut-hole"></div>
                     </div>
                     <ul class="chart-legend" id="chartHoursLegend">
-                        <li><div class="legend-label-group">No Data</div></li>
+                        <li><div class="legend-label-group" data-i18n="No Data">No Data</div></li>
                     </ul>
                 </div>
 
                 <!-- Chart 4: Dock Utilization Ranking -->
                 <div class="chart-card">
-                    <h3>Dock Utilization Ranking</h3>
+                    <h3 data-i18n="Dock Utilization Ranking">Dock Utilization Ranking</h3>
                     <div class="donut-container">
                         <div class="donut-chart" id="chartDocksDonut" style="background: var(--card-solid);"></div>
                         <div class="donut-hole"></div>
                     </div>
                     <ul class="chart-legend" id="chartDocksLegend">
-                        <li><div class="legend-label-group">No Data</div></li>
+                        <li><div class="legend-label-group" data-i18n="No Data">No Data</div></li>
                     </ul>
                 </div>
-
             </div>
             
         </div>
 
         <div id="view-checkin" class="app-view">
-            <header class="view-header-row"><div class="view-header-title"><h1>Truck Entry Form</h1><p>Record arriving and departing vehicles</p></div></header>
+            <header class="view-header-row"><div class="view-header-title"><h1 data-i18n="Truck Entry Form">Truck Entry Form</h1><p data-i18n="Record arriving and departing vehicles">Record arriving and departing vehicles</p></div></header>
             <div class="card" style="max-width: 850px; margin: 0 auto; padding: 2rem;">
                 <div class="scanners-triple-row">
                     <div class="scan-box-dashed" id="scanBoxDriver" onclick="document.getElementById('driverPhotoInput').click()">
-                        <div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus">Driver Photo / Truck Photo</span></div>
+                        <div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
                         <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatus', 'PLATE')">
-                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 Use Camera</div>
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                     </div>
                     <div class="scan-box-dashed" id="scanBoxIqama" onclick="document.getElementById('iqamaScanner').click()">
-                        <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus">Iqama (ID Card) Scanner</span></div>
+                        <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus" data-i18n="Iqama (ID Card) Scanner">Iqama (ID Card) Scanner</span></div>
                         <input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')">
-                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 Use Camera</div>
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                     </div>
                     <div class="scan-box-dashed" id="scanBoxSecurity" onclick="document.getElementById('officerScanner').click()">
-                        <div><span class="icon">🛡️</span><span class="label-text" id="officerStatus">Security ID Scanner</span></div>
+                        <div><span class="icon">🛡️</span><span class="label-text" id="officerStatus" data-i18n="Security ID Scanner">Security ID Scanner</span></div>
                         <input type="file" id="officerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'officerStatus', 'OFFICER')">
-                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('officerStatus', 'OFFICER')">📸 Use Camera</div>
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('officerStatus', 'OFFICER')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                     </div>
                 </div>
                 <div class="toggle-container">
-                    <button class="toggle-btn active" type="button" id="toggleNewDriverBtn" onclick="setDriverMode('new', this)">New Driver</button>
-                    <button class="toggle-btn" type="button" id="toggleExistingDriverBtn" onclick="setDriverMode('existing', this)">Existing Driver</button>
+                    <button class="toggle-btn active" type="button" id="toggleNewDriverBtn" onclick="setDriverMode('new', this)" data-i18n="New Driver">New Driver</button>
+                    <button class="toggle-btn" type="button" id="toggleExistingDriverBtn" onclick="setDriverMode('existing', this)" data-i18n="Existing Driver">Existing Driver</button>
                 </div>
                 <form id="entryForm">
                     <div class="form-grid-columns">
                         <div class="form-group search-input-wrapper" id="driverLookupGroup" style="display: none; grid-column: 1 / -1; position: relative;">
-                            <label class="badge-style">Search Driver By Name or Plate... *</label>
+                            <label class="badge-style" data-i18n="Search Driver By Name or Plate... *">Search Driver By Name or Plate... *</label>
                             <span class="search-icon-inside" style="position:absolute; left:12px; top:62%;">🔍</span>
-                            <input type="text" id="driverSearchBox" class="input-box-styled header-search-input" placeholder="Type to search drivers..." autocomplete="off">
+                            <input type="text" id="driverSearchBox" class="input-box-styled header-search-input" data-i18n="Search records..." placeholder="Type to search drivers..." autocomplete="off">
                             <div id="driverSuggestionsList" class="suggestions-dropdown"></div>
                         </div>
-                        <div class="form-group new-driver-field"><label class="badge-style">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" placeholder="Enter driver full name"></div>
-                        <div class="form-group new-driver-field"><label class="badge-style">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" placeholder="Enter 10-digit identity card number"></div>
-                        <div class="form-group new-driver-field"><label class="badge-style">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" placeholder="Enter bumper plate sequence"></div>
-                        <div class="form-group new-driver-field"><label class="badge-style">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" placeholder="Enter mobile number"></div>
-                        <div class="form-section-divider">Security & Facility Details</div>
+                        <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Driver Name *">Driver Name *</label><input type="text" id="driverName" class="input-box-styled" data-i18n="Driver Name *" placeholder="Enter driver full name"></div>
+                        <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Iqama Number *">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" data-i18n="Iqama Number *" placeholder="Enter 10-digit identity card number"></div>
+                        <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" data-i18n="Truck Plate Number *" placeholder="Enter bumper plate sequence"></div>
+                        <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Mobile Number">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" data-i18n="Mobile Number" placeholder="Enter mobile number"></div>
+                        <div class="form-section-divider" data-i18n="Security & Facility Details">Security & Facility Details</div>
                         
-                        <div class="form-group"><label class="badge-style">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required placeholder="Enter verification guard identity"></div>
-                        <div class="form-group"><label class="badge-style">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required placeholder="Enter staff token number"></div>
+                        <div class="form-group"><label class="badge-style" data-i18n="Security Name *">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required data-i18n="Security Name *" placeholder="Enter verification guard identity"></div>
+                        <div class="form-group"><label class="badge-style" data-i18n="Security ID *">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required data-i18n="Security ID *" placeholder="Enter staff token number"></div>
                         
-                        <div class="form-group"><label class="badge-style">Dock Number *</label>
-                            <input type="text" id="dockNumber" class="input-box-styled" required placeholder="e.g. 25 or Dock 4">
+                        <div class="form-group"><label class="badge-style" data-i18n="Dock Number *">Dock Number *</label>
+                            <input type="text" id="dockNumber" class="input-box-styled" required data-i18n="Dock Number *" placeholder="e.g. 25 or Dock 4">
                         </div>
                         
-                        <div class="form-group"><label class="badge-style">Purpose / Direction *</label>
+                        <div class="form-group"><label class="badge-style" data-i18n="Purpose / Direction *">Purpose / Direction *</label>
                             <select id="direction" class="input-box-styled" style="font-size: 0.85rem;">
                                 <option value="Inbound - تنزيل بضائع">Inbound - تنزيل بضائع</option>
                                 <option value="RTV Handover - تسليم مرتجعات">RTV Handover - تسليم مرتجعات</option>
@@ -627,62 +520,62 @@
                                 <option value="Liquidation - إعادة بيع البضائع التالفة">Liquidation - إعادة بيع البضائع التالفة</option>
                             </select>
                         </div>
-                        <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style">Dispatching / Receiving *</label>
+                        <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style" data-i18n="Dispatching / Receiving *">Dispatching / Receiving *</label>
                             <select id="dispatchSelect" class="input-box-styled" required>
-                                <option value="">Select...</option>
-                                <option value="Dispatching">Dispatching</option>
-                                <option value="Receiving">Receiving</option>
+                                <option value="" data-i18n="Select...">Select...</option>
+                                <option value="Dispatching" data-i18n="Dispatching">Dispatching</option>
+                                <option value="Receiving" data-i18n="Receiving">Receiving</option>
                             </select>
                         </div>
                         
                         <div class="form-group" id="sealNumberContainer" style="display: none; grid-column: 1 / -1;">
-                            <label class="badge-style" style="color:var(--accent-color);">Incoming Seal Number *</label>
-                            <input type="text" id="sealNumber" class="input-box-styled" placeholder="Enter incoming seal number" style="border-color: rgba(252, 194, 0, 0.4);">
+                            <label class="badge-style" style="color:var(--accent-color);" data-i18n="Incoming Seal Number *">Incoming Seal Number *</label>
+                            <input type="text" id="sealNumber" class="input-box-styled" data-i18n="Incoming Seal Number *" placeholder="Enter incoming seal number" style="border-color: rgba(252, 194, 0, 0.4);">
                         </div>
                         
                     </div>
-                    <button type="submit" class="submit-btn-global">Check In Truck</button>
+                    <button type="submit" class="submit-btn-global" data-i18n="Check In Truck">Check In Truck</button>
                 </form>
             </div>
         </div>
 
         <div id="view-active-trucks" class="app-view">
             <div class="view-header-row">
-                <div class="view-header-title"><h1>Active Trucks in Facility</h1><p>Currently Checked-In Vehicles</p><div class="counter-badge-orange">⏳ Total Inside: <span id="activeYardCounter">0</span></div></div>
-                <div class="header-search-box-container"><span>🔍</span><input type="text" id="yardSearchQuery" class="header-search-input" placeholder="Search records..." oninput="filterActiveTrucks()"></div>
+                <div class="view-header-title"><h1 data-i18n="Active Trucks in Facility">Active Trucks in Facility</h1><p data-i18n="Currently Checked-In Vehicles">Currently Checked-In Vehicles</p><div class="counter-badge-orange">⏳ <span data-i18n="Total Inside">Total Inside</span>: <span id="activeYardCounter">0</span></div></div>
+                <div class="header-search-box-container"><span>🔍</span><input type="text" id="yardSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="filterActiveTrucks()"></div>
             </div>
             <div class="card" style="overflow-x: auto; padding: 0.5rem; background: transparent; border: none;">
                 <table id="activeYardTable">
-                    <thead><tr><th>Driver</th><th>Plate</th><th>Direction</th><th>Type</th><th>Seal Number</th><th>Dock</th><th>Check-In Time</th><th>Duration</th><th>Security</th><th style="text-align: right; padding-right: 1.5rem;">Action</th></tr></thead>
-                    <tbody id="activeYardTableBody"><tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr></tbody>
+                    <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Type">Type</th><th data-i18n="Seal Number">Seal Number</th><th data-i18n="Dock">Dock</th><th data-i18n="Check-In Time">Check-In Time</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th><th style="text-align: right; padding-right: 1.5rem;" data-i18n="Action">Action</th></tr></thead>
+                    <tbody id="activeYardTableBody"><tr><td colspan="10" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;" data-i18n="NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr></tbody>
                 </table>
             </div>
         </div>
 
         <div id="view-history" class="app-view">
             <div class="view-header-row">
-                <div class="view-header-title"><h1>Movement History</h1><p>Site Movement Activity</p></div>
+                <div class="view-header-title"><h1 data-i18n="Movement History">Movement History</h1><p data-i18n="Site Movement Activity">Site Movement Activity</p></div>
                 <!-- ADMIN ONLY EXPORT BUTTON -->
-                <button class="btn-excel" id="btnExportExcel" onclick="exportHistoryToExcel()">⤓ Export to Excel</button>
+                <button class="btn-excel" id="btnExportExcel" onclick="exportHistoryToExcel()" data-i18n="Export to Excel">⤓ Export to Excel</button>
             </div>
             <div class="card" style="padding: 1.5rem; background: transparent; border:none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
-                    <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" placeholder="Filter by driver, plate, or security ID..." oninput="applyHistoryFilters()"></div>
+                    <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" data-i18n="Filter by driver, plate, or security ID..." placeholder="Filter by driver, plate, or security ID..." oninput="applyHistoryFilters()"></div>
                     <div class="filter-tabs-container">
-                        <button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)">Today</button>
-                        <button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)">Last 7 Days</button>
-                        <button class="tab-filter-item" data-range="custom" onclick="setHistoryDateFilter('custom', this)">Custom</button>
-                        <button class="tab-filter-item active" data-range="all" onclick="setHistoryDateFilter('all', this)">All Time</button>
+                        <button class="tab-filter-item" data-range="today" onclick="setHistoryDateFilter('today', this)" data-i18n="Today">Today</button>
+                        <button class="tab-filter-item" data-range="7days" onclick="setHistoryDateFilter('7days', this)" data-i18n="Last 7 Days">Last 7 Days</button>
+                        <button class="tab-filter-item" data-range="custom" onclick="setHistoryDateFilter('custom', this)" data-i18n="Custom">Custom</button>
+                        <button class="tab-filter-item active" data-range="all" onclick="setHistoryDateFilter('all', this)" data-i18n="All Time">All Time</button>
                     </div>
                 </div>
                 <div class="custom-date-row" id="customDateRow">
-                    <input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;">TO</span> <input type="date" id="customDateTo">
-                    <button onclick="applyHistoryFilters()">Apply</button>
+                    <input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="customDateTo">
+                    <button onclick="applyHistoryFilters()" data-i18n="Apply">Apply</button>
                 </div>
                 <div style="overflow-x: auto; margin-top: 1rem;">
                     <table id="historyLogTable">
-                        <thead><tr><th>Driver</th><th>Plate</th><th>Direction</th><th>Dock</th><th>Seal Number</th><th>Check In Truck</th><th>Check Out</th><th>Duration</th><th>Security</th></tr></thead>
-                        <tbody id="historyLogTableBody"><tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;">No historical logs parsed inside database.</td></tr></tbody>
+                        <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Seal Number">Seal Number</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th></tr></thead>
+                        <tbody id="historyLogTableBody"><tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;" data-i18n="No historical logs parsed inside database.">No historical logs parsed inside database.</td></tr></tbody>
                     </table>
                 </div>
             </div>
@@ -690,8 +583,8 @@
 
         <div id="view-drivers" class="app-view">
             <div class="view-header-row">
-                <div class="view-header-title"><h1>Drivers Registry</h1><p>Centralized database of authorized personnel.</p></div>
-                <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="driverRegistrySearch" class="header-search-input" placeholder="Search name, id, number..." oninput="filterRegistryCards()"></div>
+                <div class="view-header-title"><h1 data-i18n="Drivers Registry">Drivers Registry</h1><p data-i18n="Centralized database of authorized personnel.">Centralized database of authorized personnel.</p></div>
+                <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="driverRegistrySearch" class="header-search-input" data-i18n="Search name, id, number..." placeholder="Search name, id, number..." oninput="filterRegistryCards()"></div>
             </div>
             <div class="drivers-grid" id="driversRegistryContainer"></div>
         </div>
@@ -700,36 +593,36 @@
     <!-- DRIVER PROFILE MODAL -->
     <div class="modal-overlay" id="driverProfileModal">
         <div class="modal-window">
-            <div class="modal-header-container"><h2 id="modalTitleName">Driver Details</h2><button class="btn-modal-close" onclick="closeDriverProfileModal()">✕</button></div>
+            <div class="modal-header-container"><h2 id="modalTitleName" data-i18n="Driver Details">Driver Details</h2><button class="btn-modal-close" onclick="closeDriverProfileModal()">✕</button></div>
             <div class="modal-body-content">
                 <div class="modal-media-viewport"></div>
                 <div class="modal-data-blocks-grid">
-                    <div class="modal-slate-cell"><span>Full Legal Name</span><p id="modalDataName">--</p></div>
-                    <div class="modal-slate-cell"><span>Iqama/National ID</span><p id="modalDataIqama">--</p></div>
-                    <div class="modal-slate-cell"><span>Primary Vehicle Plate</span><div class="modal-plate-capsules" id="modalDataPlate"><div class="modal-plate-tag">--</div></div></div>
-                    <div class="modal-slate-cell"><span>Mobile Number</span><p id="modalDataMobile">--</p></div>
-                    <div class="modal-slate-cell"><span>Registered Date</span><p id="modalDataDate">--</p></div>
-                    <div class="modal-slate-cell"><span>ID Token Reference</span><p style="font-family: monospace; font-size: 0.85rem; color: var(--accent-color);">d-k4v21l788</p></div>
+                    <div class="modal-slate-cell"><span data-i18n="Full Legal Name">Full Legal Name</span><p id="modalDataName">--</p></div>
+                    <div class="modal-slate-cell"><span data-i18n="Iqama/National ID">Iqama/National ID</span><p id="modalDataIqama">--</p></div>
+                    <div class="modal-slate-cell"><span data-i18n="Primary Vehicle Plate">Primary Vehicle Plate</span><div class="modal-plate-capsules" id="modalDataPlate"><div class="modal-plate-tag">--</div></div></div>
+                    <div class="modal-slate-cell"><span data-i18n="Mobile Number">Mobile Number</span><p id="modalDataMobile">--</p></div>
+                    <div class="modal-slate-cell"><span data-i18n="Registered Date">Registered Date</span><p id="modalDataDate">--</p></div>
+                    <div class="modal-slate-cell"><span data-i18n="ID Token Reference">ID Token Reference</span><p style="font-family: monospace; font-size: 0.85rem; color: var(--accent-color);">d-k4v21l788</p></div>
                 </div>
             </div>
-            <div class="modal-footer-container"><button class="btn-modal-cancel" onclick="closeDriverProfileModal()">Close Window</button></div>
+            <div class="modal-footer-container"><button class="btn-modal-cancel" onclick="closeDriverProfileModal()" data-i18n="Close Window">Close Window</button></div>
         </div>
     </div>
 
     <!-- EDIT DRIVER MODAL -->
     <div class="modal-overlay" id="editDriverModal">
         <div class="modal-window" style="max-width: 500px;">
-            <div class="modal-header-container"><h2>Edit Driver Record</h2><button class="btn-modal-close" onclick="closeEditDriverModal()">✕</button></div>
+            <div class="modal-header-container"><h2 data-i18n="Edit Driver Record">Edit Driver Record</h2><button class="btn-modal-close" onclick="closeEditDriverModal()">✕</button></div>
             <div class="modal-body-content">
                 <input type="hidden" id="editOriginalName">
-                <div class="form-group"><label class="badge-style">Driver Name</label><input type="text" id="editName" class="input-box-styled"></div>
-                <div class="form-group"><label class="badge-style">Iqama Number</label><input type="text" id="editIqama" class="input-box-styled"></div>
-                <div class="form-group"><label class="badge-style">Plate Number</label><input type="text" id="editPlate" class="input-box-styled"></div>
-                <div class="form-group"><label class="badge-style">Mobile Number</label><input type="text" id="editPhone" class="input-box-styled"></div>
+                <div class="form-group"><label class="badge-style" data-i18n="Driver Name *">Driver Name</label><input type="text" id="editName" class="input-box-styled"></div>
+                <div class="form-group"><label class="badge-style" data-i18n="Iqama Number *">Iqama Number</label><input type="text" id="editIqama" class="input-box-styled"></div>
+                <div class="form-group"><label class="badge-style" data-i18n="Truck Plate Number *">Plate Number</label><input type="text" id="editPlate" class="input-box-styled"></div>
+                <div class="form-group"><label class="badge-style" data-i18n="Mobile Number">Mobile Number</label><input type="text" id="editPhone" class="input-box-styled"></div>
             </div>
             <div class="modal-footer-container">
-                <button class="btn-modal-cancel" style="margin-right: 1rem;" onclick="closeEditDriverModal()">Cancel</button>
-                <button class="submit-btn-global" style="margin-top: 0; width: auto; padding: 0.6rem 1.5rem;" onclick="saveDriverEdits()">Save Updates</button>
+                <button class="btn-modal-cancel" style="margin-right: 1rem;" onclick="closeEditDriverModal()" data-i18n="Cancel">Cancel</button>
+                <button class="submit-btn-global" style="margin-top: 0; width: auto; padding: 0.6rem 1.5rem;" onclick="saveDriverEdits()" data-i18n="Save Updates">Save Updates</button>
             </div>
         </div>
     </div>
@@ -739,17 +632,17 @@
         <div class="modal-window" style="max-width: 400px; text-align: center; border: 1px solid rgba(252, 194, 0, 0.4);">
             <div class="modal-body-content" style="padding: 2.5rem 2rem;">
                 <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛡️</div>
-                <h2 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem;">Authorize Departure</h2>
-                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 2.5rem;" id="signOutModalSubtext">Completing SLP cycle...</p>
+                <h2 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem;" data-i18n="Authorize Departure">Authorize Departure</h2>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 2.5rem;" id="signOutModalSubtext" data-i18n="Completing SLP cycle...">Completing SLP cycle...</p>
                 
                 <div class="form-group" style="text-align: left; margin-bottom: 2rem;">
-                    <label class="badge-style" style="color: var(--accent-color);">ATTACH DEPARTURE SEAL *</label>
-                    <input type="text" id="signOutSeal" class="input-box-styled" placeholder="e.g. SEAL-9022-X" style="border-color: rgba(252, 194, 0, 0.5); background:#0b0e14;">
+                    <label class="badge-style" style="color: var(--accent-color);" data-i18n="ATTACH DEPARTURE SEAL *">ATTACH DEPARTURE SEAL *</label>
+                    <input type="text" id="signOutSeal" class="input-box-styled" data-i18n="ATTACH DEPARTURE SEAL *" placeholder="e.g. SEAL-9022-X" style="border-color: rgba(252, 194, 0, 0.5); background:#0b0e14;">
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <button id="btnConfirmSignOut" class="submit-btn-global" style="margin-top: 0; border-radius: 6px;">CONFIRM SIGN OUT</button>
-                    <button class="btn-modal-cancel" style="background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; letter-spacing:0.5px;" onclick="closeSignOutModal()">DISCARD CHANGES</button>
+                    <button id="btnConfirmSignOut" class="submit-btn-global" style="margin-top: 0; border-radius: 6px;" data-i18n="CONFIRM SIGN OUT">CONFIRM SIGN OUT</button>
+                    <button class="btn-modal-cancel" style="background: transparent; border: none; color: var(--text-muted); font-size: 0.75rem; letter-spacing:0.5px;" onclick="closeSignOutModal()" data-i18n="DISCARD CHANGES">DISCARD CHANGES</button>
                 </div>
             </div>
         </div>
@@ -759,8 +652,8 @@
         <video id="cameraVideo" autoplay playsinline muted></video>
         <canvas id="cameraCanvas" style="display:none;"></canvas>
         <div class="camera-controls">
-            <button class="btn-capture" onclick="captureCameraFrame()">📸 Capture</button>
-            <button class="btn-cancel-cam" onclick="closeCamera()">Cancel</button>
+            <button class="btn-capture" onclick="captureCameraFrame()">📸 <span data-i18n="Capture">Capture</span></button>
+            <button class="btn-cancel-cam" onclick="closeCamera()" data-i18n="Cancel">Cancel</button>
         </div>
     </div>
 
@@ -777,6 +670,166 @@
         let loggedInUser = { name: "Guest User", email: "Not signed in", picture: "" };
         let userRole = 'guard'; // Default role is 'guard'. Admin unlocks special features.
         let isSidebarHidden = false; // Toggle tracker
+
+        /* ---------------- TRANSLATIONS ---------------- */
+        const translations = {
+            "Dashboard": "لوحة القيادة",
+            "Check-in Truck": "تسجيل دخول شاحنة",
+            "Active Trucks": "الشاحنات النشطة",
+            "History Log": "سجل الحركة",
+            "Drivers Database": "قاعدة بيانات السائقين",
+            "Noon": "نون",
+            "Dock Security Platform": "منصة أمن الأرصفة",
+            "Guest User": "مستخدم ضيف",
+            "Not signed in": "غير مسجل الدخول",
+            "System Health": "صحة النظام",
+            "Operational": "قيد التشغيل",
+            "Fullscreen": "ملء الشاشة",
+            "Exit Fullscreen": "إنهاء ملء الشاشة",
+            "Menu": "القائمة",
+            "SYSTEM ONLINE": "النظام متصل",
+            "Active Now": "نشط الآن",
+            "Completed Today": "اكتمل اليوم",
+            "Total Check-Ins": "إجمالي التسجيلات",
+            "Currently Occupied Docks": "الأرصفة المشغولة حالياً",
+            "Docks In Use": "أرصفة مستخدمة",
+            "All docks are currently clear.": "جميع الأرصفة فارغة حالياً.",
+            "DEEP-DIVE ANALYTICS HUB": "مركز التحليلات العميقة",
+            "Vehicle Processing Growth (7 Days)": "نمو معالجة المركبات (7 أيام)",
+            "Movement Cohorts": "فئات الحركة",
+            "Peak Operating Hours": "ساعات الذروة",
+            "Dock Utilization Ranking": "تصنيف استخدام الأرصفة",
+            "No Data": "لا توجد بيانات",
+            "Trucks": "شاحنات",
+            "Logs": "سجلات",
+            "Check-ins": "تسجيلات دخول",
+            "Uses": "استخدامات",
+            "Truck Entry Form": "نموذج دخول الشاحنة",
+            "Record arriving and departing vehicles": "تسجيل المركبات القادمة والمغادرة",
+            "Driver Photo / Truck Photo": "صورة السائق / صورة الشاحنة",
+            "Iqama (ID Card) Scanner": "ماسح الإقامة (بطاقة الهوية)",
+            "Security ID Scanner": "ماسح هوية الأمن",
+            "Use Camera": "استخدام الكاميرا",
+            "New Driver": "سائق جديد",
+            "Existing Driver": "سائق حالي",
+            "Search Driver By Name or Plate... *": "ابحث عن السائق بالاسم أو اللوحة... *",
+            "Driver Name *": "اسم السائق *",
+            "Iqama Number *": "رقم الإقامة *",
+            "Truck Plate Number *": "رقم لوحة الشاحنة *",
+            "Mobile Number": "رقم الجوال",
+            "Security & Facility Details": "تفاصيل الأمن والمنشأة",
+            "Security Name *": "اسم رجل الأمن *",
+            "Security ID *": "هوية الأمن *",
+            "Dock Number *": "رقم الرصيف *",
+            "Purpose / Direction *": "الغرض / الاتجاه *",
+            "Dispatching / Receiving *": "إرسال / استلام *",
+            "Select...": "اختر...",
+            "Dispatching": "إرسال",
+            "Receiving": "استلام",
+            "Incoming Seal Number *": "رقم الختم الوارد *",
+            "Check In Truck": "إدخال الشاحنة",
+            "Processing Check In...": "جاري معالجة الإدخال...",
+            "Active Trucks in Facility": "الشاحنات النشطة في المنشأة",
+            "Currently Checked-In Vehicles": "المركبات المسجلة حالياً",
+            "Total Inside": "الإجمالي بالداخل",
+            "Search records...": "البحث في السجلات...",
+            "Driver": "السائق",
+            "Plate": "اللوحة",
+            "Direction": "الاتجاه",
+            "Type": "النوع",
+            "Seal Number": "رقم الختم",
+            "Dock": "الرصيف",
+            "Check-In Time": "وقت الدخول",
+            "Duration": "المدة",
+            "Security": "الأمن",
+            "Action": "الإجراء",
+            "NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.": "لا توجد شاحنات نشطة في الجلسة الحالية.",
+            "Movement History": "سجل الحركة",
+            "Site Movement Activity": "نشاط حركة الموقع",
+            "Export to Excel": "تصدير إلى إكسل",
+            "Filter by driver, plate, or security ID...": "تصفية حسب السائق أو اللوحة...",
+            "Today": "اليوم",
+            "Last 7 Days": "آخر 7 أيام",
+            "Custom": "مخصص",
+            "All Time": "كل الوقت",
+            "TO": "إلى",
+            "Apply": "تطبيق",
+            "Check Out": "وقت الخروج",
+            "No historical logs parsed inside database.": "لا توجد سجلات تاريخية في قاعدة البيانات.",
+            "Drivers Registry": "سجل السائقين",
+            "Centralized database of authorized personnel.": "قاعدة بيانات مركزية للموظفين المعتمدين.",
+            "Search name, id, number...": "البحث بالاسم، الهوية، الرقم...",
+            "No personnel maps cataloged.": "لا توجد سجلات للموظفين.",
+            "Driver Details": "تفاصيل السائق",
+            "Full Legal Name": "الاسم القانوني الكامل",
+            "Iqama/National ID": "الإقامة / الهوية الوطنية",
+            "Primary Vehicle Plate": "لوحة المركبة الأساسية",
+            "Registered Date": "تاريخ التسجيل",
+            "ID Token Reference": "مرجع رمز الهوية",
+            "Close Window": "إغلاق النافذة",
+            "Edit Driver Record": "تعديل سجل السائق",
+            "Cancel": "إلغاء",
+            "Save Updates": "حفظ التحديثات",
+            "Authorize Departure": "تصريح المغادرة",
+            "Completing SLP cycle...": "إكمال دورة SLP...",
+            "ATTACH DEPARTURE SEAL *": "إرفاق ختم المغادرة *",
+            "CONFIRM SIGN OUT": "تأكيد الخروج",
+            "DISCARD CHANGES": "تجاهل التغييرات",
+            "Capture": "التقاط",
+            "Inside": "بالداخل",
+            "OUTBOUND": "مغادرة",
+            "INBOUND": "دخول",
+            "Unknown": "غير معروف",
+            "SIGN OUT": "خروج",
+            "View Records": "عرض السجلات",
+            "Verified": "مُوثّق",
+            "SLP": "دخول",
+            "Guard": "حارس",
+            "No records match this filter.": "لا توجد سجلات تطابق البحث.",
+            "No Plate Provided": "لم يتم توفير لوحة",
+            "Completing SLP cycle for vehicle": "إكمال دورة SLP للمركبة",
+            "Processing...": "جاري المعالجة...",
+            "Preparing image...": "جاري تحضير الصورة...",
+            "Reading with Google OCR...": "قراءة باستخدام Google OCR...",
+            "Extracted — please double-check the fields": "تم الاستخراج — يرجى التحقق من الحقول",
+            "Couldn't confidently read this image": "تعذرت قراءة هذه الصورة بثقة — أدخل التفاصيل يدويًا",
+            "iPhone HEIC photos aren't supported": "صور iPhone HEIC غير مدعومة — استخدم الكاميرا",
+            "OCR failed": "فشل التعرف الضوئي — أدخل التفاصيل يدويًا"
+        };
+
+        let currentLang = 'ar';
+
+        function tr(key) {
+            if(currentLang === 'en') return key;
+            return translations[key] || key;
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.lang = currentLang;
+            updateUIStrings();
+        }
+
+        function updateUIStrings() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (el.tagName === 'INPUT' && (el.type === 'text' || el.type === 'date')) {
+                    el.placeholder = tr(key);
+                } else {
+                    el.innerText = tr(key);
+                }
+            });
+            updateHeroDate();
+            if(window.handleLogsResponse && globalLogsCache) {
+                window.handleLogsResponse(globalLogsCache);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            updateUIStrings();
+        });
+
 
         function logoutUser() {
             localStorage.removeItem('noonSlpUserSession');
@@ -831,7 +884,6 @@
             // Role check if Admin mode is active
             if (isAdminMode) {
                 const pass = document.getElementById('adminPassword').value;
-                // EDIT THIS PASSWORD IF YOU WANT TO CHANGE THE ADMIN PASSWORD:
                 if (pass !== 'admin123') { 
                     alert("Incorrect Administrator Password.");
                     return;
@@ -950,12 +1002,13 @@
         /* ---------------- CORE DASHBOARD LOGIC ---------------- */
         function updateHeroDate() {
             const d = new Date();
-            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-            const str = String(d.getDate()).padStart(2, '0') + " " + months[d.getMonth()] + " " + d.getFullYear();
+            const monthsEn = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            const monthsAr = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+            const m = currentLang === 'ar' ? monthsAr[d.getMonth()] : monthsEn[d.getMonth()];
+            const str = String(d.getDate()).padStart(2, '0') + " " + m + " " + d.getFullYear();
             const badge = document.getElementById('heroDateBadge');
             if(badge) badge.innerText = str;
         }
-        updateHeroDate();
 
         function switchView(viewId, element) {
             document.querySelectorAll('.app-view').forEach(v => v.id === 'view-' + viewId ? v.classList.add('active-view') : v.classList.remove('active-view'));
@@ -967,12 +1020,12 @@
             const fsIcon = document.getElementById('fsIcon');
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().then(() => { 
-                    fsBtnText.innerText = "Exit Fullscreen"; 
+                    fsBtnText.innerText = tr("Exit Fullscreen"); 
                     fsIcon.innerText = "📉"; 
                 }).catch(() => alert("Fullscreen error."));
             } else {
                 document.exitFullscreen().then(() => { 
-                    fsBtnText.innerText = "Fullscreen"; 
+                    fsBtnText.innerText = tr("Fullscreen"); 
                     fsIcon.innerText = "🖥️"; 
                 });
             }
@@ -1073,7 +1126,7 @@
             matches.forEach(d => {
                 const item = document.createElement('div');
                 item.className = 'suggestion-item';
-                item.innerHTML = `${d.name}<small>Plate: ${d.plate || '--'} · Iqama: ${d.id || '--'}</small>`;
+                item.innerHTML = `${d.name}<small>${tr('Plate')}: ${d.plate || '--'} · ID: ${d.id || '--'}</small>`;
                 item.addEventListener('click', () => {
                     driverSearchBoxEl.value = d.name;
                     document.getElementById('driverName').value = d.name;
@@ -1191,11 +1244,11 @@
 
         async function runLocalOcrEngine(file, statusLabelId, scanType) {
             const status = document.getElementById(statusLabelId);
-            status.innerHTML = "🌀 Preparing image..."; status.style.color = "var(--accent-color)";
+            status.innerHTML = "🌀 " + tr("Preparing image..."); status.style.color = "var(--accent-color)";
             try {
                 const processedBlob = await preprocessImageForOcr(file, scanType);
                 const base64Data = await blobToBase64(processedBlob);
-                status.innerHTML = "🌀 Reading with Google OCR...";
+                status.innerHTML = "🌀 " + tr("Reading with Google OCR...");
                 const response = await fetch(OCR_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ scanType: scanType, imageObj: base64Data }) });
                 if (!response.ok) throw new Error('Network error: ' + response.status);
                 const result = await response.json();
@@ -1224,12 +1277,12 @@
                     else if (badgeMatch) { document.getElementById('securityNameField').value = "Officer #" + badgeMatch[0]; }
                 }
 
-                if (matched) { status.innerHTML = "✅ Extracted — please double-check the fields"; status.style.color = "var(--success-color)"; } 
-                else { status.innerHTML = "⚠️ Couldn't confidently read this image — enter details manually"; status.style.color = "#ef4444"; }
+                if (matched) { status.innerHTML = "✅ " + tr("Extracted — please double-check the fields"); status.style.color = "var(--success-color)"; } 
+                else { status.innerHTML = "⚠️ " + tr("Couldn't confidently read this image"); status.style.color = "#ef4444"; }
 
             } catch (err) {
-                if (err.message === 'HEIC_UNSUPPORTED') { status.innerHTML = "⚠️ iPhone HEIC photos aren't supported — use 📸 Camera above"; } 
-                else { status.innerHTML = "❌ OCR failed — enter details manually"; }
+                if (err.message === 'HEIC_UNSUPPORTED') { status.innerHTML = "⚠️ " + tr("iPhone HEIC photos aren't supported"); } 
+                else { status.innerHTML = "❌ " + tr("OCR failed"); }
                 status.style.color = "#ef4444";
             }
         }
@@ -1239,7 +1292,7 @@
 
         function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
             currentSignOutContext = { driverName, plateNumber, securityName, dockNumber, dispatchType };
-            document.getElementById('signOutModalSubtext').innerText = `Completing SLP cycle for vehicle ${plateNumber || '(No Plate Provided)'}`;
+            document.getElementById('signOutModalSubtext').innerText = `${tr('Completing SLP cycle for vehicle')} ${plateNumber || '(' + tr('No Plate Provided') + ')'}`;
             document.getElementById('signOutSeal').value = '';
             document.getElementById('signOutModal').classList.add('modal-active');
         }
@@ -1256,23 +1309,21 @@
             
             const { driverName, plateNumber, securityName, dockNumber } = currentSignOutContext;
             const btn = document.getElementById('btnConfirmSignOut');
-            btn.innerText = "Processing..."; btn.disabled = true;
+            btn.innerText = tr("Processing..."); btn.disabled = true;
 
             try {
                 const payload = { driverName, plateNumber, securityName, dockNumber, direction: "Outbound", sealNumber: sealVal, actionByEmail: loggedInUser.email, actionByName: loggedInUser.name };
                 
-                // Fire post request in background
                 fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
                     .catch(e => console.error("Background save issue:", e));
                 
-                // Optimistic UI Update instantly
                 globalLogsCache.push({ ...payload, timestamp: new Date().toISOString() });
                 window.handleLogsResponse(globalLogsCache);
                 
                 closeSignOutModal();
                 setTimeout(fetchLogs, 3000);
             } finally {
-                btn.innerText = "CONFIRM SIGN OUT";
+                btn.innerText = tr("CONFIRM SIGN OUT");
                 btn.disabled = false;
             }
         });
@@ -1280,16 +1331,27 @@
         /* ---------------- Formatting Tools ---------------- */
         function fmtDate(s) {
             if(!s) return "May 10, 2026"; let d = new Date(s); if(isNaN(d.getTime())) return s;
-            return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+            const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const monthsAr = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+            const m = currentLang === 'ar' ? monthsAr[d.getMonth()] : monthsEn[d.getMonth()];
+            return `${m} ${d.getDate()}, ${d.getFullYear()}`;
         }
         function formatTimeText(s) {
             if(!s) return "--"; let d = new Date(s); if(isNaN(d.getTime())) return s;
-            return `${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()]} ${d.getDate()}, ${d.getHours()%12||12}:${String(d.getMinutes()).padStart(2,'0')} ${d.getHours()>=12?'PM':'AM'}`;
+            const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const monthsAr = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+            const m = currentLang === 'ar' ? monthsAr[d.getMonth()] : monthsEn[d.getMonth()];
+            let ampm = d.getHours()>=12 ? (currentLang==='ar'?'م':'PM') : (currentLang==='ar'?'ص':'AM');
+            return `${m} ${d.getDate()}, ${d.getHours()%12||12}:${String(d.getMinutes()).padStart(2,'0')} ${ampm}`;
         }
         function calcDuration(t1, t2) {
             if(!t1) return "--"; let diff = (t2 ? new Date(t2) : new Date()) - new Date(t1);
             if(diff < 0 || isNaN(diff)) return "0h 0m";
-            let mins = Math.floor(diff / 60000); return `${Math.floor(mins/60)}h ${mins%60}m`;
+            let mins = Math.floor(diff / 60000); 
+            let h = Math.floor(mins/60);
+            let m = mins%60;
+            if (currentLang === 'ar') return `${h}س ${m}د`;
+            return `${h}h ${m}m`;
         }
         function generatePlateBumperUI(plateStr) {
             let parts = plateStr ? plateStr.split(' ') : ['--'];
@@ -1298,8 +1360,8 @@
         }
         
         function getBadgeClass(displayDir, isOut) {
-            if(isOut || displayDir.includes("OUTBOUND")) return "badge out";
-            if(displayDir.includes("INBOUND")) return "badge in";
+            if(isOut || displayDir.includes("OUTBOUND") || displayDir.includes("مغادرة")) return "badge out";
+            if(displayDir.includes("INBOUND") || displayDir.includes("دخول")) return "badge in";
             if(displayDir.includes("RTV") || displayDir.includes("LQD") || displayDir.includes("LIQUIDATION")) return "badge purple";
             return "badge blue";
         }
@@ -1314,7 +1376,7 @@
 
             if (total === 0 || dataObj.length === 0) {
                 if(donutEl) donutEl.style.background = 'var(--card-solid)';
-                if(legendEl) legendEl.innerHTML = `<li><div class="legend-label-group">${emptyLabel}</div></li>`;
+                if(legendEl) legendEl.innerHTML = `<li><div class="legend-label-group">${tr(emptyLabel)}</div></li>`;
                 return;
             }
 
@@ -1332,9 +1394,9 @@
                 legendHTML += `<li>
                     <div class="legend-label-group">
                         <span class="legend-color-box" style="background: ${color};"></span>
-                        ${item.label}
+                        ${tr(item.label)}
                     </div>
-                    <span>${item.count} ${item.suffix || ''}</span>
+                    <span>${item.count} ${tr(item.suffix || '')}</span>
                 </li>`;
             });
 
@@ -1343,61 +1405,50 @@
         }
 
         function updateAnalyticsHub(logsData) {
-            // We use globalHistoryListCache structure which maps entries and groups checkins vs log events.
-            
-            // 1. Vehicle Processing Growth (Last 7 Days Check-ins)
-            let growthMap = {};
             const now = new Date();
+            let growthMap = {};
             logsData.forEach(log => {
                 let time = new Date(log.checkInTime || log.timestamp);
                 if (!isNaN(time.getTime())) {
                     let diffDays = (now - time) / (1000 * 60 * 60 * 24);
                     if (diffDays <= 7) {
-                        let dateLabel = time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        let dateLabel = time.toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric' });
                         growthMap[dateLabel] = (growthMap[dateLabel] || 0) + 1;
                     }
                 }
             });
-            let growthData = Object.keys(growthMap).map(k => ({ label: k, count: growthMap[k], suffix: 'Trucks' }))
-                .sort((a,b) => b.count - a.count);
-            buildDonutChart(growthData, 'chartGrowthDonut', 'chartGrowthLegend', 'No recent processing data');
+            let growthData = Object.keys(growthMap).map(k => ({ label: k, count: growthMap[k], suffix: 'Trucks' })).sort((a,b) => b.count - a.count);
+            buildDonutChart(growthData, 'chartGrowthDonut', 'chartGrowthLegend', 'No Data');
 
-            // 2. Movement Cohorts
             let cohortMap = {};
             logsData.forEach(log => {
                 let rawDir = (log.isInside ? log.direction : log.entryReason) || "Unknown";
                 let dir = rawDir.split(' - ')[0].trim().toUpperCase();
                 cohortMap[dir] = (cohortMap[dir] || 0) + 1;
             });
-            let cohortData = Object.keys(cohortMap).map(k => ({ label: k, count: cohortMap[k], suffix: 'Logs' }))
-                .sort((a,b) => b.count - a.count);
-            buildDonutChart(cohortData, 'chartCohortsDonut', 'chartCohortsLegend', 'No movement data');
+            let cohortData = Object.keys(cohortMap).map(k => ({ label: k, count: cohortMap[k], suffix: 'Logs' })).sort((a,b) => b.count - a.count);
+            buildDonutChart(cohortData, 'chartCohortsDonut', 'chartCohortsLegend', 'No Data');
 
-            // 3. Peak Operating Hours
             let hourMap = {};
             logsData.forEach(log => {
                 let time = new Date(log.checkInTime || log.timestamp);
                 if (!isNaN(time.getTime())) {
                     let hour = time.getHours();
-                    let hourLabel = `${hour % 12 || 12} ${hour >= 12 ? 'PM' : 'AM'}`;
+                    let ampm = hour >= 12 ? (currentLang==='ar'?'م':'PM') : (currentLang==='ar'?'ص':'AM');
+                    let hourLabel = `${hour % 12 || 12} ${ampm}`;
                     hourMap[hourLabel] = (hourMap[hourLabel] || 0) + 1;
                 }
             });
-            let hourData = Object.keys(hourMap).map(k => ({ label: k, count: hourMap[k], suffix: 'Check-ins' }))
-                .sort((a,b) => b.count - a.count);
-            buildDonutChart(hourData, 'chartHoursDonut', 'chartHoursLegend', 'No time records');
+            let hourData = Object.keys(hourMap).map(k => ({ label: k, count: hourMap[k], suffix: 'Check-ins' })).sort((a,b) => b.count - a.count);
+            buildDonutChart(hourData, 'chartHoursDonut', 'chartHoursLegend', 'No Data');
 
-            // 4. Dock Utilization Ranking
             let dockMap = {};
             logsData.forEach(log => {
                 let dock = log.dockNumber;
-                if(dock) {
-                    dockMap[dock] = (dockMap[dock] || 0) + 1;
-                }
+                if(dock) dockMap[dock] = (dockMap[dock] || 0) + 1;
             });
-            let dockData = Object.keys(dockMap).map(k => ({ label: k, count: dockMap[k], suffix: 'Uses' }))
-                .sort((a,b) => b.count - a.count);
-            buildDonutChart(dockData, 'chartDocksDonut', 'chartDocksLegend', 'No docks utilized');
+            let dockData = Object.keys(dockMap).map(k => ({ label: k, count: dockMap[k], suffix: 'Uses' })).sort((a,b) => b.count - a.count);
+            buildDonutChart(dockData, 'chartDocksDonut', 'chartDocksLegend', 'No Data');
         }
 
         /* ---------------- Driver Cards Rendering ---------------- */
@@ -1408,27 +1459,23 @@
                 if(!item.driverName || item.driverName.trim() === "") return;
                 if(!uniqueDriversMap[item.driverName]) {
                     uniqueDriversMap[item.driverName] = { 
-                        name: item.driverName, 
-                        plate: item.plateNumber || "--", 
-                        registered: item.timestamp, 
-                        id: item.iqamaNumber || "--",
-                        phone: item.mobileNumber || "--"
+                        name: item.driverName, plate: item.plateNumber || "--", registered: item.timestamp, id: item.iqamaNumber || "--", phone: item.mobileNumber || "--"
                     };
                 }
             });
             let list = Object.values(uniqueDriversMap);
             driversRegistryList = list; 
             document.getElementById('metric-drivers-count').innerText = list.length;
-            if(list.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem; font-size:0.8rem;">No personnel maps cataloged.</div>'; return; }
+            if(list.length === 0) { container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem; font-size:0.8rem;">${tr('No personnel maps cataloged.')}</div>`; return; }
 
             list.forEach(driver => {
                 let dateFormatted = fmtDate(driver.registered);
                 container.innerHTML += `
                     <div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${(driver.plate || '').toLowerCase()}">
                         <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${driver.phone}')">✏️</button></div>
-                        <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">Verified</span><span class="tag-badge carrier">SLP</span></div></div></div>
-                        <div class="driver-card-info-grid"><div class="info-block"><p>🆔 IQAMA ID</p><data>${driver.id}</data></div><div class="info-block"><p>📅 Registered</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 Phone Number</p><data>${driver.phone}</data></div></div>
-                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${driver.phone}')">View Records</button>
+                        <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">${tr('Verified')}</span><span class="tag-badge carrier">${tr('SLP')}</span></div></div></div>
+                        <div class="driver-card-info-grid"><div class="info-block"><p>🆔 ${tr('Iqama/National ID')}</p><data>${driver.id}</data></div><div class="info-block"><p>📅 ${tr('Registered Date')}</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 ${tr('Mobile Number')}</p><data>${driver.phone}</data></div></div>
+                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${driver.phone}')">${tr('View Records')}</button>
                     </div>`;
             });
         }
@@ -1443,7 +1490,7 @@
             const historyBody = document.getElementById('historyLogTableBody');
             historyBody.innerHTML = '';
             if (list.length === 0) {
-                historyBody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">No records match this filter.</td></tr>';
+                historyBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">${tr('No records match this filter.')}</td></tr>`;
                 return;
             }
             list.forEach(r => {
@@ -1452,7 +1499,7 @@
                 let displayDir = r.isInside ? dirSafe.split(' - ')[0].toUpperCase() : entryReasonSafe.split(' - ')[0].toUpperCase();
                 let cssClass = getBadgeClass(displayDir, !r.isInside && displayDir==='OUTBOUND');
                 
-                historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.65rem; color:var(--text-muted); font-weight:600;">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${cssClass}">${displayDir}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${r.sealNumber || '--'}</td><td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${r.isInside?'<span style="color:var(--accent-color); font-weight:700;">Inside</span>':formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td></tr>`;
+                historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.65rem; color:var(--text-muted); font-weight:600;">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${cssClass}">${tr(displayDir)}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${r.sealNumber || '--'}</td><td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${r.isInside?'<span style="color:var(--accent-color); font-weight:700;">'+tr('Inside')+'</span>':formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td></tr>`;
             });
         }
 
@@ -1590,14 +1637,14 @@
             const occupiedDocksCount = document.getElementById('occupiedDocksCount');
             if (occupiedDocksContainer) {
                 if (activeList.length === 0) {
-                    occupiedDocksContainer.innerHTML = '<div style="width:100%; text-align:center; color:var(--text-muted); font-size:0.8rem; margin-top:2rem;">All docks are currently clear.</div>';
-                    if(occupiedDocksCount) occupiedDocksCount.innerText = '0 Docks In Use';
+                    occupiedDocksContainer.innerHTML = `<div style="width:100%; text-align:center; color:var(--text-muted); font-size:0.8rem; margin-top:2rem;">${tr('All docks are currently clear.')}</div>`;
+                    if(occupiedDocksCount) occupiedDocksCount.innerText = `0 ${tr('Docks In Use')}`;
                 } else {
                     occupiedDocksContainer.innerHTML = '';
                     let activeDocks = activeList.map(r => r.dockNumber).filter(Boolean);
                     activeDocks = [...new Set(activeDocks)].sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true}));
                     
-                    if(occupiedDocksCount) occupiedDocksCount.innerText = `${activeDocks.length} Docks In Use`;
+                    if(occupiedDocksCount) occupiedDocksCount.innerText = `${activeDocks.length} ${tr('Docks In Use')}`;
                     
                     activeDocks.forEach(dock => {
                         let badge = document.createElement('div');
@@ -1610,7 +1657,7 @@
 
             if(activeBody) {
                 if(activeList.length === 0) {
-                    activeBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>';
+                    activeBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">${tr('NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.')}</td></tr>`;
                 } else {
                     activeList.reverse().forEach(r => {
                         let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
@@ -1621,15 +1668,15 @@
                         activeBody.innerHTML += `<tr>
                             <td><strong>${r.driverName}</strong></td>
                             <td>${generatePlateBumperUI(r.plateNumber)}</td>
-                            <td><span class="${cssClass}">${displayDir}</span></td>
-                            <td style="color:var(--accent-color); font-weight:700; font-size:0.75rem;">${activeDispType.toUpperCase()}</td>
+                            <td><span class="${cssClass}">${tr(displayDir)}</span></td>
+                            <td style="color:var(--accent-color); font-weight:700; font-size:0.75rem;">${tr(activeDispType.toUpperCase())}</td>
                             <td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${activeSeal}</td>
                             <td><strong style="font-size:0.9rem;">${r.dockNumber}</strong></td>
                             <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.timestamp)}</td>
                             <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.timestamp, null)}</td>
-                            <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || 'Guard'}</td>
+                            <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td>
                             <td style="text-align:right; padding-right:1rem;">
-                                <button class="btn-signout-action" onclick="promptSignOut('${r.driverName.replace(/'/g, "\\'")}','${(r.plateNumber || '').replace(/'/g, "\\'")}', '${(r.securityName || 'Guard').replace(/'/g, "\\'")}','${r.dockNumber}','${activeDispType}')">SIGN OUT</button>
+                                <button class="btn-signout-action" onclick="promptSignOut('${r.driverName.replace(/'/g, "\\'")}','${(r.plateNumber || '').replace(/'/g, "\\'")}', '${(r.securityName || tr('Guard')).replace(/'/g, "\\'")}','${r.dockNumber}','${activeDispType}')">${tr('SIGN OUT')}</button>
                             </td>
                         </tr>`;
                     });
@@ -1648,7 +1695,7 @@
         }
 
         document.getElementById('entryForm').addEventListener('submit', async e => {
-            e.preventDefault(); const btn = document.querySelector('.submit-btn-global'); btn.innerText = "Processing Check In..."; btn.disabled = true;
+            e.preventDefault(); const btn = document.querySelector('.submit-btn-global'); btn.innerText = tr("Processing Check In..."); btn.disabled = true;
             try {
                 const payload = { 
                     driverName: document.getElementById('driverName').value, 
@@ -1675,7 +1722,7 @@
                 });
                 window.handleLogsResponse(globalLogsCache);
 
-                document.getElementById('entryForm').reset(); btn.innerText = "Check In Truck"; btn.disabled = false;
+                document.getElementById('entryForm').reset(); btn.innerText = tr("Check In Truck"); btn.disabled = false;
                 document.getElementById('sealNumberContainer').style.display = 'none'; document.getElementById('sealNumber').required = false;
                 
                 // Switch exactly to Active Trucks Instead of Dashboard
@@ -1684,7 +1731,7 @@
                 setTimeout(fetchLogs, 3500); // Verify background fetch worked
             } catch (err) {
                 alert("Error saving log: " + err.message);
-                btn.innerText = "Check In Truck"; btn.disabled = false;
+                btn.innerText = tr("Check In Truck"); btn.disabled = false;
             }
         });
 
