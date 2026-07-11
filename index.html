@@ -186,6 +186,10 @@
         .chart-legend li:last-child { border-bottom: none; padding-bottom: 0; }
         .chart-legend li span { color: #fff; font-weight: 700; }
 
+        /* Chart Legend Coloring Fixes */
+        .chart-legend li .legend-label-group { display: flex; align-items: center; gap: 8px; }
+        .chart-legend li .legend-color-box { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
         .card h2 { font-size: 0.95rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; font-weight: 700; }
@@ -463,8 +467,8 @@
                         <div class="donut-hole"></div>
                     </div>
                     <ul class="chart-legend">
-                        <li>Jul 9 <span>2 Trucks</span></li>
-                        <li>Jul 8 <span>3 Trucks</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: var(--success-color);"></span>Jul 9</div> <span>2 Trucks</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: var(--accent-color);"></span>Jul 8</div> <span>3 Trucks</span></li>
                     </ul>
                 </div>
 
@@ -476,10 +480,10 @@
                         <div class="donut-hole"></div>
                     </div>
                     <ul class="chart-legend">
-                        <li>Outbound <span>4 Logs</span></li>
-                        <li>Inbound <span>2 Logs</span></li>
-                        <li>ST Minutes <span>1 Logs</span></li>
-                        <li>Liquidation <span>1 Logs</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: var(--accent-color);"></span>Outbound</div> <span>4 Logs</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: #a371f7;"></span>Inbound</div> <span>2 Logs</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: #79c0ff;"></span>ST Minutes</div> <span>1 Logs</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: var(--success-color);"></span>Liquidation</div> <span>1 Logs</span></li>
                     </ul>
                 </div>
 
@@ -491,10 +495,10 @@
                         <div class="donut-hole"></div>
                     </div>
                     <ul class="chart-legend">
-                        <li>3 PM <span>2 Check-ins</span></li>
-                        <li>2 PM <span>1 Check-ins</span></li>
-                        <li>9 AM <span>1 Check-ins</span></li>
-                        <li>10 AM <span>1 Check-ins</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: var(--accent-color);"></span>3 PM</div> <span>2 Check-ins</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: #a371f7;"></span>2 PM</div> <span>1 Check-ins</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: #79c0ff;"></span>9 AM</div> <span>1 Check-ins</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: var(--success-color);"></span>10 AM</div> <span>1 Check-ins</span></li>
                     </ul>
                 </div>
 
@@ -506,9 +510,9 @@
                         <div class="donut-hole"></div>
                     </div>
                     <ul class="chart-legend">
-                        <li>58 <span>5 Uses</span></li>
-                        <li>25 <span>2 Uses</span></li>
-                        <li>DOCK 2 <span>1 Uses</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: var(--accent-color);"></span>58</div> <span>5 Uses</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: var(--success-color);"></span>25</div> <span>2 Uses</span></li>
+                        <li><div class="legend-label-group"><span class="legend-color-box" style="background: #79c0ff;"></span>DOCK 2</div> <span>1 Uses</span></li>
                     </ul>
                 </div>
 
