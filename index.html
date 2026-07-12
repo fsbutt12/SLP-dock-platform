@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -320,7 +320,7 @@
         .modal-slate-cell p { font-size: 0.95rem; color: #fff; font-weight: 700; }
         .modal-plate-capsules { display: flex; gap: 0.35rem; margin-top: 4px; }
         .modal-plate-tag { background: #000; border: 1px solid var(--border-color); padding: 2px 8px; font-family: monospace; border-radius: 4px; font-size: 0.85rem; font-weight: 700; color: var(--accent-color); }
-        .modal-footer-container { padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-color); display: flex; align-items: center; border-radius: 0 0 12px 12px; }
+        .modal-footer-container { padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; border-radius: 0 0 12px 12px; }
         .btn-modal-cancel { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.6rem 1.5rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
 
         .suggestions-dropdown { position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: #161b22; border: 1px solid var(--border-color); border-radius: 6px; max-height: 220px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
@@ -432,7 +432,7 @@
             </li>
         </ul>
         <div class="sidebar-footer">
-            <div style="display:flex; align-items:center; margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border-color);">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid var(--border-color);">
                 <div style="display:flex; align-items:center; gap: 0.75rem; overflow: hidden;">
                     <div class="driver-avatar-img" id="sidebarUserPic" style="width: 32px; height: 32px; background:var(--accent-color); color:#000; font-weight:800; font-size:0.8rem; border:none; flex-shrink: 0;">?</div>
                     <div style="overflow: hidden;">
@@ -580,6 +580,12 @@
 
                     <form id="entryForm">
                         <div class="form-grid-columns">
+                            
+                            <!-- DATALISTS FOR AUTOCOMPLETE -->
+                            <datalist id="dl-docks"></datalist>
+                            <datalist id="dl-sec-names"></datalist>
+                            <datalist id="dl-sec-ids"></datalist>
+
                             <div class="form-group search-input-wrapper" id="driverLookupGroup" style="display: none; grid-column: 1 / -1; position: relative;">
                                 <label class="badge-style" data-i18n="Search Driver By Name or Plate... *">Search Driver By Name or Plate... *</label>
                                 <span class="search-icon-inside" style="position:absolute; left:12px; top:62%;">🔍</span>
@@ -593,11 +599,11 @@
                             
                             <div class="form-section-divider" data-i18n="Security & Facility Details">Security & Facility Details</div>
                             
-                            <div class="form-group"><label class="badge-style" data-i18n="Security Name *">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" required data-i18n="Security Name *" placeholder="Enter verification guard identity"></div>
-                            <div class="form-group"><label class="badge-style" data-i18n="Security ID *">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" required data-i18n="Security ID *" placeholder="Enter staff token number"></div>
+                            <div class="form-group"><label class="badge-style" data-i18n="Security Name *">Security Name *</label><input type="text" id="securityNameField" class="input-box-styled" list="dl-sec-names" required data-i18n="Security Name *" placeholder="Enter verification guard identity" autocomplete="off"></div>
+                            <div class="form-group"><label class="badge-style" data-i18n="Security ID *">Security ID *</label><input type="text" id="securityNameId" class="input-box-styled" list="dl-sec-ids" required data-i18n="Security ID *" placeholder="Enter staff token number" autocomplete="off"></div>
                             
                             <div class="form-group"><label class="badge-style" data-i18n="Dock Number *">Dock Number *</label>
-                                <input type="text" id="dockNumber" class="input-box-styled" required data-i18n="Dock Number *" placeholder="e.g. 25 or Dock 4">
+                                <input type="text" id="dockNumber" class="input-box-styled" list="dl-docks" required data-i18n="Dock Number *" placeholder="e.g. 25 or Dock 4" autocomplete="off">
                             </div>
                             
                             <div class="form-group"><label class="badge-style" data-i18n="Purpose / Direction *">Purpose / Direction *</label>
@@ -759,6 +765,11 @@
     </div>
 
     <script>
+        // Force LTR (English) immediately upon execution to prevent flashing RTL logic.
+        let currentLang = 'en';
+        document.documentElement.dir = 'ltr';
+        document.documentElement.lang = 'en';
+
         const API_URL = "https://script.google.com/macros/s/AKfycbxJe0TiXyU47-DCQfi44OztKNHaxmsM8n31wzg53fUw6BBnYkgcVmVhEIE5ViKvGQiWDg/exec";
         const OCR_API_URL = "https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
         
@@ -900,8 +911,6 @@
             "iPhone HEIC photos aren't supported": "صور iPhone HEIC غير مدعومة — استخدم الكاميرا",
             "OCR failed": "فشل التعرف الضوئي — أدخل التفاصيل يدويًا"
         };
-
-        let currentLang = 'en';
 
         function tr(key) {
             if(currentLang === 'en') return key;
@@ -1743,6 +1752,27 @@
             buildDonutChart(dockData, 'chartDocksDonut', 'chartDocksLegend', 'No Data');
         }
 
+        function populateDatalists(data) {
+            let docks = new Set();
+            let secNames = new Set();
+            let secIds = new Set();
+
+            data.forEach(r => {
+                if(r.dockNumber) docks.add(r.dockNumber);
+                if(r.securityName) secNames.add(r.securityName);
+                if(r.securityId) secIds.add(r.securityId);
+            });
+
+            const dlDocks = document.getElementById('dl-docks');
+            if(dlDocks) dlDocks.innerHTML = [...docks].sort().map(v => `<option value="${v}">`).join('');
+            
+            const dlSecNames = document.getElementById('dl-sec-names');
+            if(dlSecNames) dlSecNames.innerHTML = [...secNames].sort().map(v => `<option value="${v}">`).join('');
+
+            const dlSecIds = document.getElementById('dl-sec-ids');
+            if(dlSecIds && secIds.size > 0) dlSecIds.innerHTML = [...secIds].sort().map(v => `<option value="${v}">`).join('');
+        }
+
         /* ---------------- Driver Cards Rendering ---------------- */
         function compileDriversRegistryCards(data) {
             const container = document.getElementById('driversRegistryContainer'); container.innerHTML = '';
@@ -1980,6 +2010,7 @@
             
             applyHistoryFilters(); // Applies both date and search text filters
             updateAnalyticsHub(globalHistoryListCache); // Dynamically update charts!
+            populateDatalists(globalHistoryListCache); // Dynamically update input dropdowns!
         };
 
         function fetchLogs() {
