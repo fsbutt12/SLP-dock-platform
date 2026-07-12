@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1447,24 +1447,53 @@
                     if (nameMatch) { document.getElementById('driverName').value = nameMatch; matched = true; }
                 }
                 else if (scanType === "PLATE") {
-                    let digitsMatch = cleanText.match(/\b\d{1,4}\b/);
+                    let finalDigits = null;
+                    let finalLetters = null;
                     
-                    // Find 3 consecutive letters, explicitly filtering out 'KSA'
-                    let lettersMatches = cleanText.match(/\b[A-Z]{3}\b/g);
-                    let lettersMatch = lettersMatches ? lettersMatches.find(l => l !== 'KSA') : null;
+                    let lines = cleanText.split('\n');
                     
-                    // Fallback: Sometimes OCR reads spaced letters like "D R B"
-                    if (!lettersMatch) {
-                        let spacedLetters = cleanText.match(/\b([A-Z])\s+([A-Z])\s+([A-Z])\b/);
-                        if (spacedLetters) {
-                            let combined = spacedLetters[1] + spacedLetters[2] + spacedLetters[3];
-                            if (combined !== 'KSA') lettersMatch = combined;
+                    // 1. Try to find digits and letters on the same line (prioritizing the bottom/last ones)
+                    for (let i = lines.length - 1; i >= 0; i--) {
+                        let line = lines[i];
+                        let dMatch = line.match(/\b\d{3,4}\b/);
+                        let lMatches = line.match(/\b[A-Z]{3}\b/g);
+                        if (lMatches) lMatches = lMatches.filter(l => l !== 'KSA');
+                        
+                        if (!lMatches || lMatches.length === 0) {
+                            let sMatch = line.match(/\b([A-Z])\s+([A-Z])\s+([A-Z])\b/);
+                            if (sMatch) {
+                                let combined = sMatch[0].replace(/\s+/g, '');
+                                if (combined !== 'KSA') lMatches = [combined];
+                            }
+                        }
+
+                        if (dMatch && lMatches && lMatches.length > 0) {
+                            finalDigits = dMatch[0];
+                            finalLetters = lMatches[lMatches.length - 1];
+                            break;
                         }
                     }
 
-                    if (digitsMatch && lettersMatch) { 
-                        document.getElementById('plateNumber').value = `${digitsMatch[0]} ${lettersMatch}`; 
-                        matched = true; 
+                    // 2. Fallback: If not on the same line, just take the bottom-most (last) matches in the whole text
+                    if (!finalDigits || !finalLetters) {
+                        let allDMatches = cleanText.match(/\b\d{3,4}\b/g);
+                        let allLMatches = cleanText.match(/\b[A-Z]{3}\b/g);
+                        if (allLMatches) allLMatches = allLMatches.filter(l => l !== 'KSA');
+                        
+                        if (!allLMatches || allLMatches.length === 0) {
+                            let allSMatches = cleanText.match(/\b([A-Z])\s+([A-Z])\s+([A-Z])\b/g);
+                            if (allSMatches) {
+                                allLMatches = allSMatches.map(m => m.replace(/\s+/g, '')).filter(m => m !== 'KSA');
+                            }
+                        }
+                        
+                        if (!finalDigits && allDMatches) finalDigits = allDMatches[allDMatches.length - 1];
+                        if (!finalLetters && allLMatches && allLMatches.length > 0) finalLetters = allLMatches[allLMatches.length - 1];
+                    }
+
+                    if (finalDigits && finalLetters) {
+                        document.getElementById('plateNumber').value = `${finalDigits} ${finalLetters}`;
+                        matched = true;
                     }
                 }
                 else if (scanType === "OFFICER") {
