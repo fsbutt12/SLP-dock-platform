@@ -19,7 +19,7 @@
             --nav-hover: rgba(252, 194, 0, 0.1);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-        
+
         body {
             background-color: var(--bg-color);
             background-image: linear-gradient(rgba(11, 14, 20, 0.92), rgba(11, 14, 20, 0.92)), url('background.jpg.jpeg');
@@ -65,17 +65,43 @@
         .brand-section { display: flex; align-items: center; justify-content: flex-start; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
         .brand-text h2 { font-size: 1.35rem; font-weight: 800; letter-spacing: 0.5px; color: #fff; }
         .brand-text p { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px;}
-        
+
         /* Sidebar Toggle Buttons */
-        .sidebar-close-btn { background: transparent; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; margin-left: auto; transition: color 0.2s; display: block; }
-        .sidebar-close-btn:hover { color: var(--accent-color); }
-        
-        .btn-floating-toggle {
-            position: fixed; top: 1.5rem; left: 1.5rem; z-index: 1000; background: var(--sidebar-bg); border: 1px solid var(--border-color); 
-            color: var(--text-main); padding: 0.6rem 0.85rem; border-radius: 6px; cursor: pointer; display: none; align-items: center; gap: 0.5rem; 
-            font-weight: 700; font-size: 0.8rem; box-shadow: 0 4px 12px rgba(0,0,0,0.5); transition: all 0.2s;
+        .sidebar-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            cursor: pointer;
+            margin-left: auto;
+            transition: color 0.2s;
+            display: block;
         }
-        .btn-floating-toggle:hover { border-color: var(--accent-color); background: var(--card-bg); }
+        .sidebar-close-btn:hover { color: var(--accent-color); }
+
+        .btn-floating-toggle {
+            position: fixed; 
+            top: 1.5rem; 
+            left: 1.5rem; 
+            z-index: 1000; 
+            background: var(--sidebar-bg); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-main); 
+            padding: 0.6rem 0.85rem; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            display: none; /* Shown via JS */
+            align-items: center; 
+            gap: 0.5rem; 
+            font-weight: 700; 
+            font-size: 0.8rem; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
+            transition: all 0.2s;
+        }
+        .btn-floating-toggle:hover {
+            border-color: var(--accent-color);
+            background: var(--card-bg);
+        }
 
         .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; flex-grow: 1; }
         .nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s ease; border-left: 3px solid transparent; }
@@ -86,7 +112,7 @@
         .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
         .system-health { background: rgba(46, 160, 67, 0.05); border: 1px dashed rgba(46, 160, 67, 0.3); border-radius: 8px; padding: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; margin-bottom: 0.5rem; }
         .health-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; box-shadow: 0 0 8px var(--success-color); }
-        
+
         .main-content { margin-left: 260px; flex-grow: 1; padding: 2.5rem 3rem; width: calc(100% - 260px); transition: all 0.3s ease; }
         .main-content.expanded { margin-left: 0 !important; width: 100% !important; }
 
@@ -108,7 +134,7 @@
         html[dir="rtl"] #langToggleBtn { right: auto; left: 1.5rem; }
         html[dir="rtl"] .hero-badges-wrapper { left: auto; right: 1.5rem; }
         /* ------------------------------------------------------------ */
-        
+
         @media (max-width: 900px) {
             .sidebar { width: 75px; padding: 1.5rem 0.5rem; align-items: center; }
             .sidebar.hidden { transform: translateX(-100%); }
@@ -119,7 +145,7 @@
             .nav-item.active { border-left: none; border-bottom: 3px solid var(--accent-color); }
             .nav-icon { font-size: 1.4rem; margin: 0; }
             .main-content { margin-left: 75px; width: calc(100% - 75px); padding: 1.5rem 1rem; }
-            
+
             html[dir="rtl"] .main-content { margin-right: 75px; margin-left: 0; }
             html[dir="rtl"] .sidebar { transform: translateX(0); }
             html[dir="rtl"] .sidebar.hidden { transform: translateX(100%); }
@@ -149,7 +175,34 @@
         .dashboard-mid-split { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
 
         /* ACTIVE DOCKS BADGES */
-        .dock-badge-active { background: rgba(46, 160, 67, 0.1); border: 1px solid rgba(46, 160, 67, 0.4); color: var(--success-color); padding: 0.5rem 1rem; border-radius: 4px; font-weight: 700; font-size: 0.85rem; font-family: monospace; display: inline-block; }
+        .dock-badge-active { 
+            background: rgba(46, 160, 67, 0.1); 
+            border: 1px solid rgba(46, 160, 67, 0.4); 
+            color: var(--success-color); 
+            padding: 0.75rem 1.25rem; 
+            border-radius: 6px; 
+            font-weight: 800; 
+            font-size: 1rem; 
+            font-family: monospace; 
+            display: inline-block; 
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .dock-badge-active:hover {
+            background: rgba(46, 160, 67, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* Highlight Row Animation */
+        .highlight-row {
+            background-color: rgba(252, 194, 0, 0.15) !important;
+            border-left: 4px solid var(--accent-color) !important;
+            transition: background-color 0.3s, border 0.3s;
+        }
+        html[dir="rtl"] .highlight-row {
+            border-left: none !important;
+            border-right: 4px solid var(--accent-color) !important;
+        }
 
         /* DEEP-DIVE ANALYTICS CHARTS SECTION */
         .analytics-hub-title { background: rgba(56, 139, 253, 0.1); border: 1px solid rgba(56, 139, 253, 0.3); color: #79c0ff; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-radius: 6px; margin-bottom: 1.5rem; }
@@ -225,7 +278,7 @@
         
         .header-search-box-container { position: relative; width: 280px; }
         .header-search-box-container span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; }
-        .header-search-input { width: 100%; background: #0b0e14; border: 1px solid rgba(255,255,255,0.05); color: #fff; padding: 0.6rem 1rem 0.6rem 2.25rem; border-radius: 6px; font-size: 0.85rem; outline: none; }
+        .header-search-input { width: 100%; background: #0d1117; border: 1px solid rgba(255,255,255,0.05); color: #fff; padding: 0.6rem 1rem 0.6rem 2.25rem; border-radius: 6px; font-size: 0.85rem; outline: none; }
         .header-search-input:focus { border-color: var(--accent-color); }
         
         .plate-box-split { display: inline-flex; flex-direction: column; gap: 2px; }
@@ -267,7 +320,7 @@
         .modal-slate-cell p { font-size: 0.95rem; color: #fff; font-weight: 700; }
         .modal-plate-capsules { display: flex; gap: 0.35rem; margin-top: 4px; }
         .modal-plate-tag { background: #000; border: 1px solid var(--border-color); padding: 2px 8px; font-family: monospace; border-radius: 4px; font-size: 0.85rem; font-weight: 700; color: var(--accent-color); }
-        .modal-footer-container { padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; border-radius: 0 0 12px 12px; }
+        .modal-footer-container { padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border-color); display: flex; align-items: center; border-radius: 0 0 12px 12px; }
         .btn-modal-cancel { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.6rem 1.5rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
 
         .suggestions-dropdown { position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: #161b22; border: 1px solid var(--border-color); border-radius: 6px; max-height: 220px; overflow-y: auto; z-index: 50; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
@@ -666,6 +719,7 @@
                 <div class="form-group"><label class="badge-style" data-i18n="Mobile Number">Mobile Number</label><input type="text" id="editPhone" class="input-box-styled"></div>
             </div>
             <div class="modal-footer-container">
+                <button class="btn-modal-cancel" style="color: var(--danger-color); border-color: var(--danger-color); margin-right: auto;" onclick="deleteDriver()" data-i18n="Delete">Delete</button>
                 <button class="btn-modal-cancel" style="margin-right: 1rem;" onclick="closeEditDriverModal()" data-i18n="Cancel">Cancel</button>
                 <button class="submit-btn-global" style="margin-top: 0; width: auto; padding: 0.6rem 1.5rem;" onclick="saveDriverEdits()" data-i18n="Save Updates">Save Updates</button>
             </div>
@@ -816,6 +870,8 @@
             "ID Token Reference": "مرجع رمز الهوية",
             "Close Window": "إغلاق النافذة",
             "Edit Driver Record": "تعديل سجل السائق",
+            "Delete": "حذف",
+            "Are you sure you want to delete this driver?": "هل أنت متأكد أنك تريد حذف هذا السائق؟",
             "Cancel": "إلغاء",
             "Save Updates": "حفظ التحديثات",
             "Authorize Departure": "تصريح المغادرة",
@@ -1091,6 +1147,29 @@
             }
         }
 
+        function highlightActiveTruck(dockNum) {
+            switchView('active-trucks', document.getElementById('nav-active-trucks'));
+            
+            document.querySelectorAll('#activeYardTableBody tr').forEach(row => {
+                row.classList.remove('highlight-row');
+            });
+
+            setTimeout(() => {
+                const rows = document.querySelectorAll('#activeYardTableBody tr');
+                for (let row of rows) {
+                    const dockCell = row.cells[5];
+                    if (dockCell && dockCell.innerText.trim() === String(dockNum)) {
+                        row.classList.add('highlight-row');
+                        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setTimeout(() => {
+                            row.classList.remove('highlight-row');
+                        }, 2000);
+                        break; 
+                    }
+                }
+            }, 100);
+        }
+
         function openDriverProfileModal(name, iqama, plate, date, phone) {
             document.getElementById('modalDataName').innerText = name;
             document.getElementById('modalDataIqama').innerText = iqama;
@@ -1161,6 +1240,15 @@
             
             window.handleLogsResponse(globalLogsCache);
             closeEditDriverModal();
+        }
+
+        function deleteDriver() {
+            const driverName = document.getElementById('editOriginalName').value;
+            if (confirm(tr("Are you sure you want to delete this driver?"))) {
+                globalLogsCache = globalLogsCache.filter(log => log.driverName !== driverName);
+                window.handleLogsResponse(globalLogsCache);
+                closeEditDriverModal();
+            }
         }
 
         function setDriverMode(mode, element) {
@@ -1854,6 +1942,7 @@
                         let badge = document.createElement('div');
                         badge.className = 'dock-badge-active';
                         badge.innerText = dock;
+                        badge.onclick = () => highlightActiveTruck(dock);
                         occupiedDocksContainer.appendChild(badge);
                     });
                 }
