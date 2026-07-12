@@ -1363,8 +1363,18 @@
                 if (scanType === "IQAMA") {
                     let idMatch = cleanText.match(/\b[12]\d{9}\b/);
                     if (idMatch) { document.getElementById('iqamaNumber').value = idMatch[0]; matched = true; }
+                    
                     let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
-                    let nameMatch = lines.find(line => /^[A-Z][A-Z\s.']{7,45}$/.test(line) && !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line));
+                    let nameMatch = lines.find(line => {
+                        // Check for English Name (Iqama)
+                        let isEnglishName = /^[A-Z][A-Z\s.']{7,45}$/.test(line) && !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line);
+                        
+                        // Check for Arabic Name (Saudi National ID)
+                        let isArabicName = /^[\u0600-\u06FF\s]{10,60}$/.test(line) && !/المملكة|العربية|السعودية|وزارة|الداخلية|بطاقة|الهوية|الوطنية|الرقم|تاريخ|الانتهاء|مكان|الميلاد|جهة|الإصدار|نسخة|تاريخه|الحفظ/.test(line);
+
+                        return isEnglishName || isArabicName;
+                    });
+                    
                     if (nameMatch) { document.getElementById('driverName').value = nameMatch; matched = true; }
                 }
                 else if (scanType === "PLATE") {
@@ -1869,7 +1879,7 @@
                 
                 // Fire post request in background
                 fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
-                    .catch(e => console.error(e));
+                    .catch(e => console.error("Background save issue:", e));
                 
                 // Optimistic UI Update instantly
                 globalLogsCache.push({
