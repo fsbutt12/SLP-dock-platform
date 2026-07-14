@@ -2046,16 +2046,18 @@
             }
             const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
             let max = Math.max(...dataObj.map(item => item.count));
-            let html = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:150px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.05); border-left:1px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
+            
+            // Adjusted height, padding, and borders
+            let html = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:180px; padding-bottom:30px; border-bottom:2px solid rgba(255,255,255,0.05); border-left:2px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
             
             dataObj.slice(0, 5).forEach((item, index) => {
                 let color = colors[index % colors.length];
                 let heightPct = max > 0 ? (item.count / max) * 100 : 0;
                 html += `
-                <div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; width:40px; position:relative;">
-                    <div style="font-size:0.75rem; color:#fff; font-weight:700; margin-bottom:4px;">${item.count}</div>
-                    <div style="width:100%; background:${color}; height:${heightPct}%; border-radius:4px 4px 0 0; transition:height 0.8s ease-out;"></div>
-                    <div style="position:absolute; bottom:-22px; font-size:0.6rem; color:var(--text-muted); font-weight:700; white-space:nowrap;">${tr(item.label)}</div>
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; width:45px; position:relative;">
+                    <div style="font-size:1.1rem; color:#fff; font-weight:800; margin-bottom:8px;">${item.count}</div>
+                    <div style="width:100%; background:${color}; height:${heightPct}%; border-radius:6px 6px 0 0; transition:height 0.8s ease-out;"></div>
+                    <div style="position:absolute; bottom:-30px; font-size:0.85rem; color:var(--text-muted); font-weight:700; white-space:nowrap;">${tr(item.label)}</div>
                 </div>`;
             });
             html += `</div>`;
@@ -2075,26 +2077,30 @@
             let max = Math.max(...chartData.map(item => item.count));
             if(max === 0) max = 1;
             
-            let html = `<div style="position:relative; width:100%; height:160px; margin-top:1rem;">`;
+            // Increased height to 200px
+            let html = `<div style="position:relative; width:100%; height:200px; margin-top:1rem;">`;
             
+            // Map coordinates for amplitude (140 down to 50)
             let svgPoints = chartData.map((item, i) => {
                 let x = chartData.length > 1 ? (i / (chartData.length - 1)) * 900 + 50 : 500;
-                let y = 110 - ((item.count / max) * 80);
+                let y = 140 - ((item.count / max) * 90);
                 return `${x},${y}`;
             }).join(' ');
 
-            html += `<svg viewBox="0 0 1000 130" style="width:100%; height:100%; overflow:visible;">
+            html += `<svg viewBox="0 0 1000 180" style="width:100%; height:100%; overflow:visible;">
                     <!-- Grid line -->
-                    <line x1="0" y1="120" x2="1000" y2="120" stroke="rgba(255,255,255,0.05)" stroke-width="2" />
+                    <line x1="0" y1="150" x2="1000" y2="150" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
                     <!-- Path -->
                     <polyline fill="none" stroke="var(--accent-color)" stroke-width="4" points="${svgPoints}" />`;
             
             chartData.forEach((item, i) => {
                 let x = chartData.length > 1 ? (i / (chartData.length - 1)) * 900 + 50 : 500;
-                let y = 110 - ((item.count / max) * 80);
-                html += `<circle cx="${x}" cy="${y}" r="6" fill="var(--card-bg)" stroke="var(--accent-color)" stroke-width="3" />`;
-                html += `<text x="${x}" y="${y - 15}" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">${item.count}</text>`;
-                html += `<text x="${x}" y="140" fill="var(--text-muted)" font-size="12" font-weight="bold" text-anchor="middle">${tr(item.label)}</text>`;
+                let y = 140 - ((item.count / max) * 90);
+                html += `<circle cx="${x}" cy="${y}" r="8" fill="var(--card-bg)" stroke="var(--accent-color)" stroke-width="4" />`;
+                
+                // Adjusted text positions, weights, and sizes
+                html += `<text x="${x}" y="${y - 20}" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle">${item.count}</text>`;
+                html += `<text x="${x}" y="175" fill="var(--text-muted)" font-size="16" font-weight="bold" text-anchor="middle" letter-spacing="1">${tr(item.label)}</text>`;
             });
 
             html += `</svg></div>`;
