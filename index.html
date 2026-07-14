@@ -179,18 +179,36 @@
             background: rgba(46, 160, 67, 0.1); 
             border: 1px solid rgba(46, 160, 67, 0.4); 
             color: var(--success-color); 
-            padding: 0.75rem 1.25rem; 
+            padding: 0.5rem 0.85rem; 
             border-radius: 6px; 
             font-weight: 800; 
-            font-size: 1rem; 
+            font-size: 0.85rem; 
             font-family: monospace; 
             display: inline-block; 
             cursor: pointer;
             transition: all 0.2s ease;
+            text-align: center;
+            min-width: 45px;
         }
         .dock-badge-active:hover {
             background: rgba(46, 160, 67, 0.2);
-            transform: scale(1.05);
+            transform: scale(1.1);
+        }
+        
+        .dock-badge-inactive { 
+            background: rgba(255, 255, 255, 0.02); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            color: var(--text-muted); 
+            padding: 0.5rem 0.85rem; 
+            border-radius: 6px; 
+            font-weight: 800; 
+            font-size: 0.85rem; 
+            font-family: monospace; 
+            display: inline-block;
+            opacity: 0.4;
+            cursor: default;
+            text-align: center;
+            min-width: 45px;
         }
 
         /* Highlight Row Animation */
@@ -1984,24 +2002,41 @@
             const occupiedDocksContainer = document.getElementById('occupiedDocksContainer');
             const occupiedDocksCount = document.getElementById('occupiedDocksCount');
             if (occupiedDocksContainer) {
-                if (activeList.length === 0) {
-                    occupiedDocksContainer.innerHTML = `<div style="width:100%; text-align:center; color:var(--text-muted); font-size:0.8rem; margin-top:2rem;">${tr('All docks are currently clear.')}</div>`;
-                    if(occupiedDocksCount) occupiedDocksCount.innerText = `0 ${tr('Docks In Use')}`;
-                } else {
-                    occupiedDocksContainer.innerHTML = '';
-                    let activeDocks = activeList.map(r => r.dockNumber).filter(Boolean);
-                    activeDocks = [...new Set(activeDocks)].sort((a,b) => String(a).localeCompare(String(b), undefined, {numeric: true}));
-                    
-                    if(occupiedDocksCount) occupiedDocksCount.innerText = `${activeDocks.length} ${tr('Docks In Use')}`;
-                    
-                    activeDocks.forEach(dock => {
-                        let badge = document.createElement('div');
-                        badge.className = 'dock-badge-active';
-                        badge.innerText = dock;
-                        badge.onclick = () => highlightActiveTruck(dock);
-                        occupiedDocksContainer.appendChild(badge);
-                    });
+                occupiedDocksContainer.innerHTML = '';
+                
+                let activeDocksRaw = activeList.map(r => String(r.dockNumber).trim()).filter(Boolean);
+                let activeDocksSet = new Set(activeDocksRaw);
+                
+                if(occupiedDocksCount) occupiedDocksCount.innerText = `${activeDocksSet.size} ${tr('Docks In Use')}`;
+                
+                // Build list of all docks to show (15 to 90, plus any outliers)
+                let allDocksToRender = new Set();
+                for (let i = 15; i <= 90; i++) {
+                    allDocksToRender.add(String(i));
                 }
+                activeDocksRaw.forEach(d => allDocksToRender.add(d));
+
+                // Sort numerically
+                let sortedDocks = [...allDocksToRender].sort((a,b) => {
+                    let numA = parseInt(a.replace(/\D/g, '')) || 0;
+                    let numB = parseInt(b.replace(/\D/g, '')) || 0;
+                    if (numA === numB) return a.localeCompare(b);
+                    return numA - numB;
+                });
+
+                sortedDocks.forEach(dockStr => {
+                    let badge = document.createElement('div');
+                    
+                    if (activeDocksSet.has(dockStr)) {
+                        badge.className = 'dock-badge-active';
+                        badge.innerText = dockStr;
+                        badge.onclick = () => highlightActiveTruck(dockStr);
+                    } else {
+                        badge.className = 'dock-badge-inactive';
+                        badge.innerText = dockStr;
+                    }
+                    occupiedDocksContainer.appendChild(badge);
+                });
             }
 
             if(activeBody) {
