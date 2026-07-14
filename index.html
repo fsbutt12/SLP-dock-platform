@@ -2040,7 +2040,11 @@
             let activeList = Object.values(activeYardMap);
             document.getElementById('metric-active-now').innerText = activeList.length;
             if (document.getElementById('activeYardCounter')) { document.getElementById('activeYardCounter').innerText = activeList.length; }
-            document.getElementById('metric-completed-today').innerText = historicalPairs.length;
+            
+            // FIX for Completed Today
+            const todayStr = new Date().toDateString();
+            const completedTodayCount = historicalPairs.filter(r => new Date(r.timestamp).toDateString() === todayStr).length;
+            document.getElementById('metric-completed-today').innerText = completedTodayCount;
 
             // Extract Active Docks
             const occupiedDocksContainer = document.getElementById('occupiedDocksContainer');
@@ -2111,7 +2115,9 @@
                 }
             }
 
-            globalHistoryListCache = [...historicalPairs, ...activeList.map(i => ({ ...i, checkInTime: i.timestamp, isInside: true }))].sort((a,b) => new Date(b.checkInTime) - new Date(a.checkInTime));
+            // FIX for History Sorting
+            globalHistoryListCache = [...historicalPairs, ...activeList.map(i => ({ ...i, checkInTime: i.timestamp, isInside: true }))]
+                .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
             
             applyHistoryFilters(); // Applies both date and search text filters
             updateAnalyticsHub(globalHistoryListCache); // Dynamically update charts!
