@@ -53,6 +53,11 @@
         .auth-status p.pulsing { animation: authPulse 1.5s infinite; }
         @keyframes authPulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
+        /* Login Tabs */
+        .login-tabs { display: flex; gap: 0.5rem; width: 100%; margin-bottom: 1.5rem; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+        .login-tab { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.6rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .login-tab.active { background: var(--accent-color); color: #000; }
+
         /* MAIN APP STYLES */
         .sidebar {
             width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color);
@@ -68,40 +73,19 @@
 
         /* Sidebar Toggle Buttons */
         .sidebar-close-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.25rem;
-            cursor: pointer;
-            margin-left: auto;
-            transition: color 0.2s;
-            display: block;
+            background: transparent; border: none; color: var(--text-muted); font-size: 1.25rem;
+            cursor: pointer; margin-left: auto; transition: color 0.2s; display: block;
         }
         .sidebar-close-btn:hover { color: var(--accent-color); }
 
         #floatingOpenBtn {
-            position: fixed; 
-            top: 1.5rem; 
-            left: 1.5rem; 
-            z-index: 1000; 
-            background: var(--sidebar-bg); 
-            border: 1px solid var(--border-color); 
-            color: var(--text-main); 
-            padding: 0.6rem 0.85rem; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            display: none; 
-            align-items: center; 
-            gap: 0.5rem; 
-            font-weight: 700; 
-            font-size: 0.8rem; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
-            transition: all 0.2s;
+            position: fixed; top: 1.5rem; left: 1.5rem; z-index: 1000; 
+            background: var(--sidebar-bg); border: 1px solid var(--border-color); 
+            color: var(--text-main); padding: 0.6rem 0.85rem; border-radius: 6px; 
+            cursor: pointer; display: none; align-items: center; gap: 0.5rem; 
+            font-weight: 700; font-size: 0.8rem; box-shadow: 0 4px 12px rgba(0,0,0,0.5); transition: all 0.2s;
         }
-        #floatingOpenBtn:hover {
-            border-color: var(--accent-color);
-            background: var(--card-bg);
-        }
+        #floatingOpenBtn:hover { border-color: var(--accent-color); background: var(--card-bg); }
 
         .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; flex-grow: 1; }
         .nav-item { display: flex; align-items: center; gap: 0.85rem; padding: 0.85rem 1rem; color: var(--text-muted); text-decoration: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s ease; border-left: 3px solid transparent; }
@@ -131,14 +115,10 @@
         html[dir="rtl"] .card-management-actions { right: auto; left: 1.5rem; }
         html[dir="rtl"] th, html[dir="rtl"] td { text-align: right; }
         html[dir="rtl"] .btn-modal-cancel { margin-right: 0 !important; margin-left: 1rem !important; }
-        
-        /* Fixed RTL Floating Menu Button */
         html[dir="rtl"] #floatingOpenBtn { left: auto !important; right: 1.5rem !important; }
-        
+        html[dir="rtl"] #adminBellContainer { right: auto !important; left: 1.5rem !important; }
         html[dir="rtl"] .hero-badges-wrapper { left: auto; right: 1.5rem; }
         html[dir="rtl"] .dropdown-arrow-icon { right: auto !important; left: 12px !important; }
-        
-        /* RTL Overrides for Navigation Arrows */
         html[dir="rtl"] .nav-prev-btn { left: auto; right: calc(260px + 10px); transform: translateY(-50%) rotate(180deg); }
         html[dir="rtl"] .main-content.expanded .nav-prev-btn { right: 10px; }
         html[dir="rtl"] .nav-next-btn { right: auto; left: 10px; transform: translateY(-50%) rotate(180deg); }
@@ -146,24 +126,10 @@
 
         /* DESKTOP NAVIGATION BUTTONS */
         .desktop-nav-btn {
-            position: fixed;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(18, 22, 31, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-muted);
-            width: 40px;
-            height: 80px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            z-index: 900;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.5;
+            position: fixed; top: 50%; transform: translateY(-50%); background: rgba(18, 22, 31, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-muted); width: 40px; height: 80px;
+            font-size: 1.5rem; cursor: pointer; z-index: 900; border-radius: 8px; transition: all 0.3s ease;
+            backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; opacity: 0.5;
         }
         .desktop-nav-btn:hover { background: var(--accent-color); color: #000; border-color: var(--accent-color); opacity: 1; }
         .nav-prev-btn { left: calc(260px + 10px); transition: left 0.3s ease, right 0.3s ease; }
@@ -180,9 +146,7 @@
             .nav-item.active { border-left: none; border-bottom: 3px solid var(--accent-color); }
             .nav-icon { font-size: 1.4rem; margin: 0; }
             .main-content { margin-left: 75px; width: calc(100% - 75px); padding: 1.5rem 1rem; }
-            
-            .desktop-nav-btn { display: none !important; } /* Hide PC arrows on mobile/tablet */
-
+            .desktop-nav-btn { display: none !important; }
             html[dir="rtl"] .main-content { margin-right: 75px; margin-left: 0; }
             html[dir="rtl"] .sidebar { transform: translateX(0); }
             html[dir="rtl"] .sidebar.hidden { transform: translateX(100%); }
@@ -213,53 +177,24 @@
 
         /* ACTIVE DOCKS BADGES (BRIGHTENED FOR DAYLIGHT) */
         .dock-badge-active { 
-            background: #2ea043; 
-            border: 2px solid #238636; 
-            color: #ffffff; 
-            padding: 0.75rem 1.25rem; 
-            border-radius: 6px; 
-            font-weight: 900; 
-            font-size: 1.1rem; 
-            font-family: monospace; 
-            display: inline-block; 
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-            min-width: 55px;
-            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.4);
+            background: #2ea043; border: 2px solid #238636; color: #ffffff; 
+            padding: 0.75rem 1.25rem; border-radius: 6px; font-weight: 900; 
+            font-size: 1.1rem; font-family: monospace; display: inline-block; 
+            cursor: pointer; transition: all 0.2s ease; text-align: center;
+            min-width: 55px; box-shadow: 0 4px 12px rgba(46, 160, 67, 0.4);
         }
-        .dock-badge-active:hover {
-            background: #3fb950;
-            transform: scale(1.1);
-        }
+        .dock-badge-active:hover { background: #3fb950; transform: scale(1.1); }
         
         .dock-badge-inactive { 
-            background: #f0f2f5; 
-            border: 1px solid #d0d7de; 
-            color: #24292f; 
-            padding: 0.5rem 0.85rem; 
-            border-radius: 6px; 
-            font-weight: 800; 
-            font-size: 0.95rem; 
-            font-family: monospace; 
-            display: inline-block;
-            opacity: 1;
-            cursor: default;
-            text-align: center;
-            min-width: 55px;
+            background: #f0f2f5; border: 1px solid #d0d7de; color: #24292f; 
+            padding: 0.5rem 0.85rem; border-radius: 6px; font-weight: 800; 
+            font-size: 0.95rem; font-family: monospace; display: inline-block;
+            opacity: 1; cursor: default; text-align: center; min-width: 55px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* Highlight Row Animation */
-        .highlight-row {
-            background-color: rgba(252, 194, 0, 0.15) !important;
-            border-left: 4px solid var(--accent-color) !important;
-            transition: background-color 0.3s, border 0.3s;
-        }
-        html[dir="rtl"] .highlight-row {
-            border-left: none !important;
-            border-right: 4px solid var(--accent-color) !important;
-        }
+        .highlight-row { background-color: rgba(252, 194, 0, 0.15) !important; border-left: 4px solid var(--accent-color) !important; transition: background-color 0.3s, border 0.3s; }
+        html[dir="rtl"] .highlight-row { border-left: none !important; border-right: 4px solid var(--accent-color) !important; }
 
         /* DEEP-DIVE ANALYTICS CHARTS SECTION */
         .analytics-hub-title { background: rgba(56, 139, 253, 0.1); border: 1px solid rgba(56, 139, 253, 0.3); color: #79c0ff; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-radius: 6px; margin-bottom: 1.5rem; }
@@ -412,18 +347,10 @@
         .btn-capture { background: var(--accent-color); color: #000; }
         .btn-cancel-cam { background: var(--danger-color); color: #fff; }
         
-        /* NEW TAP TO FOCUS RING */
         .focus-ring {
-            position: fixed;
-            width: 60px;
-            height: 60px;
-            border: 2px solid var(--accent-color);
-            border-radius: 8px;
-            pointer-events: none;
-            display: none;
-            z-index: 2005;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            position: fixed; width: 60px; height: 60px; border: 2px solid var(--accent-color);
+            border-radius: 8px; pointer-events: none; display: none; z-index: 2005;
+            transform: translate(-50%, -50%); box-shadow: 0 0 10px rgba(0,0,0,0.5);
             animation: focusPulse 0.5s ease-out;
         }
         @keyframes focusPulse {
@@ -432,33 +359,44 @@
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
         }
 
-        /* CAMERA FLASH EFFECT */
         .camera-flash {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: white;
-            z-index: 2020;
-            opacity: 0;
-            pointer-events: none;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: white; z-index: 2020; opacity: 0; pointer-events: none;
             transition: opacity 0.15s ease-out;
         }
-        .camera-flash.flash-active {
-            opacity: 1;
-            transition: none;
-        }
+        .camera-flash.flash-active { opacity: 1; transition: none; }
 
         .custom-date-row { display: none; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
         .custom-date-row.open { display: flex; }
         .custom-date-row input[type="date"] { background: #0d1117; border: 1px solid var(--border-color); color: #fff; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.8rem; outline:none;}
         .custom-date-row button { background: var(--accent-color); color: #000; border: none; padding: 0.55rem 1rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+        
+        /* Admin Bell Icon CSS */
+        .admin-bell-container { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 1000; display: none; }
+        html[dir="rtl"] .admin-bell-container { right: auto; left: 1.5rem; }
+        .admin-bell-icon { font-size: 1.5rem; cursor: pointer; position: relative; background: var(--sidebar-bg); border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .admin-bell-icon:hover { border-color: var(--accent-color); }
+        .admin-bell-badge { position: absolute; top: -2px; right: -2px; background: var(--danger-color); color: #fff; font-size: 0.6rem; font-weight: bold; border-radius: 50%; padding: 2px 6px; display: none; }
+        .admin-notif-dropdown { right: 0; left: auto; width: 300px; margin-top: 10px; max-height: 400px; }
+        html[dir="rtl"] .admin-notif-dropdown { right: auto; left: 0; }
     </style>
 </head>
 <body>
 
-    <!-- FLOATING MENU BUTTON (ONLY VISIBLE WHEN SIDEBAR IS HIDDEN) -->
+    <!-- FLOATING MENU BUTTON -->
     <button id="floatingOpenBtn" onclick="toggleSidebar()" title="Menu">
         <span style="color:var(--accent-color); font-size:1.2rem;">☰</span> <span data-i18n="Menu">Menu</span>
     </button>
+
+    <!-- ADMIN NOTIFICATION BELL -->
+    <div id="adminBellContainer" class="admin-bell-container">
+        <div class="admin-bell-icon" onclick="toggleNotifications()">
+            🔔<span id="adminBellBadge" class="admin-bell-badge">0</span>
+        </div>
+        <div id="adminNotifDropdown" class="suggestions-dropdown admin-notif-dropdown">
+            <!-- Notifications will render here -->
+        </div>
+    </div>
 
     <!-- CUSTOM INTRO SCREEN OVERLAY -->
     <div id="introOverlay" class="intro-overlay">
@@ -466,16 +404,22 @@
         <div class="login-container" id="loginContainer">
             <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
 
-            <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 320px;">
-                <!-- SECURITY SCANNER MOVED TO LOGIN -->
+            <div class="login-tabs">
+                <button class="login-tab active" onclick="switchLoginMode('guard')">🛡️ <span data-i18n="Guard">Guard</span></button>
+                <button class="login-tab" onclick="switchLoginMode('ops')">📊 <span data-i18n="Operations">Operations</span></button>
+                <button class="login-tab" onclick="switchLoginMode('admin')">⚙️ <span data-i18n="Admin">Admin</span></button>
+            </div>
+
+            <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+                
                 <div class="scan-box-dashed" id="loginScanBox" onclick="document.getElementById('loginOfficerScanner').click()" style="padding: 1rem; margin-bottom: 0.5rem;">
-                    <div><span class="icon">🛡️</span><span class="label-text" id="loginOfficerStatus" data-i18n="Scan Security ID">Scan Security ID</span></div>
+                    <div><span class="icon" style="font-size:1.5rem; margin-bottom:0.4rem;">🛡️</span><span class="label-text" id="loginOfficerStatus" data-i18n="Scan Security ID">Scan Security ID</span></div>
                     <input type="file" id="loginOfficerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'loginOfficerStatus', 'LOGIN_OFFICER')">
                     <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('loginOfficerStatus', 'LOGIN_OFFICER')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                 </div>
 
-                <input type="text" id="loginName" class="input-box-styled" placeholder="Security Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);" data-i18n="Security Name">
-                <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled)" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);" data-i18n="Noon ID">
+                <input type="text" id="loginName" class="input-box-styled" placeholder="Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);" data-i18n="Name">
+                <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled by Scan)" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);" data-i18n="Noon ID">
                 <input type="text" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);" data-i18n="Authorized Noon Email">
 
                 <div id="adminPasswordContainer" style="display: none; width: 100%;">
@@ -488,8 +432,6 @@
                     </svg>
                     AUTHORIZE ACCESS
                 </button>
-
-                <div id="adminToggle" style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; font-weight: 600; transition: color 0.2s;">⚙️ Login as Administrator</div>
             </div>
 
             <div id="authStatus" class="auth-status">
@@ -508,16 +450,16 @@
             <button class="sidebar-close-btn" onclick="toggleSidebar()" title="Toggle Sidebar">✕</button>
         </div>
         <ul class="nav-links">
-            <li class="nav-item active" onclick="switchView('dashboard', this)">
+            <li class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard', this)">
                 <span class="nav-icon">📊</span><span class="nav-text" data-i18n="Dashboard">Dashboard</span>
             </li>
-            <li class="nav-item" onclick="switchView('checkin', this)">
+            <li class="nav-item" id="nav-checkin" onclick="switchView('checkin', this)">
                 <span class="nav-icon">🚛</span><span class="nav-text" data-i18n="Check-in Truck">Check-in Truck</span>
             </li>
             <li class="nav-item" id="nav-active-trucks" onclick="switchView('active-trucks', this)">
                 <span class="nav-icon">⏱️</span><span class="nav-text" data-i18n="Active Trucks">Active Trucks</span>
             </li>
-            <li class="nav-item" onclick="switchView('history', this)">
+            <li class="nav-item" id="nav-history" onclick="switchView('history', this)">
                 <span class="nav-icon">📜</span><span class="nav-text" data-i18n="History Log">History Log</span>
             </li>
 
@@ -679,6 +621,7 @@
                             
                             <div class="form-section-divider" data-i18n="Security & Facility Details">Security & Facility Details</div>
                             
+                            <!-- Checkin Security fields are auto-filled by Login Guardrail -->
                             <div class="form-group" id="securityDropdownWrapper" style="position: relative;">
                                 <label class="badge-style" data-i18n="Security Name *">Security Name *</label>
                                 <input type="text" id="securityNameField" class="input-box-styled" required data-i18n="Security Name *" placeholder="Enter verification guard identity" autocomplete="off">
@@ -905,6 +848,10 @@
             "Noon ID": "هوية نون",
             "Scan Security ID": "مسح هوية الأمن",
             "Authorized Noon Email": "البريد الإلكتروني المعتمد لنون",
+            "Name": "الاسم",
+            "Guard": "حارس",
+            "Operations": "عمليات",
+            "Admin": "مسؤول",
             
             "Noon": "نون",
             "Dock Security Platform": "منصة أمن الأرصفة",
@@ -937,7 +884,6 @@
             "Record arriving and departing vehicles": "تسجيل المركبات القادمة والمغادرة",
             "Driver Photo / Truck Photo": "صورة السائق / صورة الشاحنة",
             "Iqama (ID Card) Scanner": "ماسح الإقامة (بطاقة الهوية)",
-            "Security ID Scanner": "ماسح هوية الأمن",
             "Use Camera": "استخدام الكاميرا",
             "New Driver": "سائق جديد",
             "Existing Driver": "سائق حالي",
@@ -1017,7 +963,6 @@
             "View Records": "عرض السجلات",
             "Verified": "مُوثّق",
             "SLP": "دخول",
-            "Guard": "حارس",
             "No records match this filter.": "لا توجد سجلات تطابق البحث.",
             "No Plate Provided": "لم يتم توفير لوحة",
             "Completing SLP cycle for vehicle": "إكمال دورة SLP للمركبة",
@@ -1106,7 +1051,7 @@
         }
 
         /* ---------------- CUSTOM LOGIN & ADMIN TOGGLE LOGIC ---------------- */
-        let isAdminMode = false;
+        let currentLoginMode = 'guard';
         const allowedEmails = [
             "ruh01dock.security1@noon.com", "ruh01dock.security2@noon.com", "ruh01dock.security3@noon.com",
             "ruh01dock.security4@noon.com", "ruh01dock.security5@noon.com", "ruh01dock.security6@noon.com",
@@ -1115,76 +1060,58 @@
             "ruh01dock.security13@noon.com", "ruh01dock.security14@noon.com"
         ];
         
-        document.getElementById('adminToggle').addEventListener('click', function() {
-            isAdminMode = !isAdminMode;
-            if (isAdminMode) {
-                document.getElementById('adminPasswordContainer').style.display = 'block';
-                this.innerText = 'Back to Standard Login';
-                this.style.color = 'var(--danger-color)';
-            } else {
-                document.getElementById('adminPasswordContainer').style.display = 'none';
-                this.innerText = '⚙️ Login as Administrator';
-                this.style.color = 'var(--text-muted)';
+        function switchLoginMode(mode) {
+            currentLoginMode = mode;
+            document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            const scanBox = document.getElementById('loginScanBox');
+            const noonId = document.getElementById('loginNoonId');
+            const pass = document.getElementById('adminPasswordContainer');
+
+            if (mode === 'admin') {
+                scanBox.style.display = 'none';
+                noonId.style.display = 'none';
+                pass.style.display = 'block';
+            } else if (mode === 'ops') {
+                scanBox.style.display = 'none';
+                noonId.style.display = 'none';
+                pass.style.display = 'none';
+            } else { // Guard
+                scanBox.style.display = 'block';
+                noonId.style.display = 'block';
+                pass.style.display = 'none';
             }
-        });
+        }
 
-        document.getElementById('customSignInBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const nameInput = document.getElementById('loginName').value.trim();
-            const noonIdInput = document.getElementById('loginNoonId').value.trim();
-            const emailInput = document.getElementById('loginEmail').value.trim();
+        function executeLogin(name, email, noonId, role) {
+            loggedInUser = { name: name, noonId: noonId, email: email, picture: "👤" };
+            userRole = role;
 
-            if(!nameInput || !emailInput || (!isAdminMode && !noonIdInput)) {
-                alert("Please complete all required fields to authorize access.");
-                return;
-            }
-
-            // Role check if Admin mode is active
-            if (isAdminMode) {
-                const pass = document.getElementById('adminPassword').value;
-                if (pass !== 'admin123') { 
-                    alert("Incorrect Administrator Password.");
-                    return;
-                }
-                userRole = 'admin';
-            } else {
-                userRole = 'guard';
-                // Strict Security Email Check
-                if (!allowedEmails.includes(emailInput.toLowerCase())) {
-                    alert("Access Denied. Unauthorized Security Email.");
-                    return;
-                }
-            }
-
-            loggedInUser = { name: nameInput, noonId: noonIdInput, email: emailInput, picture: "👤" };
-
-            // Save to Local Storage so session persists
             localStorage.setItem('noonSlpUserSession', JSON.stringify({
-                name: nameInput,
-                noonId: noonIdInput,
-                email: emailInput,
+                name: name,
+                noonId: noonId,
+                email: email,
                 role: userRole,
-                loginTime: Date.now() // Timestap for auto-logout
+                loginTime: Date.now()
             }));
 
-            // Apply Role-Based Access Control (RBAC) to the UI
-            if (userRole === 'guard') {
-                if(document.getElementById('nav-drivers')) document.getElementById('nav-drivers').style.display = 'none';
-                if(document.getElementById('nav-security')) document.getElementById('nav-security').style.display = 'none';
-                if(document.getElementById('btnExportExcel')) document.getElementById('btnExportExcel').style.display = 'none';
-                
-                // Pre-fill Security Details in Check-In Form automatically for Guards
-                document.getElementById('securityNameField').value = loggedInUser.name;
-                document.getElementById('securityNameId').value = loggedInUser.noonId;
-            } else {
-                if(document.getElementById('nav-drivers')) document.getElementById('nav-drivers').style.display = 'flex';
-                if(document.getElementById('nav-security')) document.getElementById('nav-security').style.display = 'flex';
-                if(document.getElementById('btnExportExcel')) document.getElementById('btnExportExcel').style.display = 'block';
+            // Apply Role-Based Access Control
+            document.getElementById('nav-dashboard').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
+            document.getElementById('nav-checkin').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
+            document.getElementById('nav-active-trucks').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
+            document.getElementById('nav-history').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
+            document.getElementById('nav-drivers').style.display = (role === 'admin') ? 'flex' : 'none';
+            document.getElementById('nav-security').style.display = (role === 'admin') ? 'flex' : 'none';
+            document.getElementById('btnExportExcel').style.display = (role === 'admin') ? 'block' : 'none';
+
+            if (role === 'guard') {
+                document.getElementById('securityNameField').value = name;
+                document.getElementById('securityNameId').value = noonId;
             }
 
-            document.getElementById('sidebarUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
-            document.getElementById('sidebarUserEmail').innerText = loggedInUser.email;
+            document.getElementById('sidebarUserName').innerText = name + (role === 'admin' ? " (Admin)" : (role === 'ops' ? " (Ops)" : ""));
+            document.getElementById('sidebarUserEmail').innerText = email;
             document.getElementById('sidebarUserPic').innerText = "👤";
 
             const statusBox = document.getElementById('authStatus');
@@ -1192,6 +1119,7 @@
             const container = document.getElementById('loginContainer');
             
             document.getElementById('customLoginBox').style.display = 'none';
+            document.querySelector('.login-tabs').style.display = 'none';
             statusBox.style.display = 'block';
 
             setTimeout(() => {
@@ -1202,10 +1130,126 @@
                 
                 setTimeout(() => {
                     document.getElementById('introOverlay').classList.add('hidden');
-                    setTimeout(() => { introActive = false; cancelAnimationFrame(animationFrameId); fetchLogs(); }, 1000);
+                    setTimeout(() => { 
+                        introActive = false; 
+                        cancelAnimationFrame(animationFrameId); 
+                        
+                        // Setup correct default view & notifications
+                        if (role === 'ops') {
+                            switchView('dashboard', document.getElementById('nav-dashboard'));
+                        } else if (role === 'guard') {
+                            switchView('checkin', document.getElementById('nav-checkin'));
+                        } else {
+                            switchView('dashboard', document.getElementById('nav-dashboard'));
+                            checkAdminNotifications();
+                        }
+                        
+                        fetchLogs(); 
+                    }, 1000);
                 }, 1200);
             }, 1200); 
+        }
+
+        document.getElementById('customSignInBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const nameInput = document.getElementById('loginName').value.trim();
+            const emailInput = document.getElementById('loginEmail').value.trim();
+            const noonIdInput = document.getElementById('loginNoonId').value.trim();
+            const pass = document.getElementById('adminPassword').value;
+
+            if (currentLoginMode === 'admin') {
+                if(!nameInput || !emailInput || !pass) return alert("Please fill all fields to authorize access.");
+                if (pass !== 'admin123') return alert("Incorrect Administrator Password.");
+                executeLogin(nameInput, emailInput, '', 'admin');
+
+            } else if (currentLoginMode === 'ops') {
+                if(!nameInput || !emailInput) return alert("Please fill all fields to authorize access.");
+                if(!emailInput.toLowerCase().endsWith('noon.com')) return alert("Access Denied. Only valid noon.com accounts are permitted.");
+                
+                let approved = JSON.parse(localStorage.getItem('SLP_OPS_APPROVED') || '[]');
+                if (approved.includes(emailInput.toLowerCase())) {
+                    executeLogin(nameInput, emailInput, '', 'ops');
+                } else {
+                    let pending = JSON.parse(localStorage.getItem('SLP_OPS_PENDING') || '[]');
+                    if (!pending.some(p => p.email === emailInput.toLowerCase())) {
+                        pending.push({ name: nameInput, email: emailInput.toLowerCase() });
+                        localStorage.setItem('SLP_OPS_PENDING', JSON.stringify(pending));
+                    }
+                    alert("Access request sent to Admin. Please wait for approval.");
+                }
+
+            } else { // Guard
+                if(!nameInput || !emailInput || !noonIdInput) return alert("Please fill all fields to authorize access.");
+                if (!allowedEmails.includes(emailInput.toLowerCase())) return alert("Access Denied. Unauthorized Security Email.");
+                executeLogin(nameInput, emailInput, noonIdInput, 'guard');
+            }
         });
+
+        /* --- ADMIN NOTIFICATIONS --- */
+        function checkAdminNotifications() {
+            if (userRole !== 'admin') {
+                document.getElementById('adminBellContainer').style.display = 'none';
+                return;
+            }
+            document.getElementById('adminBellContainer').style.display = 'block';
+            let pending = JSON.parse(localStorage.getItem('SLP_OPS_PENDING') || '[]');
+            const badge = document.getElementById('adminBellBadge');
+            if (pending.length > 0) {
+                badge.style.display = 'block';
+                badge.innerText = pending.length;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function toggleNotifications() {
+            const drop = document.getElementById('adminNotifDropdown');
+            drop.classList.toggle('open');
+            if (drop.classList.contains('open')) {
+                renderNotifications();
+            }
+        }
+
+        function renderNotifications() {
+            const drop = document.getElementById('adminNotifDropdown');
+            let pending = JSON.parse(localStorage.getItem('SLP_OPS_PENDING') || '[]');
+            if (pending.length === 0) {
+                drop.innerHTML = `<div style="padding:1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">No pending requests</div>`;
+                return;
+            }
+            let html = '';
+            pending.forEach((p, idx) => {
+                html += `<div style="padding:0.75rem; border-bottom:1px solid var(--border-color); font-size:0.8rem;">
+                    <strong style="color:#fff;">Operations User: ${p.name}</strong><br>
+                    <span style="color:var(--accent-color);">${p.email} wants access.</span>
+                    <div style="margin-top:8px; display:flex; gap:8px;">
+                        <button onclick="approveOps(${idx})" style="background:var(--success-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Approve</button>
+                        <button onclick="denyOps(${idx})" style="background:var(--danger-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Deny</button>
+                    </div>
+                </div>`;
+            });
+            drop.innerHTML = html;
+        }
+
+        function approveOps(idx) {
+            let pending = JSON.parse(localStorage.getItem('SLP_OPS_PENDING') || '[]');
+            let approved = JSON.parse(localStorage.getItem('SLP_OPS_APPROVED') || '[]');
+            let user = pending.splice(idx, 1)[0];
+            if(!approved.includes(user.email)) approved.push(user.email);
+            localStorage.setItem('SLP_OPS_PENDING', JSON.stringify(pending));
+            localStorage.setItem('SLP_OPS_APPROVED', JSON.stringify(approved));
+            renderNotifications();
+            checkAdminNotifications();
+        }
+
+        function denyOps(idx) {
+            let pending = JSON.parse(localStorage.getItem('SLP_OPS_PENDING') || '[]');
+            pending.splice(idx, 1);
+            localStorage.setItem('SLP_OPS_PENDING', JSON.stringify(pending));
+            renderNotifications();
+            checkAdminNotifications();
+        }
 
         /* ---------------- INTRO SCREEN PARTICLES ---------------- */
         const canvas = document.getElementById('particleCanvas');
@@ -1257,27 +1301,7 @@
                 location.reload();
             } else {
                 // Session Active
-                loggedInUser = { name: sessionData.name, noonId: sessionData.noonId || "", email: sessionData.email, picture: "👤" };
-                userRole = sessionData.role;
-
-                if (userRole === 'guard') {
-                    if(document.getElementById('nav-drivers')) document.getElementById('nav-drivers').style.display = 'none';
-                    if(document.getElementById('nav-security')) document.getElementById('nav-security').style.display = 'none';
-                    if(document.getElementById('btnExportExcel')) document.getElementById('btnExportExcel').style.display = 'none';
-                    
-                    // Pre-fill Security Details in Check-In Form
-                    document.getElementById('securityNameField').value = loggedInUser.name;
-                    document.getElementById('securityNameId').value = loggedInUser.noonId;
-                } else {
-                    if(document.getElementById('nav-drivers')) document.getElementById('nav-drivers').style.display = 'flex';
-                    if(document.getElementById('nav-security')) document.getElementById('nav-security').style.display = 'flex';
-                    if(document.getElementById('btnExportExcel')) document.getElementById('btnExportExcel').style.display = 'block';
-                }
-
-                document.getElementById('sidebarUserName').innerText = loggedInUser.name + (userRole === 'admin' ? " (Admin)" : "");
-                document.getElementById('sidebarUserEmail').innerText = loggedInUser.email;
-                document.getElementById('sidebarUserPic').innerText = "👤";
-
+                executeLogin(sessionData.name, sessionData.email, sessionData.noonId || "", sessionData.role);
                 document.getElementById('introOverlay').style.display = 'none';
                 introActive = false;
             }
@@ -1774,9 +1798,8 @@
                 cameraTargetScanType = 'IQAMA';
                 document.getElementById('cameraInstructionLabel').innerText = getInstructionText('IQAMA');
             } else if (currentScanType === 'IQAMA') {
-                cameraTargetStatusId = 'officerStatus';
-                cameraTargetScanType = 'OFFICER';
-                document.getElementById('cameraInstructionLabel').innerText = getInstructionText('OFFICER');
+                // Officer scanner removed from checkin flow per request
+                closeCamera();
             } else {
                 closeCamera();
             }
