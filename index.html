@@ -45,9 +45,9 @@
         .login-container {
             position: relative; z-index: 2; background: var(--sidebar-bg); border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 12px; padding: 3rem 4rem; text-align: center; box-shadow: 0 0 80px rgba(252, 194, 0, 0.15), 0 20px 40px rgba(0,0,0,0.8);
-            display: flex; flex-direction: column; align-items: center; transition: all 0.5s ease; max-width: 400px; width: 90%;
+            display: flex; flex-direction: column; align-items: center; transition: all 0.5s ease; max-width: 450px; width: 90%;
         }
-        .login-logo { height: 140px; margin-bottom: 2.5rem; transition: transform 0.5s ease; }
+        .login-logo { height: 140px; margin-bottom: 2rem; transition: transform 0.5s ease; }
         .auth-status { margin-top: 1.5rem; display: none; }
         .auth-status p { font-size: 0.75rem; color: var(--accent-color); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
         .auth-status p.pulsing { animation: authPulse 1.5s infinite; }
@@ -326,8 +326,8 @@
         .btn-signout-action:hover { background: var(--danger-color); color: #fff; }
 
         /* CHECKIN FORM REDESIGN */
-        .scanners-triple-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; max-width: 850px; margin-left: auto; margin-right: auto; }
-        @media (max-width: 768px) { .scanners-triple-row { grid-template-columns: 1fr; } }
+        .scanners-double-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem; max-width: 850px; margin-left: auto; margin-right: auto; }
+        @media (max-width: 768px) { .scanners-double-row { grid-template-columns: 1fr; } }
         .scan-box-dashed { background: transparent; border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 2.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; }
         .scan-box-dashed:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.02); }
         .scan-box-dashed .icon { font-size: 1.8rem; margin-bottom: 0.8rem; display: block; color: var(--text-muted); opacity: 0.7; }
@@ -467,8 +467,16 @@
             <img src="logo.png.jpeg" alt="SLP Logo" class="login-logo">
 
             <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 320px;">
-                <input type="text" id="loginName" class="input-box-styled" placeholder="Enter Full Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);">
-                <input type="text" id="loginEmail" class="input-box-styled" placeholder="Enter Noon Email / Guard ID" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);">
+                <!-- SECURITY SCANNER MOVED TO LOGIN -->
+                <div class="scan-box-dashed" id="loginScanBox" onclick="document.getElementById('loginOfficerScanner').click()" style="padding: 1rem; margin-bottom: 0.5rem;">
+                    <div><span class="icon">🛡️</span><span class="label-text" id="loginOfficerStatus" data-i18n="Scan Security ID">Scan Security ID</span></div>
+                    <input type="file" id="loginOfficerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'loginOfficerStatus', 'LOGIN_OFFICER')">
+                    <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('loginOfficerStatus', 'LOGIN_OFFICER')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                </div>
+
+                <input type="text" id="loginName" class="input-box-styled" placeholder="Security Name" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);" data-i18n="Security Name">
+                <input type="text" id="loginNoonId" class="input-box-styled" placeholder="Noon ID (Auto-filled)" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);" data-i18n="Noon ID">
+                <input type="text" id="loginEmail" class="input-box-styled" placeholder="Authorized Noon Email" required style="text-align: center; border-color: rgba(252, 194, 0, 0.4); background: rgba(0,0,0,0.5);" data-i18n="Authorized Noon Email">
 
                 <div id="adminPasswordContainer" style="display: none; width: 100%;">
                     <input type="password" id="adminPassword" class="input-box-styled" placeholder="Enter Admin Password" style="text-align: center; border-color: rgba(248, 81, 73, 0.4); background: rgba(0,0,0,0.5);">
@@ -591,25 +599,25 @@
             <div class="analytics-hub-title" data-i18n="DEEP-DIVE ANALYTICS HUB">DEEP-DIVE ANALYTICS HUB</div>
             
             <div class="analytics-grid">
-                <!-- Chart 1: Vehicle Processing Growth -->
+                <!-- Chart 1: Vehicle Processing Growth (Line Chart) -->
                 <div class="chart-card">
                     <h3 data-i18n="Vehicle Processing Growth (7 Days)">Vehicle Processing Growth (7 Days)</h3>
-                    <div class="bar-chart-container" id="chartGrowthBars"></div>
+                    <div id="chartGrowthLine"></div>
                 </div>
 
-                <!-- Chart 2: Movement Cohorts -->
+                <!-- Chart 2: Movement Cohorts (Horizontal Bars) -->
                 <div class="chart-card">
                     <h3 data-i18n="Movement Cohorts">Movement Cohorts</h3>
                     <div class="bar-chart-container" id="chartCohortsBars"></div>
                 </div>
 
-                <!-- Chart 3: Peak Operating Hours -->
+                <!-- Chart 3: Peak Operating Hours (Vertical Columns) -->
                 <div class="chart-card">
                     <h3 data-i18n="Peak Operating Hours">Peak Operating Hours</h3>
-                    <div class="bar-chart-container" id="chartHoursBars"></div>
+                    <div id="chartHoursColumns"></div>
                 </div>
 
-                <!-- Chart 4: Dock Utilization Ranking -->
+                <!-- Chart 4: Dock Utilization Ranking (Donut) -->
                 <div class="chart-card">
                     <h3 data-i18n="Dock Utilization Ranking">Dock Utilization Ranking</h3>
                     <div class="donut-container">
@@ -630,7 +638,7 @@
                     <div class="view-header-title"><h1 data-i18n="Truck Entry Form">Truck Entry Form</h1></div>
                 </header>
                 
-                <div class="scanners-triple-row">
+                <div class="scanners-double-row">
                     <div class="scan-box-dashed" id="scanBoxDriver" onclick="document.getElementById('driverPhotoInput').click()">
                         <div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
                         <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatus', 'PLATE')">
@@ -640,11 +648,6 @@
                         <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus" data-i18n="Iqama (ID Card) Scanner">Iqama (ID Card) Scanner</span></div>
                         <input type="file" id="iqamaScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'iqamaStatus', 'IQAMA')">
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('iqamaStatus', 'IQAMA')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
-                    </div>
-                    <div class="scan-box-dashed" id="scanBoxSecurity" onclick="document.getElementById('officerScanner').click()">
-                        <div><span class="icon">🛡️</span><span class="label-text" id="officerStatus" data-i18n="Security ID Scanner">Security ID Scanner</span></div>
-                        <input type="file" id="officerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'officerStatus', 'OFFICER')">
-                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('officerStatus', 'OFFICER')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                     </div>
                 </div>
 
@@ -885,7 +888,7 @@
         let temporaryCapturedImage = null;
         
         // Active User & Role Details 
-        let loggedInUser = { name: "Guest User", email: "Not signed in", picture: "" };
+        let loggedInUser = { name: "Guest User", email: "Not signed in", noonId: "", picture: "" };
         let userRole = 'guard'; // Default role is 'guard'. Admin unlocks special features.
         let isSidebarHidden = false; // Toggle tracker
 
@@ -900,6 +903,8 @@
             "Centralized registry of security personnel.": "سجل مركزي لموظفي الأمن.",
             "Search guards...": "البحث عن حراس...",
             "Noon ID": "هوية نون",
+            "Scan Security ID": "مسح هوية الأمن",
+            "Authorized Noon Email": "البريد الإلكتروني المعتمد لنون",
             
             "Noon": "نون",
             "Dock Security Platform": "منصة أمن الأرصفة",
@@ -1102,6 +1107,13 @@
 
         /* ---------------- CUSTOM LOGIN & ADMIN TOGGLE LOGIC ---------------- */
         let isAdminMode = false;
+        const allowedEmails = [
+            "ruh01dock.security1@noon.com", "ruh01dock.security2@noon.com", "ruh01dock.security3@noon.com",
+            "ruh01dock.security4@noon.com", "ruh01dock.security5@noon.com", "ruh01dock.security6@noon.com",
+            "ruh01dock.security7@noon.com", "ruh01dock.security8@noon.com", "ruh01dock.security9@noon.com",
+            "ruh01dock.security10@noon.com", "ruh01dock.security11@noon.com", "ruh01dock.security12@noon.com",
+            "ruh01dock.security13@noon.com", "ruh01dock.security14@noon.com"
+        ];
         
         document.getElementById('adminToggle').addEventListener('click', function() {
             isAdminMode = !isAdminMode;
@@ -1120,15 +1132,11 @@
             e.preventDefault();
             
             const nameInput = document.getElementById('loginName').value.trim();
+            const noonIdInput = document.getElementById('loginNoonId').value.trim();
             const emailInput = document.getElementById('loginEmail').value.trim();
 
-            if(!nameInput || !emailInput) {
-                alert("Please enter your Full Name and Noon Email to authorize access.");
-                return;
-            }
-
-            if(!emailInput.toLowerCase().endsWith('noon.com')) {
-                alert("Access Denied. Only valid noon.com accounts are permitted.");
+            if(!nameInput || !emailInput || (!isAdminMode && !noonIdInput)) {
+                alert("Please complete all required fields to authorize access.");
                 return;
             }
 
@@ -1142,13 +1150,19 @@
                 userRole = 'admin';
             } else {
                 userRole = 'guard';
+                // Strict Security Email Check
+                if (!allowedEmails.includes(emailInput.toLowerCase())) {
+                    alert("Access Denied. Unauthorized Security Email.");
+                    return;
+                }
             }
 
-            loggedInUser = { name: nameInput, email: emailInput, picture: "👤" };
+            loggedInUser = { name: nameInput, noonId: noonIdInput, email: emailInput, picture: "👤" };
 
             // Save to Local Storage so session persists
             localStorage.setItem('noonSlpUserSession', JSON.stringify({
                 name: nameInput,
+                noonId: noonIdInput,
                 email: emailInput,
                 role: userRole,
                 loginTime: Date.now() // Timestap for auto-logout
@@ -1159,6 +1173,10 @@
                 if(document.getElementById('nav-drivers')) document.getElementById('nav-drivers').style.display = 'none';
                 if(document.getElementById('nav-security')) document.getElementById('nav-security').style.display = 'none';
                 if(document.getElementById('btnExportExcel')) document.getElementById('btnExportExcel').style.display = 'none';
+                
+                // Pre-fill Security Details in Check-In Form automatically for Guards
+                document.getElementById('securityNameField').value = loggedInUser.name;
+                document.getElementById('securityNameId').value = loggedInUser.noonId;
             } else {
                 if(document.getElementById('nav-drivers')) document.getElementById('nav-drivers').style.display = 'flex';
                 if(document.getElementById('nav-security')) document.getElementById('nav-security').style.display = 'flex';
@@ -1239,13 +1257,17 @@
                 location.reload();
             } else {
                 // Session Active
-                loggedInUser = { name: sessionData.name, email: sessionData.email, picture: "👤" };
+                loggedInUser = { name: sessionData.name, noonId: sessionData.noonId || "", email: sessionData.email, picture: "👤" };
                 userRole = sessionData.role;
 
                 if (userRole === 'guard') {
                     if(document.getElementById('nav-drivers')) document.getElementById('nav-drivers').style.display = 'none';
                     if(document.getElementById('nav-security')) document.getElementById('nav-security').style.display = 'none';
                     if(document.getElementById('btnExportExcel')) document.getElementById('btnExportExcel').style.display = 'none';
+                    
+                    // Pre-fill Security Details in Check-In Form
+                    document.getElementById('securityNameField').value = loggedInUser.name;
+                    document.getElementById('securityNameId').value = loggedInUser.noonId;
                 } else {
                     if(document.getElementById('nav-drivers')) document.getElementById('nav-drivers').style.display = 'flex';
                     if(document.getElementById('nav-security')) document.getElementById('nav-security').style.display = 'flex';
@@ -1478,14 +1500,14 @@
                 document.getElementById('driverLookupGroup').style.display = "block";
                 document.getElementById('scanBoxDriver').style.display = 'none';
                 document.getElementById('scanBoxIqama').style.display = 'none';
-                document.querySelector('.scanners-triple-row').style.gridTemplateColumns = '1fr';
+                document.querySelector('.scanners-double-row').style.gridTemplateColumns = '1fr';
                 document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = "none"; f.querySelector('input').required = false; });
                 temporaryCapturedImage = null; // Clear image when switching to existing
             } else {
                 document.getElementById('driverLookupGroup').style.display = "none";
                 document.getElementById('scanBoxDriver').style.display = 'block';
                 document.getElementById('scanBoxIqama').style.display = 'block';
-                document.querySelector('.scanners-triple-row').style.gridTemplateColumns = 'repeat(3, 1fr)';
+                document.querySelector('.scanners-double-row').style.gridTemplateColumns = 'repeat(2, 1fr)';
                 document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = "block"; f.querySelector('input').required = true; });
             }
         }
@@ -1658,6 +1680,7 @@
             if(scanType === 'PLATE') return tr("Driver Photo / Truck Photo");
             if(scanType === 'IQAMA') return tr("Iqama (ID Card) Scanner");
             if(scanType === 'OFFICER') return tr("Security ID Scanner");
+            if(scanType === 'LOGIN_OFFICER') return tr("Scan Security ID");
             return "";
         }
 
@@ -1774,7 +1797,7 @@
                 if (scanType === 'PLATE') {
                     document.getElementById('iqamaScanner').click();
                 } else if (scanType === 'IQAMA') {
-                    document.getElementById('officerScanner').click();
+                    // document.getElementById('officerScanner').click(); // REMOVED PER USER REQUEST
                 }
             }, 300);
         }
@@ -1792,7 +1815,7 @@
                 }
 
                 status.innerHTML = "🌀 " + tr("Reading with Google OCR...");
-                const response = await fetch(OCR_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ scanType: scanType, imageObj: base64Data }) });
+                const response = await fetch(OCR_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ scanType: scanType === 'LOGIN_OFFICER' ? 'OFFICER' : scanType, imageObj: base64Data }) });
                 if (!response.ok) throw new Error('Network error: ' + response.status);
                 const result = await response.json();
                 if (!result.success) throw new Error(result.error || 'OCR backend returned an error');
@@ -1871,9 +1894,9 @@
                         matched = true;
                     }
                 }
-                else if (scanType === "OFFICER") {
+                else if (scanType === "OFFICER" || scanType === "LOGIN_OFFICER") {
                     let badgeMatch = cleanText.match(/LP\d+/i) || cleanText.match(/[A-Z]{2}\d{4}\b/i);
-                    if (badgeMatch) { document.getElementById('securityNameId').value = badgeMatch[0]; matched = true; }
+                    let foundId = badgeMatch ? badgeMatch[0] : "";
                     let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
                     
                     // Specific fix: Ignore repeating artifacts like WWWWWW, NNNN, AAAAA
@@ -1882,9 +1905,16 @@
                         !/LP|ASSOCIATE|EVERY|DOORBELL|DAY|AL\s+ABEER|SAUDI|SECURITY|GATEWAY/i.test(line) &&
                         !/^(.)\1+$/.test(line.replace(/\s/g, '')) 
                     );
+                    
+                    let foundName = nameMatch || (foundId ? "Officer #" + foundId : "");
 
-                    if (nameMatch) { document.getElementById('securityNameField').value = nameMatch; matched = true; } 
-                    else if (badgeMatch) { document.getElementById('securityNameField').value = "Officer #" + badgeMatch[0]; }
+                    if (scanType === "OFFICER") {
+                        if (foundId) { document.getElementById('securityNameId').value = foundId; matched = true; }
+                        if (foundName) { document.getElementById('securityNameField').value = foundName; matched = true; } 
+                    } else if (scanType === "LOGIN_OFFICER") {
+                        if (foundId) { document.getElementById('loginNoonId').value = foundId; matched = true; }
+                        if (foundName) { document.getElementById('loginName').value = foundName; matched = true; }
+                    }
                 }
 
                 if (matched) { status.innerHTML = "✅ " + tr("Extracted — please double-check the fields"); status.style.color = "var(--success-color)"; } 
@@ -1978,24 +2008,20 @@
 
         /* ---------------- Analytics Hub Dynamism ---------------- */
         
-        // NEW Bar Chart Renderer
+        // Horizontal Bar Chart
         function buildBarChart(dataObj, containerId, emptyLabel = "No Data") {
             let containerEl = document.getElementById(containerId);
             if (!containerEl) return;
-
             if (dataObj.length === 0) {
                 containerEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem;">${tr(emptyLabel)}</div>`;
                 return;
             }
-
             const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
             let max = Math.max(...dataObj.map(item => item.count));
             let html = '';
-
             dataObj.slice(0, 5).forEach((item, index) => {
                 let color = colors[index % colors.length];
                 let widthPct = max > 0 ? (item.count / max) * 100 : 0;
-                
                 html += `
                 <div class="bar-row">
                     <div class="bar-label" title="${tr(item.label)}">${tr(item.label)}</div>
@@ -2007,10 +2033,75 @@
                     <div class="bar-value">${item.count} <span style="font-size:0.6rem; color:var(--text-muted);">${tr(item.suffix || '')}</span></div>
                 </div>`;
             });
-
             containerEl.innerHTML = html;
         }
 
+        // Vertical Column Chart
+        function buildVerticalBarChart(dataObj, containerId, emptyLabel = "No Data") {
+            let containerEl = document.getElementById(containerId);
+            if (!containerEl) return;
+            if (dataObj.length === 0) {
+                containerEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem;">${tr(emptyLabel)}</div>`;
+                return;
+            }
+            const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
+            let max = Math.max(...dataObj.map(item => item.count));
+            let html = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:150px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.05); border-left:1px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
+            
+            dataObj.slice(0, 5).forEach((item, index) => {
+                let color = colors[index % colors.length];
+                let heightPct = max > 0 ? (item.count / max) * 100 : 0;
+                html += `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; width:40px; position:relative;">
+                    <div style="font-size:0.75rem; color:#fff; font-weight:700; margin-bottom:4px;">${item.count}</div>
+                    <div style="width:100%; background:${color}; height:${heightPct}%; border-radius:4px 4px 0 0; transition:height 0.8s ease-out;"></div>
+                    <div style="position:absolute; bottom:-22px; font-size:0.6rem; color:var(--text-muted); font-weight:700; white-space:nowrap;">${tr(item.label)}</div>
+                </div>`;
+            });
+            html += `</div>`;
+            containerEl.innerHTML = html;
+        }
+
+        // Line Chart (SVG)
+        function buildLineChart(dataObj, containerId, emptyLabel = "No Data") {
+            let containerEl = document.getElementById(containerId);
+            if (!containerEl) return;
+            if (dataObj.length === 0) {
+                containerEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem;">${tr(emptyLabel)}</div>`;
+                return;
+            }
+            
+            let chartData = [...dataObj.slice(0,7)];
+            let max = Math.max(...chartData.map(item => item.count));
+            if(max === 0) max = 1;
+            
+            let html = `<div style="position:relative; width:100%; height:160px; margin-top:1rem;">`;
+            
+            let svgPoints = chartData.map((item, i) => {
+                let x = chartData.length > 1 ? (i / (chartData.length - 1)) * 900 + 50 : 500;
+                let y = 110 - ((item.count / max) * 80);
+                return `${x},${y}`;
+            }).join(' ');
+
+            html += `<svg viewBox="0 0 1000 130" style="width:100%; height:100%; overflow:visible;">
+                    <!-- Grid line -->
+                    <line x1="0" y1="120" x2="1000" y2="120" stroke="rgba(255,255,255,0.05)" stroke-width="2" />
+                    <!-- Path -->
+                    <polyline fill="none" stroke="var(--accent-color)" stroke-width="4" points="${svgPoints}" />`;
+            
+            chartData.forEach((item, i) => {
+                let x = chartData.length > 1 ? (i / (chartData.length - 1)) * 900 + 50 : 500;
+                let y = 110 - ((item.count / max) * 80);
+                html += `<circle cx="${x}" cy="${y}" r="6" fill="var(--card-bg)" stroke="var(--accent-color)" stroke-width="3" />`;
+                html += `<text x="${x}" y="${y - 15}" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">${item.count}</text>`;
+                html += `<text x="${x}" y="140" fill="var(--text-muted)" font-size="12" font-weight="bold" text-anchor="middle">${tr(item.label)}</text>`;
+            });
+
+            html += `</svg></div>`;
+            containerEl.innerHTML = html;
+        }
+
+        // Donut Chart
         function buildDonutChart(dataObj, donutId, legendId, emptyLabel = "No Data") {
             let total = dataObj.reduce((sum, item) => sum + item.count, 0);
             const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
@@ -2056,13 +2147,15 @@
                 if (!isNaN(time.getTime())) {
                     let diffDays = (now - time) / (1000 * 60 * 60 * 24);
                     if (diffDays <= 7) {
-                        let dateLabel = time.toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric' });
-                        growthMap[dateLabel] = (growthMap[dateLabel] || 0) + 1;
+                        let dateLabel = time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        if (!growthMap[dateLabel]) growthMap[dateLabel] = { count: 0, ts: time.getTime() };
+                        growthMap[dateLabel].count++;
                     }
                 }
             });
-            let growthData = Object.keys(growthMap).map(k => ({ label: k, count: growthMap[k], suffix: 'Trucks' })).sort((a,b) => b.count - a.count);
-            buildBarChart(growthData, 'chartGrowthBars', 'No Data'); // Updated to Bar
+            // Line Chart (Chronological order)
+            let growthData = Object.keys(growthMap).map(k => ({ label: k, count: growthMap[k].count, ts: growthMap[k].ts })).sort((a,b) => a.ts - b.ts);
+            buildLineChart(growthData, 'chartGrowthLine', 'No Data'); 
 
             let cohortMap = {};
             logsData.forEach(log => {
@@ -2070,8 +2163,9 @@
                 let dir = rawDir.split(' - ')[0].trim().toUpperCase();
                 cohortMap[dir] = (cohortMap[dir] || 0) + 1;
             });
+            // Horizontal Bar Chart
             let cohortData = Object.keys(cohortMap).map(k => ({ label: k, count: cohortMap[k], suffix: 'Logs' })).sort((a,b) => b.count - a.count);
-            buildBarChart(cohortData, 'chartCohortsBars', 'No Data'); // Updated to Bar
+            buildBarChart(cohortData, 'chartCohortsBars', 'No Data'); 
 
             let hourMap = {};
             logsData.forEach(log => {
@@ -2080,19 +2174,22 @@
                     let hour = time.getHours();
                     let ampm = hour >= 12 ? (currentLang==='ar'?'م':'PM') : (currentLang==='ar'?'ص':'AM');
                     let hourLabel = `${hour % 12 || 12} ${ampm}`;
-                    hourMap[hourLabel] = (hourMap[hourLabel] || 0) + 1;
+                    if (!hourMap[hourLabel]) hourMap[hourLabel] = { count: 0, rawHr: hour };
+                    hourMap[hourLabel].count++;
                 }
             });
-            let hourData = Object.keys(hourMap).map(k => ({ label: k, count: hourMap[k], suffix: 'Check-ins' })).sort((a,b) => b.count - a.count);
-            buildBarChart(hourData, 'chartHoursBars', 'No Data'); // Updated to Bar
+            // Vertical Column Chart (Chronological sort)
+            let hourData = Object.keys(hourMap).map(k => ({ label: k, count: hourMap[k].count, rawHr: hourMap[k].rawHr })).sort((a,b) => a.rawHr - b.rawHr);
+            buildVerticalBarChart(hourData, 'chartHoursColumns', 'No Data'); 
 
             let dockMap = {};
             logsData.forEach(log => {
                 let dock = log.dockNumber;
                 if(dock) dockMap[dock] = (dockMap[dock] || 0) + 1;
             });
+            // Donut Chart
             let dockData = Object.keys(dockMap).map(k => ({ label: k, count: dockMap[k], suffix: 'Uses' })).sort((a,b) => b.count - a.count);
-            buildDonutChart(dockData, 'chartDocksDonut', 'chartDocksLegend', 'No Data'); // Kept Donut
+            buildDonutChart(dockData, 'chartDocksDonut', 'chartDocksLegend', 'No Data');
         }
 
         function populateDatalists(data) {
@@ -2524,7 +2621,12 @@
                 });
                 window.handleLogsResponse(globalLogsCache);
 
-                document.getElementById('entryForm').reset(); btn.innerText = tr("Check In Truck"); btn.disabled = false;
+                // Reset the form but KEEP the guard details intact!
+                document.getElementById('entryForm').reset(); 
+                document.getElementById('securityNameField').value = loggedInUser.name;
+                document.getElementById('securityNameId').value = loggedInUser.noonId || '';
+
+                btn.innerText = tr("Check In Truck"); btn.disabled = false;
                 document.getElementById('sealNumberContainer').style.display = 'none'; document.getElementById('sealNumber').required = false;
                 
                 // Switch exactly to Active Trucks Instead of Dashboard
