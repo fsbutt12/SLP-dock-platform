@@ -412,6 +412,21 @@
             100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
         }
 
+        /* CAMERA FLASH EFFECT */
+        .camera-flash {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: white;
+            z-index: 2020;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s ease-out;
+        }
+        .camera-flash.flash-active {
+            opacity: 1;
+            transition: none;
+        }
+
         .custom-date-row { display: none; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
         .custom-date-row.open { display: flex; }
         .custom-date-row input[type="date"] { background: #0d1117; border: 1px solid var(--border-color); color: #fff; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.8rem; outline:none;}
@@ -816,7 +831,9 @@
 
     <!-- CAMERA OVERLAY WITH TAP-TO-FOCUS RING -->
     <div class="camera-overlay" id="cameraOverlay">
+        <div id="cameraFlash" class="camera-flash"></div>
         <div id="focusRing" class="focus-ring"></div>
+        <h3 id="cameraInstructionLabel" style="color:var(--accent-color); margin-bottom: 10px; z-index:2010;"></h3>
         <video id="cameraVideo" autoplay playsinline muted></video>
         <canvas id="cameraCanvas" style="display:none;"></canvas>
         <div class="camera-controls">
@@ -1485,11 +1502,28 @@
 
         let cameraStream = null, cameraTargetStatusId = null, cameraTargetScanType = null;
 
+        function getInstructionText(scanType) {
+            if(scanType === 'PLATE') return tr("Driver Photo / Truck Photo");
+            if(scanType === 'IQAMA') return tr("Iqama (ID Card) Scanner");
+            if(scanType === 'OFFICER') return tr("Security ID Scanner");
+            return "";
+        }
+
+        function triggerCameraFlash() {
+            const flash = document.getElementById('cameraFlash');
+            flash.classList.add('flash-active');
+            setTimeout(() => {
+                flash.classList.remove('flash-active');
+            }, 50);
+        }
+
         async function openCamera(statusLabelId, scanType) {
             cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
             const overlay = document.getElementById('cameraOverlay'), video = document.getElementById('cameraVideo');
             overlay.classList.add('open');
             
+            document.getElementById('cameraInstructionLabel').innerText = getInstructionText(scanType);
+
             try { 
                 cameraStream = await navigator.mediaDevices.getUserMedia({ 
                     video: { 
@@ -1544,18 +1578,53 @@
         });
 
         function captureCameraFrame() {
-            const video = document.getElementById('cameraVideo'), canvas = document.getElementById('cameraCanvas');
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.getElementById('cameraCanvas');
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            const currentStatusId = cameraTargetStatusId;
+            const currentScanType = cameraTargetScanType;
+
             canvas.toBlob(blob => {
                 const file = new File([blob], 'camera_capture.jpg', { type: 'image/jpeg' });
-                closeCamera(); runLocalOcrEngine(file, cameraTargetStatusId, cameraTargetScanType);
+                runLocalOcrEngine(file, currentStatusId, currentScanType);
             }, 'image/jpeg', 0.85);
+
+            triggerCameraFlash();
+
+            // CHAINING LOGIC FOR CAMERA
+            if (currentScanType === 'PLATE') {
+                cameraTargetStatusId = 'iqamaStatus';
+                cameraTargetScanType = 'IQAMA';
+                document.getElementById('cameraInstructionLabel').innerText = getInstructionText('IQAMA');
+            } else if (currentScanType === 'IQAMA') {
+                cameraTargetStatusId = 'officerStatus';
+                cameraTargetScanType = 'OFFICER';
+                document.getElementById('cameraInstructionLabel').innerText = getInstructionText('OFFICER');
+            } else {
+                closeCamera();
+            }
         }
 
         function handleFileSelected(inputEl, statusLabelId, scanType) {
             const file = inputEl.files[0];
-            if (!file) return; runLocalOcrEngine(file, statusLabelId, scanType);
+            if (!file) return; 
+            
+            // Push to background process immediately
+            runLocalOcrEngine(file, statusLabelId, scanType);
+            
+            // Clear the value so they can select the same file again if they cancel the next step
+            inputEl.value = '';
+
+            // CHAINING LOGIC FOR FILE PICKER
+            setTimeout(() => {
+                if (scanType === 'PLATE') {
+                    document.getElementById('iqamaScanner').click();
+                } else if (scanType === 'IQAMA') {
+                    document.getElementById('officerScanner').click();
+                }
+            }, 300);
         }
 
         async function runLocalOcrEngine(file, statusLabelId, scanType) {
