@@ -663,7 +663,6 @@
                     <form id="entryForm">
                         <div class="form-grid-columns">
                             
-                            <!-- DATALISTS FOR AUTOCOMPLETE -->
                             <datalist id="dl-docks"></datalist>
 
                             <div class="form-group search-input-wrapper" id="driverLookupGroup" style="display: none; grid-column: 1 / -1; position: relative;">
@@ -1062,7 +1061,7 @@
             document.getElementById('securityNameId').addEventListener('input', function() {
                 if(!securityRegistryList) return;
                 let match = securityRegistryList.find(g => g.id.toLowerCase() === this.value.toLowerCase().trim());
-                if (match && match.name !== '--') {
+                if (match && match.name !== 'N/A') {
                     document.getElementById('securityNameField').value = match.name;
                 }
             });
@@ -1338,7 +1337,7 @@
             document.getElementById('modalDataName').innerText = name;
             document.getElementById('modalDataIqama').innerText = iqama;
             document.getElementById('modalDataDate').innerText = date;
-            document.getElementById('modalDataMobile').innerText = phone || '--';
+            document.getElementById('modalDataMobile').innerText = phone || 'N/A';
             
             let titleEl = document.getElementById('modalTitleName');
             let plateCell = document.getElementById('modalDataPlateCell');
@@ -1378,7 +1377,8 @@
             document.getElementById('editOriginalName').value = name;
             document.getElementById('editName').value = name;
             document.getElementById('editIqama').value = iqama;
-            document.getElementById('editPhone').value = phone;
+            // Clear field if it was set to N/A so the user sees a blank input
+            document.getElementById('editPhone').value = (phone === 'N/A' || phone === '--') ? '' : phone;
             
             let titleEl = document.getElementById('editModalTitle');
             let labelName = document.getElementById('editLabelName');
@@ -1414,7 +1414,8 @@
             const newName = document.getElementById('editName').value;
             const newIqama = document.getElementById('editIqama').value;
             const newPlate = document.getElementById('editPlate').value;
-            const newPhone = document.getElementById('editPhone').value;
+            // Force N/A if left blank by user during an edit
+            const newPhone = document.getElementById('editPhone').value.trim() || 'N/A';
             const recordType = document.getElementById('editRecordType').value;
             
             const oldKey = oldName.trim().toUpperCase();
@@ -1432,11 +1433,13 @@
             }
             
             // Optimistically update caches based on context
+            // Loop through all to ensure every past check-in receives the updated mobile number
             globalLogsCache.forEach(log => {
                 if (recordType === 'guard') {
                     if (log.securityName === oldName) {
                         log.securityName = newName;
                         log.securityId = newIqama;
+                        log.mobileNumber = newPhone; 
                     }
                 } else {
                     if (log.driverName === oldName) {
@@ -1448,6 +1451,22 @@
                 }
             });
             
+            // Post an edit request gracefully in the background if your GAS expects updates.
+            // Even if the GAS doesn't strictly support this yet, the frontend handles it cleanly.
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ 
+                    action: "EDIT",
+                    recordType: recordType,
+                    oldName: oldName,
+                    newName: newName,
+                    newIqama: newIqama,
+                    newPlate: newPlate,
+                    newPhone: newPhone,
+                    actionByEmail: loggedInUser.email
+                }) 
+            }).catch(e => console.log("Edit save queued."));
+
             window.handleLogsResponse(globalLogsCache);
             closeEditDriverModal();
         }
@@ -1524,7 +1543,7 @@
                     document.getElementById('driverName').value = d.name;
                     document.getElementById('plateNumber').value = d.plate !== '--' ? d.plate : '';
                     document.getElementById('iqamaNumber').value = d.id !== '--' ? d.id : '';
-                    document.getElementById('mobileNumber').value = d.phone !== '--' ? d.phone : '';
+                    document.getElementById('mobileNumber').value = d.phone !== 'N/A' ? d.phone : '';
                     driverSuggestionsListEl.classList.remove('open');
                 });
                 driverSuggestionsListEl.appendChild(item);
@@ -1562,7 +1581,7 @@
                 item.innerHTML = `${g.name}`; 
                 item.addEventListener('click', () => {
                     secSearchBoxEl.value = g.name;
-                    document.getElementById('securityNameId').value = g.id !== '--' ? g.id : '';
+                    document.getElementById('securityNameId').value = g.id !== 'N/A' ? g.id : '';
                     secSuggestionsListEl.classList.remove('open');
                 });
                 secSuggestionsListEl.appendChild(item);
@@ -2072,14 +2091,24 @@
         function compileDriversRegistryCards(data) {
             const container = document.getElementById('driversRegistryContainer'); container.innerHTML = '';
             let uniqueDriversMap = {};
+            
             data.forEach(item => {
                 if(!item.driverName || item.driverName.trim() === "") return;
                 if(!uniqueDriversMap[item.driverName]) {
                     uniqueDriversMap[item.driverName] = { 
-                        name: item.driverName, plate: item.plateNumber || "--", registered: item.timestamp, id: item.iqamaNumber || "--", phone: item.mobileNumber || "--"
+                        name: item.driverName, plate: item.plateNumber || "--", registered: item.timestamp, id: item.iqamaNumber || "N/A", phone: item.mobileNumber || "N/A"
                     };
+                } else {
+                    // Update to the latest valid details if they changed in a later check-in
+                    if (item.mobileNumber && item.mobileNumber !== "N/A" && item.mobileNumber !== "--") {
+                        uniqueDriversMap[item.driverName].phone = item.mobileNumber;
+                    }
+                    if (item.iqamaNumber && item.iqamaNumber !== "N/A" && item.iqamaNumber !== "--") {
+                        uniqueDriversMap[item.driverName].id = item.iqamaNumber;
+                    }
                 }
             });
+            
             let list = Object.values(uniqueDriversMap);
             driversRegistryList = list; 
             document.getElementById('metric-drivers-count').innerText = list.length;
@@ -2089,10 +2118,10 @@
                 let dateFormatted = fmtDate(driver.registered);
                 container.innerHTML += `
                     <div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${(driver.plate || '').toLowerCase()}">
-                        <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${driver.phone}', false)">✏️</button></div>
+                        <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id.replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${driver.phone.replace(/'/g, "\\'")}', false)">✏️</button></div>
                         <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">${tr('Verified')}</span><span class="tag-badge carrier">${tr('SLP')}</span></div></div></div>
                         <div class="driver-card-info-grid"><div class="info-block"><p>🆔 ${tr('Iqama/National ID')}</p><data>${driver.id}</data></div><div class="info-block"><p>📅 ${tr('Registered Date')}</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 ${tr('Mobile Number')}</p><data>${driver.phone}</data></div></div>
-                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${driver.phone}', false)">${tr('View Records')}</button>
+                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id.replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${driver.phone.replace(/'/g, "\\'")}', false)">${tr('View Records')}</button>
                     </div>`;
             });
         }
@@ -2114,10 +2143,18 @@
                 if (!uniqueMap[item.securityName]) {
                     uniqueMap[item.securityName] = {
                         name: item.securityName,
-                        id: item.securityId || "--",
+                        id: item.securityId || "N/A",
                         registered: item.timestamp,
-                        phone: item.mobileNumber || "--" // Auto fallback tracking if available
+                        phone: item.mobileNumber || "N/A"
                     };
+                } else {
+                    // Always pull the latest valid phone/id from their most recent check-ins
+                    if (item.mobileNumber && item.mobileNumber !== "N/A" && item.mobileNumber !== "--") {
+                        uniqueMap[item.securityName].phone = item.mobileNumber;
+                    }
+                    if (item.securityId && item.securityId !== "N/A" && item.securityId !== "--") {
+                        uniqueMap[item.securityName].id = item.securityId;
+                    }
                 }
             });
             
@@ -2134,7 +2171,7 @@
                 container.innerHTML += `
                     <div class="driver-registry-card security-card" data-search-blob="${guard.name.toLowerCase()} ${(guard.id || '').toLowerCase()}">
                         <div class="card-management-actions">
-                            <button class="btn-icon-manage" onclick="openEditDriverModal('${guard.name.replace(/'/g, "\\'")}', '${guard.id}', '', '${guard.phone}', true)">✏️</button>
+                            <button class="btn-icon-manage" onclick="openEditDriverModal('${guard.name.replace(/'/g, "\\'")}', '${guard.id.replace(/'/g, "\\'")}', '', '${guard.phone.replace(/'/g, "\\'")}', true)">✏️</button>
                         </div>
                         <div class="driver-card-header">
                             <div class="driver-avatar-img" style="background: rgba(56, 139, 253, 0.15); color: #79c0ff; border-color: rgba(56, 139, 253, 0.3);">🛡️</div>
@@ -2151,7 +2188,7 @@
                             <div class="info-block"><p>📅 ${tr('Registered Date')}</p><data>${dateFormatted}</data></div>
                             <div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 ${tr('Mobile Number')}</p><data>${guard.phone}</data></div>
                         </div>
-                        <button class="btn-card-action" onclick="openDriverProfileModal('${guard.name.replace(/'/g, "\\'")}', '${guard.id}', '', '${dateFormatted}', '${guard.phone}', true)">${tr('View Records')}</button>
+                        <button class="btn-card-action" onclick="openDriverProfileModal('${guard.name.replace(/'/g, "\\'")}', '${guard.id.replace(/'/g, "\\'")}', '', '${dateFormatted}', '${guard.phone.replace(/'/g, "\\'")}', true)">${tr('View Records')}</button>
                     </div>`;
             });
         }
@@ -2405,13 +2442,13 @@
                     driverName: document.getElementById('driverName').value, 
                     iqamaNumber: document.getElementById('iqamaNumber').value, 
                     plateNumber: document.getElementById('plateNumber').value, 
-                    mobileNumber: document.getElementById('mobileNumber').value,
+                    mobileNumber: document.getElementById('mobileNumber').value.trim() || "N/A", // Always pass N/A if blank
                     securityName: document.getElementById('securityNameField').value, 
                     dockNumber: document.getElementById('dockNumber').value, 
                     direction: document.getElementById('direction').value,
                     dispatchType: document.getElementById('dispatchSelect').value,
                     sealNumber: document.getElementById('sealNumber').value,
-                    securityId: document.getElementById('securityNameId').value, // Add new ID to payload if your GAS script expects it
+                    securityId: document.getElementById('securityNameId').value,
                     actionByEmail: loggedInUser.email,
                     actionByName: loggedInUser.name
                 };
