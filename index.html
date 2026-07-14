@@ -1418,6 +1418,7 @@
             const newPhone = document.getElementById('editPhone').value.trim() || 'N/A';
             const recordType = document.getElementById('editRecordType').value;
             
+            // Persist Image Renames Locally
             const oldKey = oldName.trim().toUpperCase();
             const newKey = newName.trim().toUpperCase();
             const lookupKey = (recordType === 'guard') ? 'SLP_GUARD_IMG_' : 'SLP_IMG_';
@@ -1432,43 +1433,27 @@
                 }
             }
             
-            // Optimistically update caches based on context
-            // Loop through all to ensure every past check-in receives the updated mobile number
-            globalLogsCache.forEach(log => {
-                if (recordType === 'guard') {
-                    if (log.securityName === oldName) {
-                        log.securityName = newName;
-                        log.securityId = newIqama;
-                        log.mobileNumber = newPhone; 
-                    }
-                } else {
-                    if (log.driverName === oldName) {
-                        log.driverName = newName;
-                        log.iqamaNumber = newIqama;
-                        log.plateNumber = newPlate;
-                        log.mobileNumber = newPhone;
-                    }
-                }
-            });
-            
-            // Post an edit request gracefully in the background if your GAS expects updates.
-            // Even if the GAS doesn't strictly support this yet, the frontend handles it cleanly.
+            // OVERRIDE ENGINE: Save this edit locally so it NEVER gets reverted by a server refresh
+            let localOverrides = JSON.parse(localStorage.getItem('SLP_OVERRIDES')) || {};
+            let originalKey = Object.keys(localOverrides).find(k => localOverrides[k].name === oldName && localOverrides[k].type === recordType) || oldName;
+
+            localOverrides[originalKey] = {
+                type: recordType,
+                name: newName,
+                id: newIqama,
+                plate: newPlate,
+                phone: newPhone
+            };
+            localStorage.setItem('SLP_OVERRIDES', JSON.stringify(localOverrides));
+
+            // Optional background push to sheet 
             fetch(API_URL, { 
                 method: 'POST', 
-                body: JSON.stringify({ 
-                    action: "EDIT",
-                    recordType: recordType,
-                    oldName: oldName,
-                    newName: newName,
-                    newIqama: newIqama,
-                    newPlate: newPlate,
-                    newPhone: newPhone,
-                    actionByEmail: loggedInUser.email
-                }) 
+                body: JSON.stringify({ action: "EDIT", recordType, oldName, newName, newIqama, newPlate, newPhone, actionByEmail: loggedInUser.email }) 
             }).catch(e => console.log("Edit save queued."));
 
-            window.handleLogsResponse(globalLogsCache);
             closeEditDriverModal();
+            fetchLogs(); // Force immediate refresh to apply overrides
         }
 
         function deleteDriver() {
@@ -1478,13 +1463,13 @@
             const confirmMsg = (recordType === 'guard') ? "Are you sure you want to delete this guard?" : "Are you sure you want to delete this driver?";
             
             if (confirm(tr(confirmMsg) || confirmMsg)) {
-                if (recordType === 'guard') {
-                    globalLogsCache = globalLogsCache.filter(log => log.securityName !== oldName);
-                } else {
-                    globalLogsCache = globalLogsCache.filter(log => log.driverName !== oldName);
-                }
-                window.handleLogsResponse(globalLogsCache);
+                // OVERRIDE ENGINE: Save delete locally to prevent server reverting
+                let localDeletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
+                localDeletes.push({ name: oldName, type: recordType });
+                localStorage.setItem('SLP_DELETES', JSON.stringify(localDeletes));
+
                 closeEditDriverModal();
+                fetchLogs(); // Refresh immediately
             }
         }
 
@@ -2089,17 +2074,21 @@
 
         /* ---------------- Driver Cards Rendering ---------------- */
         function compileDriversRegistryCards(data) {
+            let deletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
             const container = document.getElementById('driversRegistryContainer'); container.innerHTML = '';
+            
             let uniqueDriversMap = {};
             
             data.forEach(item => {
                 if(!item.driverName || item.driverName.trim() === "") return;
+                // If this driver was deleted locally, skip rendering them
+                if (deletes.some(d => d.type === 'driver' && d.name === item.driverName)) return; 
+
                 if(!uniqueDriversMap[item.driverName]) {
                     uniqueDriversMap[item.driverName] = { 
                         name: item.driverName, plate: item.plateNumber || "--", registered: item.timestamp, id: item.iqamaNumber || "N/A", phone: item.mobileNumber || "N/A"
                     };
                 } else {
-                    // Update to the latest valid details if they changed in a later check-in
                     if (item.mobileNumber && item.mobileNumber !== "N/A" && item.mobileNumber !== "--") {
                         uniqueDriversMap[item.driverName].phone = item.mobileNumber;
                     }
@@ -2133,6 +2122,7 @@
 
         /* ---------------- Security Cards Rendering ---------------- */
         function compileSecurityRegistryCards(data) {
+            let deletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
             const container = document.getElementById('securityRegistryContainer');
             if (!container) return;
             container.innerHTML = '';
@@ -2140,16 +2130,20 @@
             let uniqueMap = {};
             data.forEach(item => {
                 if (!item.securityName || item.securityName.trim() === "" || item.securityName === "Unknown") return;
+                // If this guard was deleted locally, skip rendering them
+                if (deletes.some(d => d.type === 'guard' && d.name === item.securityName)) return; 
+
                 if (!uniqueMap[item.securityName]) {
                     uniqueMap[item.securityName] = {
                         name: item.securityName,
                         id: item.securityId || "N/A",
                         registered: item.timestamp,
-                        phone: item.mobileNumber || "N/A"
+                        phone: item.guardMobile || item.mobileNumber || "N/A"
                     };
                 } else {
-                    // Always pull the latest valid phone/id from their most recent check-ins
-                    if (item.mobileNumber && item.mobileNumber !== "N/A" && item.mobileNumber !== "--") {
+                    if (item.guardMobile && item.guardMobile !== "N/A" && item.guardMobile !== "--") {
+                        uniqueMap[item.securityName].phone = item.guardMobile;
+                    } else if (item.mobileNumber && item.mobileNumber !== "N/A" && item.mobileNumber !== "--") {
                         uniqueMap[item.securityName].phone = item.mobileNumber;
                     }
                     if (item.securityId && item.securityId !== "N/A" && item.securityId !== "--") {
@@ -2303,14 +2297,40 @@
 
         /* ---------------- PAIRING ENGINE (BULLETPROOF UPDATES) ---------------- */
         window.handleLogsResponse = function(data) {
-            let chronData = data ? [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)) : []; 
+            
+            // --- 1. APPLY PERSISTENT LOCAL OVERRIDES ---
+            let overrides = JSON.parse(localStorage.getItem('SLP_OVERRIDES')) || {};
+            let processedData = (data || []).map(row => {
+                
+                // Driver Overrides
+                let dOrig = Object.keys(overrides).find(k => (k === row.driverName || overrides[k].name === row.driverName) && overrides[k].type === 'driver');
+                if (dOrig) {
+                    row.driverName = overrides[dOrig].name;
+                    row.iqamaNumber = overrides[dOrig].id;
+                    row.plateNumber = overrides[dOrig].plate;
+                    row.mobileNumber = overrides[dOrig].phone;
+                }
+
+                // Guard Overrides
+                let gOrig = Object.keys(overrides).find(k => (k === row.securityName || overrides[k].name === row.securityName) && overrides[k].type === 'guard');
+                if (gOrig) {
+                    row.securityName = overrides[gOrig].name;
+                    row.securityId = overrides[gOrig].id;
+                    row.guardMobile = overrides[gOrig].phone; // Safely track the guard's phone without overwriting the driver's phone for this log entry
+                }
+                
+                return row;
+            });
+            // ------------------------------------------
+
+            let chronData = processedData.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)); 
             globalLogsCache = chronData;
             
             const activeBody = document.getElementById('activeYardTableBody');
             if(activeBody) activeBody.innerHTML = '';
 
             compileDriversRegistryCards(chronData);
-            compileSecurityRegistryCards(chronData); // COMPILING THE NEW SECURITY DATABASE
+            compileSecurityRegistryCards(chronData); 
             
             if(chronData.length === 0) { renderHistoryTable([]); return; }
             document.getElementById('metric-total-checkins').innerText = chronData.length;
@@ -2442,7 +2462,7 @@
                     driverName: document.getElementById('driverName').value, 
                     iqamaNumber: document.getElementById('iqamaNumber').value, 
                     plateNumber: document.getElementById('plateNumber').value, 
-                    mobileNumber: document.getElementById('mobileNumber').value.trim() || "N/A", // Always pass N/A if blank
+                    mobileNumber: document.getElementById('mobileNumber').value.trim() || "N/A", 
                     securityName: document.getElementById('securityNameField').value, 
                     dockNumber: document.getElementById('dockNumber').value, 
                     direction: document.getElementById('direction').value,
