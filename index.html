@@ -855,6 +855,30 @@
         </div>
     </div>
 
+    <!-- OPS ACCESS HISTORY MODAL -->
+    <div class="modal-overlay" id="opsAccessHistoryModal">
+        <div class="modal-window" style="max-width: 700px;">
+            <div class="modal-header-container">
+                <h2>Operations Access History</h2>
+                <button class="btn-modal-close" onclick="document.getElementById('opsAccessHistoryModal').classList.remove('modal-active')">✕</button>
+            </div>
+            <div class="modal-body-content" style="max-height: 60vh; overflow-y: auto; padding-top: 0;">
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="padding-top:1.5rem;">Date</th>
+                            <th style="padding-top:1.5rem;">Name</th>
+                            <th style="padding-top:1.5rem;">Email</th>
+                            <th style="padding-top:1.5rem;">Status</th>
+                            <th style="padding-top:1.5rem;">Action By</th>
+                        </tr>
+                    </thead>
+                    <tbody id="opsAccessHistoryBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <!-- CAMERA OVERLAY WITH TAP-TO-FOCUS RING -->
     <div class="camera-overlay" id="cameraOverlay">
         <div id="cameraFlash" class="camera-flash"></div>
@@ -881,6 +905,8 @@
         let driversRegistryList = [];
         let securityRegistryList = []; 
         let globalHistoryListCache = [];
+        window.globalSystemLogs = []; // Stores System/Ops Access requests globally to keep out of main tables
+
         let currentHistoryDateRange = 'all';
         let currentAnalyticsDateRange = 'weekly';
         let temporaryCapturedImage = null;
@@ -1164,9 +1190,9 @@
 
             // Apply Role-Based Access Control
             document.getElementById('nav-dashboard').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
-            document.getElementById('nav-analytics').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none'; // Visible to Admin & Ops
+            document.getElementById('nav-analytics').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none'; 
             document.getElementById('nav-checkin').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
-            document.getElementById('nav-active-trucks').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none'; // Removed 'ops'
+            document.getElementById('nav-active-trucks').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none'; 
             document.getElementById('nav-history').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
             document.getElementById('nav-drivers').style.display = (role === 'admin') ? 'flex' : 'none';
             document.getElementById('nav-security').style.display = (role === 'admin') ? 'flex' : 'none';
@@ -1234,15 +1260,50 @@
                 if(!nameInput || !emailInput) return alert("Please fill all fields to authorize access.");
                 if(!emailInput.toLowerCase().endsWith('noon.com')) return alert("Access Denied. Only valid noon.com accounts are permitted.");
 
-                let approved = JSON.parse(localStorage.getItem('SLP_OPS_APPROVED') || '[]');
-                if (approved.includes(emailInput.toLowerCase())) {
-                    executeLogin(nameInput, emailInput, '', 'ops');
-                } else {
-                    let pending = JSON.parse(localStorage.getItem('SLP_OPS_PENDING') || '[]');
-                    if (!pending.some(p => p.email === emailInput.toLowerCase())) {
-                        pending.push({ name: nameInput, email: emailInput.toLowerCase() });
-                        localStorage.setItem('SLP_OPS_PENDING', JSON.stringify(pending));
+                let isApproved = false;
+                let isPending = false;
+
+                // Check access based on remote global system logs
+                (window.globalSystemLogs || []).forEach(log => {
+                    if (log.securityId && log.securityId.toLowerCase() === emailInput.toLowerCase()) {
+                        if (log.driverName === 'OPS_ACCESS_APPROVED') {
+                            isApproved = true;
+                            isPending = false;
+                        } else if (log.driverName === 'OPS_ACCESS_DENIED') {
+                            isApproved = false;
+                            isPending = false;
+                        } else if (log.driverName === 'OPS_ACCESS_REQUEST') {
+                            isPending = true;
+                        }
                     }
+                });
+
+                if (isApproved) {
+                    executeLogin(nameInput, emailInput, '', 'ops');
+                } else if (isPending) {
+                    alert("Your access request is currently pending Admin approval.");
+                } else {
+                    // Send Request Remotely via Sheet Appended Log
+                    // NOTE: sealNumber holds the emails for the backend to read.
+                    const payload = {
+                        driverName: "OPS_ACCESS_REQUEST",
+                        securityName: nameInput,
+                        securityId: emailInput.toLowerCase(),
+                        direction: "SYSTEM",
+                        sealNumber: "fsbutt@noon.com,mmaali@noon.com", 
+                        plateNumber: "N/A", dockNumber: "SYSTEM", dispatchType: "N/A"
+                    };
+
+                    fetch(API_URL, { 
+                        method: 'POST', 
+                        headers: {'Content-Type':'text/plain;charset=utf-8'}, 
+                        body: JSON.stringify(payload) 
+                    }).catch(e => console.error("Access request transmission error", e));
+                    
+                    // Optimistic update locally
+                    if(!window.globalSystemLogs) window.globalSystemLogs = [];
+                    window.globalSystemLogs.push({...payload, timestamp: new Date().toISOString()});
+                    
                     alert("Access request sent to Admin. Please wait for approval.");
                 }
 
@@ -1253,21 +1314,14 @@
             }
         });
 
-        /* --- ADMIN NOTIFICATIONS --- */
+        /* --- ADMIN NOTIFICATIONS & HISTORY SYNC --- */
         function checkAdminNotifications() {
             if (userRole !== 'admin') {
                 document.getElementById('adminBellContainer').style.display = 'none';
                 return;
             }
             document.getElementById('adminBellContainer').style.display = 'block';
-            let pending = JSON.parse(localStorage.getItem('SLP_OPS_PENDING') || '[]');
-            const badge = document.getElementById('adminBellBadge');
-            if (pending.length > 0) {
-                badge.style.display = 'block';
-                badge.innerText = pending.length;
-            } else {
-                badge.style.display = 'none';
-            }
+            renderNotifications();
         }
 
         function toggleNotifications() {
@@ -1279,45 +1333,122 @@
         }
 
         function renderNotifications() {
-            const drop = document.getElementById('adminNotifDropdown');
-            let pending = JSON.parse(localStorage.getItem('SLP_OPS_PENDING') || '[]');
-            if (pending.length === 0) {
-                drop.innerHTML = `<div style="padding:1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">No pending requests</div>`;
-                return;
-            }
-            let html = '';
-            pending.forEach((p, idx) => {
-                html += `<div style="padding:0.75rem; border-bottom:1px solid var(--border-color); font-size:0.8rem;">
-                    <strong style="color:#fff; font-size:0.9rem;">${p.name}</strong><br>
-                    <span style="color:var(--text-muted); font-size:0.7rem;">${p.email}</span><br>
-                    <span style="color:var(--accent-color); font-size:0.75rem;">wants Operations access.</span>
-                    <div style="margin-top:8px; display:flex; gap:8px;">
-                        <button onclick="approveOps(${idx})" style="background:var(--success-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Approve</button>
-                        <button onclick="denyOps(${idx})" style="background:var(--danger-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Deny</button>
-                    </div>
-                </div>`;
+            if (userRole !== 'admin') return;
+            
+            let requestsMap = {}; 
+            
+            (window.globalSystemLogs || []).forEach(log => {
+                let email = log.securityId;
+                let name = log.securityName;
+                let type = log.driverName; 
+                
+                if (!requestsMap[email]) {
+                    requestsMap[email] = { name: name, status: null, time: null, logs: [] };
+                }
+                requestsMap[email].logs.push(log);
+                
+                // The latest log dictates the current status
+                requestsMap[email].status = type;
+                requestsMap[email].time = log.timestamp;
+                requestsMap[email].actionBy = log.actionByName || 'System';
             });
-            drop.innerHTML = html;
+
+            let pendingHtml = '';
+            let pendingCount = 0;
+            
+            for (let email in requestsMap) {
+                if (requestsMap[email].status === 'OPS_ACCESS_REQUEST') {
+                    pendingCount++;
+                    pendingHtml += `
+                    <div style="padding:0.75rem; border-bottom:1px solid var(--border-color); font-size:0.8rem;">
+                        <strong style="color:#fff; font-size:0.9rem;">${requestsMap[email].name}</strong><br>
+                        <span style="color:var(--text-muted); font-size:0.75rem;">${email}</span><br>
+                        <span style="color:var(--accent-color); font-size:0.75rem;">wants Operations access.</span>
+                        <div style="margin-top:8px; display:flex; gap:8px;">
+                            <button onclick="approveOpsRequest('${requestsMap[email].name.replace(/'/g, "\\'")}', '${email.replace(/'/g, "\\'")}')" style="background:var(--success-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Approve</button>
+                            <button onclick="denyOpsRequest('${requestsMap[email].name.replace(/'/g, "\\'")}', '${email.replace(/'/g, "\\'")}')" style="background:var(--danger-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Deny</button>
+                        </div>
+                    </div>`;
+                }
+            }
+            
+            const badge = document.getElementById('adminBellBadge');
+            if (pendingCount > 0) {
+                badge.style.display = 'block';
+                badge.innerText = pendingCount;
+            } else {
+                badge.style.display = 'none';
+            }
+
+            const drop = document.getElementById('adminNotifDropdown');
+            if (pendingCount === 0) {
+                drop.innerHTML = `<div style="padding:1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">No pending requests</div>`;
+            } else {
+                drop.innerHTML = pendingHtml;
+            }
+            
+            // Add History Button to bottom
+            drop.innerHTML += `<div style="padding:0.5rem; text-align:center; background:rgba(0,0,0,0.3); border-top:1px solid var(--border-color);"><button onclick="openOpsHistoryModal()" style="background:transparent; border:none; color:var(--accent-color); font-size:0.75rem; font-weight:bold; cursor:pointer; text-transform:uppercase;">View Access History</button></div>`;
         }
 
-        function approveOps(idx) {
-            let pending = JSON.parse(localStorage.getItem('SLP_OPS_PENDING') || '[]');
-            let approved = JSON.parse(localStorage.getItem('SLP_OPS_APPROVED') || '[]');
-            let user = pending.splice(idx, 1)[0];
-            if(!approved.includes(user.email)) approved.push(user.email);
-            localStorage.setItem('SLP_OPS_PENDING', JSON.stringify(pending));
-            localStorage.setItem('SLP_OPS_APPROVED', JSON.stringify(approved));
+        function approveOpsRequest(name, email) {
+            const payload = {
+                driverName: "OPS_ACCESS_APPROVED",
+                securityName: name,
+                securityId: email,
+                direction: "SYSTEM",
+                sealNumber: "N/A",
+                plateNumber: "N/A", dockNumber: "SYSTEM", dispatchType: "N/A",
+                actionByEmail: loggedInUser.email,
+                actionByName: loggedInUser.name
+            };
+            fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            window.globalSystemLogs.push({...payload, timestamp: new Date().toISOString()});
             renderNotifications();
-            checkAdminNotifications();
         }
 
-        function denyOps(idx) {
-            let pending = JSON.parse(localStorage.getItem('SLP_OPS_PENDING') || '[]');
-            pending.splice(idx, 1);
-            localStorage.setItem('SLP_OPS_PENDING', JSON.stringify(pending));
+        function denyOpsRequest(name, email) {
+            const payload = {
+                driverName: "OPS_ACCESS_DENIED",
+                securityName: name,
+                securityId: email,
+                direction: "SYSTEM",
+                sealNumber: "N/A",
+                plateNumber: "N/A", dockNumber: "SYSTEM", dispatchType: "N/A",
+                actionByEmail: loggedInUser.email,
+                actionByName: loggedInUser.name
+            };
+            fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            window.globalSystemLogs.push({...payload, timestamp: new Date().toISOString()});
             renderNotifications();
-            checkAdminNotifications();
         }
+
+        window.openOpsHistoryModal = function() {
+            const tbody = document.getElementById('opsAccessHistoryBody');
+            tbody.innerHTML = '';
+            
+            let historyLogs = (window.globalSystemLogs || []).filter(l => l.driverName === 'OPS_ACCESS_APPROVED' || l.driverName === 'OPS_ACCESS_DENIED');
+            
+            if (historyLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">No history found.</td></tr>`;
+            } else {
+                historyLogs.slice().reverse().forEach(log => {
+                    let statusColor = log.driverName === 'OPS_ACCESS_APPROVED' ? 'var(--success-color)' : 'var(--danger-color)';
+                    let statusText = log.driverName === 'OPS_ACCESS_APPROVED' ? 'APPROVED' : 'DENIED';
+                    
+                    tbody.innerHTML += `
+                    <tr>
+                        <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(log.timestamp)}</td>
+                        <td><strong>${log.securityName}</strong></td>
+                        <td style="font-size:0.8rem;">${log.securityId}</td>
+                        <td style="color:${statusColor}; font-weight:bold; font-size:0.8rem;">${statusText}</td>
+                        <td style="font-size:0.8rem; color:var(--text-muted);">${log.actionByName || '--'}</td>
+                    </tr>`;
+                });
+            }
+            document.getElementById('opsAccessHistoryModal').classList.add('modal-active');
+            document.getElementById('adminNotifDropdown').classList.remove('open');
+        };
 
         /* ---------------- INTRO SCREEN PARTICLES ---------------- */
         const canvas = document.getElementById('particleCanvas');
@@ -2672,7 +2803,26 @@
             });
             // ------------------------------------------
 
-            let chronData = processedData.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)); 
+            // --- SEPARATE SYSTEM LOGS FROM TRUCK LOGS ---
+            let truckLogs = [];
+            let systemLogs = [];
+
+            processedData.forEach(row => {
+                let dName = (row.driverName || "").toUpperCase();
+                let dir = (row.direction || "").toUpperCase();
+                
+                // If it's an Ops Access Request/Approval/Denial, it does NOT go into the tables
+                if (dir === 'SYSTEM' || dName.startsWith('OPS_ACCESS_')) {
+                    systemLogs.push(row);
+                } else {
+                    truckLogs.push(row);
+                }
+            });
+
+            // Store isolated system logs for the notifications and history
+            window.globalSystemLogs = systemLogs.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            let chronData = truckLogs.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)); 
             globalLogsCache = chronData;
 
             const activeBody = document.getElementById('activeYardTableBody');
@@ -2801,6 +2951,9 @@
             applyHistoryFilters(); // Applies both date and search text filters
             applyAnalyticsFilters(); // Initialize Analytics Charts
             populateDatalists(globalHistoryListCache); // Dynamically update input dropdowns!
+            
+            // If admin, update the notification bell
+            if(userRole === 'admin') renderNotifications();
         };
 
         function fetchLogs() {
