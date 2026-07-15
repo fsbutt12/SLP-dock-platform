@@ -175,62 +175,22 @@
 
         .dashboard-mid-split { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
 
-        /* ACTIVE DOCKS BADGES - BRIGHT & BEAUTIFUL */
-        #occupiedDocksContainer {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
-            gap: 12px;
-            padding: 2rem;
-            background: linear-gradient(145deg, rgba(0,0,0,0.6), rgba(18,22,31,0.9));
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12px;
-            box-shadow: inset 0 5px 20px rgba(0,0,0,0.5);
-        }
-        
+        /* ACTIVE DOCKS BADGES (BRIGHTENED FOR DAYLIGHT) */
         .dock-badge-active { 
-            background: linear-gradient(135deg, #2ea043, #3fb950); 
-            border: 1px solid #4ae168; 
-            color: #ffffff; 
-            padding: 1rem 0; 
-            border-radius: 8px; 
-            font-weight: 900; 
-            font-size: 1.35rem; 
-            font-family: 'Segoe UI', monospace; 
-            display: flex;
-            align-items: center;
-            justify-content: center; 
-            cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            box-shadow: 0 0 20px rgba(46, 160, 67, 0.7), inset 0 0 10px rgba(255,255,255,0.3);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            background: #2ea043; border: 2px solid #238636; color: #ffffff; 
+            padding: 0.75rem 1.25rem; border-radius: 6px; font-weight: 900; 
+            font-size: 1.1rem; font-family: monospace; display: inline-block; 
+            cursor: pointer; transition: all 0.2s ease; text-align: center;
+            min-width: 55px; box-shadow: 0 4px 12px rgba(46, 160, 67, 0.4);
         }
-        .dock-badge-active:hover { 
-            background: linear-gradient(135deg, #3fb950, #4ae168); 
-            transform: scale(1.1) translateY(-4px); 
-            box-shadow: 0 10px 25px rgba(46, 160, 67, 0.9), inset 0 0 15px rgba(255,255,255,0.5);
-            z-index: 10;
-        }
-        
+        .dock-badge-active:hover { background: #3fb950; transform: scale(1.1); }
+
         .dock-badge-inactive { 
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            color: rgba(255, 255, 255, 0.3); 
-            padding: 1rem 0; 
-            border-radius: 8px; 
-            font-weight: 800; 
-            font-size: 1.25rem; 
-            font-family: 'Segoe UI', monospace; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 1; 
-            cursor: default; 
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-        }
-        .dock-badge-inactive:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: rgba(255, 255, 255, 0.6);
+            background: #f0f2f5; border: 1px solid #d0d7de; color: #24292f; 
+            padding: 0.5rem 0.85rem; border-radius: 6px; font-weight: 800; 
+            font-size: 0.95rem; font-family: monospace; display: inline-block;
+            opacity: 1; cursor: default; text-align: center; min-width: 55px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .highlight-row { background-color: rgba(252, 194, 0, 0.15) !important; border-left: 4px solid var(--accent-color) !important; transition: background-color 0.3s, border 0.3s; }
@@ -240,10 +200,10 @@
         .analytics-hub-title { background: rgba(56, 139, 253, 0.1); border: 1px solid rgba(56, 139, 253, 0.3); color: #79c0ff; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-radius: 6px; margin-bottom: 1.5rem; }
         .analytics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
         @media (max-width: 1100px) { .analytics-grid { grid-template-columns: 1fr; } }
-        
-        .chart-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); display: flex; flex-direction: column; min-height: 280px; }
-        .chart-card h3 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; }
-        
+
+        .chart-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); display: flex; flex-direction: column; }
+        .chart-card h3 { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2rem; }
+
         /* Bar Charts CSS */
         .bar-chart-container { display: flex; flex-direction: column; gap: 0.85rem; flex-grow: 1; justify-content: center; margin-top: 1rem; }
         .bar-row { display: grid; grid-template-columns: 85px 1fr 60px; gap: 12px; align-items: center; }
@@ -267,7 +227,7 @@
         .chart-legend li span { color: #fff; font-weight: 700; }
         .chart-legend li .legend-label-group { display: flex; align-items: center; gap: 8px; }
         .chart-legend li .legend-color-box { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
-        
+
         /* Accordion CSS for Grouped Tables */
         .accordion-wrapper { margin-bottom: 1rem; }
         .accordion-header {
@@ -278,23 +238,13 @@
         .accordion-header:hover { background: rgba(255,255,255,0.05); }
         .accordion-title { font-weight: 800; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 10px; }
         .accordion-badge { background: var(--card-solid); padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; color: var(--accent-color); border: 1px solid var(--border-color); }
-        .accordion-content { display: none; padding: 0; border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 8px 8px; background: rgba(0,0,0,0.15); overflow-x: auto; }
+        .accordion-content {
+            display: none; padding: 0; border: 1px solid var(--border-color); border-top: none;
+            border-radius: 0 0 8px 8px; background: rgba(0,0,0,0.15); overflow-x: auto;
+        }
         .accordion-content.open { display: block; }
         .accordion-wrapper.open .accordion-header { border-radius: 8px 8px 0 0; border-bottom: 1px dashed var(--border-color); background: rgba(255,255,255,0.02); }
 
-        /* Filter Styles */
-        .filter-tabs-container { display: flex; gap: 0.25rem; background: rgba(0,0,0,0.4); padding: 0.25rem; border-radius: 6px; border: 1px solid var(--border-color); flex-wrap: wrap; justify-content: flex-end;}
-        .tab-filter-item { background: transparent; border: none; color: var(--text-muted); font-size: 0.7rem; font-weight: 700; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; }
-        .tab-filter-item.active { background: var(--accent-color); color: #000; }
-        .custom-date-row { display: none; gap: 0.5rem; align-items: center; margin-top: 0.75rem; justify-content: flex-end; }
-        .custom-date-row input[type="date"] { 
-            background: #161b22; border: 1px solid rgba(252, 194, 0, 0.4); color: #fff; padding: 0.6rem 1rem; 
-            border-radius: 6px; font-size: 0.85rem; outline:none; cursor: pointer; font-family: 'Segoe UI', sans-serif;
-        }
-        .custom-date-row input[type="date"]:focus { border-color: var(--accent-color); background: #0d1117; }
-        .custom-date-row button { background: var(--accent-color); color: #000; border: none; padding: 0.6rem 1.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 800; cursor: pointer; text-transform: uppercase; }
-
-        /* Other common elements */
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
         .card h2 { font-size: 0.95rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; font-weight: 700; }
@@ -302,17 +252,20 @@
         .view-header-title h1 { font-size: 1.75rem; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
         .view-header-title p { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; font-weight: 600; }
         .counter-badge-orange { display: inline-block; background: rgba(252, 194, 0, 0.15); color: var(--accent-color); border: 1px solid rgba(252, 194, 0, 0.3); font-size: 0.7rem; font-weight: bold; padding: 0.25rem 0.6rem; border-radius: 4px; margin-top: 8px; }
-        
+
+        .filter-tabs-container { display: flex; gap: 0.25rem; background: rgba(0,0,0,0.4); padding: 0.25rem; border-radius: 6px; border: 1px solid var(--border-color); flex-wrap: wrap; justify-content: flex-end;}
+        .tab-filter-item { background: transparent; border: none; color: var(--text-muted); font-size: 0.7rem; font-weight: 700; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; }
+        .tab-filter-item.active { background: var(--accent-color); color: #000; }
+        .btn-excel { background-color: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; }
+        .btn-excel:hover { background-color: var(--accent-color); color: #000; }
+
         table { width: 100%; border-collapse: collapse; text-align: left; }
         html[dir="rtl"] table { text-align: right; }
         th { color: var(--text-muted); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; padding: 1rem 0.85rem; border-bottom: 1px solid var(--border-color); letter-spacing: 0.5px; }
         td { padding: 1rem 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background-color: rgba(255,255,255,0.02); }
-        
-        .btn-excel { background-color: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; }
-        .btn-excel:hover { background-color: var(--accent-color); color: #000; }
-        
+
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
         .badge.in { background: rgba(46, 160, 67, 0.15); color: #3fb950; border: 1px solid rgba(46, 160, 67, 0.3); }
         .badge.out { background: rgba(248, 81, 73, 0.15); color: #ff7b72; border: 1px solid rgba(248, 81, 73, 0.3); }
@@ -337,23 +290,23 @@
         .toggle-container { display: flex; justify-content: center; background: #0b0e14; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 4px; margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto; }
         .toggle-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 0.6rem 1rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .toggle-btn.active { background: var(--accent-color); color: #000; }
-        
+
         .form-grid-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem 2rem; }
         @media (max-width: 768px) { .form-grid-columns { grid-template-columns: 1fr; } }
         .form-section-divider { grid-column: 1 / -1; background: #1a365d; color: #fff; border: none; padding: 0.5rem 1rem; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; border-radius: 4px; margin-top: 1rem; margin-bottom: 0.5rem; letter-spacing: 0.5px; max-width: fit-content; }
-        
+
         .badge-style { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem; font-weight: 700; letter-spacing: 0.5px; }
         .input-box-styled { width: 100%; background-color: #0b0e14; border: 1px solid rgba(255,255,255,0.05); color: var(--text-main); padding: 0.85rem 1rem; border-radius: 6px; font-size: 0.9rem; outline: none; transition: border 0.2s; }
         .input-box-styled:focus { border-color: var(--accent-color); background-color: #12161f; }
-        
+
         .header-search-box-container { position: relative; width: 280px; }
         .header-search-box-container span { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; }
         .header-search-input { width: 100%; background: #0b0e14; border: 1px solid rgba(255,255,255,0.05); color: #fff; padding: 0.6rem 1rem 0.6rem 2.25rem; border-radius: 6px; font-size: 0.85rem; outline: none; }
         .header-search-input:focus { border-color: var(--accent-color); }
-        
+
         .plate-box-split { display: inline-flex; flex-direction: column; gap: 2px; }
         .plate-segment { border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background: rgba(0,0,0,0.4); text-align: center; min-width: 50px; font-family: monospace; }
-        
+
         .submit-btn-global { width: 100%; background-color: var(--accent-color); color: #000; border: none; padding: 1rem; font-size: 0.95rem; font-weight: 800; border-radius: 6px; cursor: pointer; text-transform: uppercase; margin-top: 2.5rem; letter-spacing: 1px; transition: opacity 0.2s; }
         .submit-btn-global:hover { opacity: 0.9; }
 
@@ -377,7 +330,7 @@
 
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
         .modal-overlay.modal-active { display: flex; }
-        
+
         .modal-window { background: #0d1117; border: 1px solid var(--border-color); border-radius: 12px; width: 100%; max-width: 580px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7); display: flex; flex-direction: column; }
         .modal-header-container { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); }
         .modal-header-container h2 { font-size: 1.1rem; color: #fff; font-weight: 700; text-transform: uppercase; }
@@ -410,7 +363,7 @@
         .camera-controls button { padding: 0.8rem 1.5rem; border-radius: 6px; border: none; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.8rem; }
         .btn-capture { background: var(--accent-color); color: #000; }
         .btn-cancel-cam { background: var(--danger-color); color: #fff; }
-        
+
         .focus-ring {
             position: fixed; width: 60px; height: 60px; border: 2px solid var(--accent-color);
             border-radius: 8px; pointer-events: none; display: none; z-index: 2005;
@@ -429,6 +382,11 @@
             transition: opacity 0.15s ease-out;
         }
         .camera-flash.flash-active { opacity: 1; transition: none; }
+
+        .custom-date-row { display: none; gap: 0.5rem; align-items: center; margin-top: 0.75rem; }
+        .custom-date-row.open { display: flex; }
+        .custom-date-row input[type="date"] { background: #0d1117; border: 1px solid var(--border-color); color: #fff; padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.8rem; outline:none;}
+        .custom-date-row button { background: var(--accent-color); color: #000; border: none; padding: 0.55rem 1rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; cursor: pointer; text-transform: uppercase; }
 
         /* Admin Bell Icon CSS */
         .admin-bell-container { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 1000; display: none; }
@@ -470,7 +428,7 @@
             </div>
 
             <div id="customLoginBox" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
-                
+
                 <div class="scan-box-dashed" id="loginScanBox" onclick="document.getElementById('loginOfficerScanner').click()" style="padding: 1rem; margin-bottom: 0.5rem;">
                     <div><span class="icon" style="font-size:1.5rem; margin-bottom:0.4rem;">🛡️</span><span class="label-text" id="loginOfficerStatus" data-i18n="Scan Security ID">Scan Security ID</span></div>
                     <input type="file" id="loginOfficerScanner" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'loginOfficerStatus', 'LOGIN_OFFICER')">
@@ -549,11 +507,11 @@
                 <div><span data-i18n="System Health">System Health</span><div data-i18n="Operational" style="font-weight:700; color:var(--success-color); margin-top:2px;">Operational</div></div>
                 <div class="health-dot"></div>
             </div>
-            
+
             <div class="nav-item" onclick="toggleLang()">
                 <span class="nav-icon">🌐</span><span class="nav-text" data-i18n="Language: EN / AR">Language: EN / AR</span>
             </div>
-            
+
             <div class="nav-item" onclick="toggleFullscreen()">
                 <span class="nav-icon" id="fsIcon">🖥️</span><span class="nav-text" id="fsBtnLabel" data-i18n="Fullscreen">Fullscreen</span>
             </div>
@@ -566,9 +524,9 @@
     <div class="main-content" id="mainContentArea">
         <button class="desktop-nav-btn nav-prev-btn" onclick="swipePrev()" title="Previous Tab">❮</button>
         <button class="desktop-nav-btn nav-next-btn" onclick="swipeNext()" title="Next Tab">❯</button>
-        
+
         <div id="view-dashboard" class="app-view active-view">
-            
+
             <div class="dashboard-hero">
                 <div class="hero-badges-wrapper">
                     <span class="hero-badge" id="heroTimeBadge" style="font-size: 1rem; color: var(--accent-color);">--:--</span>
@@ -594,7 +552,9 @@
                         <h2 data-i18n="Currently Occupied Docks">Currently Occupied Docks</h2>
                         <span id="occupiedDocksCount" style="font-size:0.75rem; background: rgba(46,160,67,0.15); color: var(--success-color); padding: 0.2rem 0.5rem; border-radius:4px; font-weight:700;">0 <span data-i18n="Docks In Use">Docks In Use</span></span>
                     </div>
-                    <div id="occupiedDocksContainer"></div>
+                    <div id="occupiedDocksContainer" style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; align-content: flex-start; flex-grow: 1; padding: 1.5rem; border: 1px dashed rgba(255,255,255,0.05); border-radius: 8px;">
+                        <div style="width:100%; text-align:center; color:var(--text-muted); font-size:0.8rem; margin-top:2rem;" data-i18n="All docks are currently clear.">All docks are currently clear.</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -606,13 +566,13 @@
                     <h1 data-i18n="Analytics">Analytics</h1>
                     <p data-i18n="DEEP-DIVE ANALYTICS HUB">DEEP-DIVE ANALYTICS HUB</p>
                 </div>
-                
+
                 <div class="header-search-box-container" style="width: 320px;">
                     <span>🔍</span>
                     <input type="text" id="analyticsSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="applyAnalyticsFilters()">
                 </div>
             </div>
-            
+
             <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem;">
                 <div class="filter-tabs-container analytics-filter-container">
                     <button class="tab-filter-item" data-range="today" onclick="setAnalyticsDateFilter('today', this)" data-i18n="Today">Today</button>
@@ -623,10 +583,10 @@
                     <button class="tab-filter-item" data-range="custom" onclick="setAnalyticsDateFilter('custom', this)" data-i18n="Custom">Custom</button>
                 </div>
             </div>
-            
+
             <div class="custom-date-row" id="analyticsCustomDateRow" style="justify-content: flex-end; margin-bottom: 1.5rem;">
-                <input type="date" id="analyticsCustomDateFrom" title="Start Date"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700; margin: 0 0.5rem;" data-i18n="TO">TO</span> <input type="date" id="analyticsCustomDateTo" title="End Date">
-                <button onclick="applyAnalyticsFilters()" data-i18n="Apply" style="margin-left: 0.5rem;">Apply</button>
+                <input type="date" id="analyticsCustomDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="analyticsCustomDateTo">
+                <button onclick="applyAnalyticsFilters()" data-i18n="Apply">Apply</button>
             </div>
 
             <div class="analytics-grid">
@@ -661,6 +621,14 @@
                 </div>
             </div>
 
+            <!-- Filtered Log Table without Personal Details -->
+            <div class="card" style="margin-top: 2rem; overflow-x: auto; padding: 1.5rem; background: transparent; border: none;">
+                <h3 style="color: #fff; font-size: 0.95rem; text-transform: uppercase; margin-bottom: 1rem;" data-i18n="Filtered Movement Logs">Filtered Movement Logs</h3>
+                <table id="analyticsLogTable">
+                    <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Seal Number">Seal Number</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th></tr></thead>
+                    <tbody id="analyticsLogTableBody"><tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;" data-i18n="No records match this filter.">NO RECORDS MATCH THIS FILTER.</td></tr></tbody>
+                </table>
+            </div>
             <!-- Filtered Log Table without Personal Details (Accordion Layout) -->
             <div id="analyticsGroupedTables" style="margin-top: 2rem;"></div>
         </div>
@@ -670,7 +638,7 @@
                 <header class="view-header-row" style="border-bottom: none; margin-bottom: 1rem; padding-bottom: 0;">
                     <div class="view-header-title"><h1 data-i18n="Truck Entry Form">Truck Entry Form</h1></div>
                 </header>
-                
+
                 <div class="scanners-double-row">
                     <div class="scan-box-dashed" id="scanBoxDriver" onclick="document.getElementById('driverPhotoInput').click()">
                         <div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
@@ -696,7 +664,7 @@
 
                     <form id="entryForm">
                         <div class="form-grid-columns">
-                            
+
                             <datalist id="dl-docks"></datalist>
 
                             <div class="form-group search-input-wrapper" id="driverLookupGroup" style="display: none; grid-column: 1 / -1; position: relative;">
@@ -709,9 +677,9 @@
                             <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Iqama Number *">Iqama Number *</label><input type="text" id="iqamaNumber" class="input-box-styled" data-i18n="Iqama Number *" placeholder="Enter 10-digit identity card number"></div>
                             <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Truck Plate Number *">Truck Plate Number *</label><input type="text" id="plateNumber" class="input-box-styled" data-i18n="Truck Plate Number *" placeholder="Enter bumper plate sequence"></div>
                             <div class="form-group new-driver-field"><label class="badge-style" data-i18n="Mobile Number">Mobile Number</label><input type="text" id="mobileNumber" class="input-box-styled" data-i18n="Mobile Number" placeholder="Enter mobile number"></div>
-                            
+
                             <div class="form-section-divider" data-i18n="Security & Facility Details">Security & Facility Details</div>
-                            
+
                             <!-- Checkin Security fields are auto-filled by Login Guardrail -->
                             <div class="form-group" id="securityDropdownWrapper" style="position: relative;">
                                 <label class="badge-style" data-i18n="Security Name *">Security Name *</label>
@@ -724,11 +692,11 @@
                                 <label class="badge-style" data-i18n="Security ID *">Security ID *</label>
                                 <input type="text" id="securityNameId" class="input-box-styled" required data-i18n="Security ID *" placeholder="Enter staff token number (e.g. LP0023)" autocomplete="off">
                             </div>
-                            
+
                             <div class="form-group"><label class="badge-style" data-i18n="Dock Number *">Dock Number *</label>
                                 <input type="text" id="dockNumber" class="input-box-styled" list="dl-docks" required data-i18n="Dock Number *" placeholder="e.g. 25 or Dock 4" autocomplete="off">
                             </div>
-                            
+
                             <div class="form-group"><label class="badge-style" data-i18n="Purpose / Direction *">Purpose / Direction *</label>
                                 <select id="direction" class="input-box-styled" style="font-size: 0.85rem;">
                                     <option value="Inbound - تنزيل بضائع">Inbound - تنزيل بضائع</option>
@@ -753,12 +721,12 @@
                                     <option value="Receiving" data-i18n="Receiving">Receiving</option>
                                 </select>
                             </div>
-                            
+
                             <div class="form-group" id="sealNumberContainer" style="display: none; grid-column: 1 / -1;">
                                 <label class="badge-style" style="color:var(--accent-color);" data-i18n="Incoming Seal Number *">Incoming Seal Number *</label>
                                 <input type="text" id="sealNumber" class="input-box-styled" data-i18n="Incoming Seal Number *" placeholder="Enter incoming seal number" style="border-color: rgba(252, 194, 0, 0.4);">
                             </div>
-                            
+
                         </div>
                         <button type="submit" class="submit-btn-global" data-i18n="Check In Truck">Check In Truck</button>
                     </form>
@@ -796,8 +764,8 @@
                     </div>
                 </div>
                 <div class="custom-date-row" id="customDateRow">
-                    <input type="date" id="customDateFrom" title="Start Date"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700; margin: 0 0.5rem;" data-i18n="TO">TO</span> <input type="date" id="customDateTo" title="End Date">
-                    <button onclick="applyHistoryFilters()" data-i18n="Apply" style="margin-left: 0.5rem;">Apply</button>
+                    <input type="date" id="customDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="customDateTo">
+                    <button onclick="applyHistoryFilters()" data-i18n="Apply">Apply</button>
                 </div>
                 <div style="overflow-x: auto; margin-top: 1rem;">
                     <table id="historyLogTable">
@@ -878,7 +846,7 @@
                 <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛡️</div>
                 <h2 style="color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem;" data-i18n="Authorize Departure">Authorize Departure</h2>
                 <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 2.5rem;" id="signOutModalSubtext" data-i18n="Completing SLP cycle...">Completing SLP cycle...</p>
-                
+
                 <div class="form-group" style="text-align: left; margin-bottom: 2rem;">
                     <label class="badge-style" style="color: var(--accent-color);" data-i18n="ATTACH DEPARTURE SEAL *">ATTACH DEPARTURE SEAL *</label>
                     <input type="text" id="signOutSeal" class="input-box-styled" data-i18n="ATTACH DEPARTURE SEAL *" placeholder="e.g. SEAL-9022-X" style="border-color: rgba(252, 194, 0, 0.5); background:#0b0e14;">
@@ -913,7 +881,7 @@
 
         const API_URL = "https://script.google.com/macros/s/AKfycbxJe0TiXyU47-DCQfi44OztKNHaxmsM8n31wzg53fUw6BBnYkgcVmVhEIE5ViKvGQiWDg/exec";
         const OCR_API_URL = "https://script.google.com/macros/s/AKfycby9lTuAoee2ZUHUPtV7i0lmcmHT9L4xU0jenC-EhJpxoXSQNckRwWNInjiv6mLc7REc/exec";
-        
+
         let globalLogsCache = [];
         let driversRegistryList = [];
         let securityRegistryList = []; 
@@ -921,8 +889,7 @@
         let currentHistoryDateRange = 'all';
         let currentAnalyticsDateRange = 'weekly';
         let temporaryCapturedImage = null;
-        let openAccordionDirs = []; // Tracks which analytics accordions are currently expanded
-        
+
         // Active User & Role Details 
         let loggedInUser = { name: "Guest User", email: "Not signed in", noonId: "", picture: "" };
         let userRole = 'guard'; // Default role is 'guard'. Admin unlocks special features.
@@ -952,7 +919,7 @@
             "1 Year": "سنة واحدة",
             "Vehicle Processing Growth": "نمو معالجة المركبات",
             "Filtered Movement Logs": "سجلات الحركة المفلترة",
-            
+
             "Noon": "نون",
             "Dock Security Platform": "منصة أمن الأرصفة",
             "Guest User": "مستخدم ضيف",
@@ -982,6 +949,7 @@
             "Uses": "استخدامات",
             "Truck Entry Form": "نموذج دخول الشاحنة",
             "Record arriving and departing vehicles": "تسجيل المركبات القادمة والمغادرة",
+            "Record arriving and departing vehicles": "تسجيل المركبات القادمة ومغادرة",
             "Driver Photo / Truck Photo": "صورة السائق / صورة الشاحنة",
             "Iqama (ID Card) Scanner": "ماسح الإقامة (بطاقة الهوية)",
             "Use Camera": "استخدام الكاميرا",
@@ -1097,12 +1065,14 @@
                 }
             });
             updateHeroDateTime();
-            // Important: removed the recursive window.handleLogsResponse call here to prevent infinite loop crashes!
+            if(window.handleLogsResponse && globalLogsCache) {
+                window.handleLogsResponse(globalLogsCache);
+            }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
             updateUIStrings();
-            
+
             // Auto-fill listeners for Security database 
             document.getElementById('securityNameId').addEventListener('input', function() {
                 if(!securityRegistryList) return;
@@ -1114,18 +1084,15 @@
         });
 
         // Toggle Accordion for Analytics View
-        window.toggleAccordion = function(el, dirKey) {
+        window.toggleAccordion = function(el) {
             const content = el.nextElementSibling;
             const wrapper = el.parentElement;
-            
             if (content.classList.contains('open')) {
                 content.classList.remove('open');
                 wrapper.classList.remove('open');
-                openAccordionDirs = openAccordionDirs.filter(d => d !== dirKey);
             } else {
                 content.classList.add('open');
                 wrapper.classList.add('open');
-                if(!openAccordionDirs.includes(dirKey)) openAccordionDirs.push(dirKey);
             }
         };
 
@@ -1173,7 +1140,7 @@
             "ruh01dock.security10@noon.com", "ruh01dock.security11@noon.com", "ruh01dock.security12@noon.com",
             "ruh01dock.security13@noon.com", "ruh01dock.security14@noon.com"
         ];
-        
+
         function switchLoginMode(mode) {
             currentLoginMode = mode;
             document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
@@ -1210,11 +1177,11 @@
                 loginTime: Date.now()
             }));
 
-            // Safely restrict Navigation Items
+            // Apply Role-Based Access Control
             document.getElementById('nav-dashboard').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
-            document.getElementById('nav-analytics').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
+            document.getElementById('nav-analytics').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none'; // Visible to Admin & Ops
             document.getElementById('nav-checkin').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
-            document.getElementById('nav-active-trucks').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
+            document.getElementById('nav-active-trucks').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none'; // Removed 'ops'
             document.getElementById('nav-history').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
             document.getElementById('nav-drivers').style.display = (role === 'admin') ? 'flex' : 'none';
             document.getElementById('nav-security').style.display = (role === 'admin') ? 'flex' : 'none';
@@ -1232,7 +1199,7 @@
             const statusBox = document.getElementById('authStatus');
             const authText = document.getElementById('authText');
             const container = document.getElementById('loginContainer');
-            
+
             document.getElementById('customLoginBox').style.display = 'none';
             document.querySelector('.login-tabs').style.display = 'none';
             statusBox.style.display = 'block';
@@ -1242,13 +1209,13 @@
                 authText.style.color = "var(--success-color)";
                 authText.classList.remove('pulsing');
                 container.style.boxShadow = "0 0 80px rgba(46, 160, 67, 0.25), 0 20px 40px rgba(0,0,0,0.8)";
-                
+
                 setTimeout(() => {
                     document.getElementById('introOverlay').classList.add('hidden');
                     setTimeout(() => { 
                         introActive = false; 
                         cancelAnimationFrame(animationFrameId); 
-                        
+
                         // Setup correct default view & notifications
                         if (role === 'ops') {
                             switchView('dashboard', document.getElementById('nav-dashboard'));
@@ -1258,7 +1225,7 @@
                             switchView('dashboard', document.getElementById('nav-dashboard'));
                             checkAdminNotifications();
                         }
-                        
+
                         fetchLogs(); 
                     }, 1000);
                 }, 1200);
@@ -1267,7 +1234,7 @@
 
         document.getElementById('customSignInBtn').addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             const nameInput = document.getElementById('loginName').value.trim();
             const emailInput = document.getElementById('loginEmail').value.trim();
             const noonIdInput = document.getElementById('loginNoonId').value.trim();
@@ -1281,7 +1248,7 @@
             } else if (currentLoginMode === 'ops') {
                 if(!nameInput || !emailInput) return alert("Please fill all fields to authorize access.");
                 if(!emailInput.toLowerCase().endsWith('noon.com')) return alert("Access Denied. Only valid noon.com accounts are permitted.");
-                
+
                 let approved = JSON.parse(localStorage.getItem('SLP_OPS_APPROVED') || '[]');
                 if (approved.includes(emailInput.toLowerCase())) {
                     executeLogin(nameInput, emailInput, '', 'ops');
@@ -1409,7 +1376,7 @@
         if (sessionStr) {
             const sessionData = JSON.parse(sessionStr);
             const twelveHours = 12 * 60 * 60 * 1000;
-            
+
             if (!sessionData.loginTime || (Date.now() - sessionData.loginTime > twelveHours)) {
                 // Session Expired
                 localStorage.removeItem('noonSlpUserSession');
@@ -1431,7 +1398,7 @@
             const monthsEn = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
             const monthsAr = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
             const m = currentLang === 'ar' ? monthsAr[d.getMonth()] : monthsEn[d.getMonth()];
-            
+
             const dateStr = String(d.getDate()).padStart(2, '0') + " " + m + " " + d.getFullYear();
             const badgeD = document.getElementById('heroDateBadge');
             if(badgeD) badgeD.innerText = dateStr;
@@ -1441,7 +1408,7 @@
             let min = String(d.getMinutes()).padStart(2, '0');
             let sec = String(d.getSeconds()).padStart(2, '0');
             const timeStr = `${hr}:${min}:${sec} ${ampm}`;
-            
+
             const badgeT = document.getElementById('heroTimeBadge');
             if(badgeT) badgeT.innerText = timeStr;
         }
@@ -1472,7 +1439,7 @@
         function highlightActiveTruck(dockNum) {
             if (userRole === 'ops') return; // Prevent Ops from clicking docks to switch views
             switchView('active-trucks', document.getElementById('nav-active-trucks'));
-            
+
             document.querySelectorAll('#activeYardTableBody tr').forEach(row => {
                 row.classList.remove('highlight-row');
             });
@@ -1498,7 +1465,7 @@
             document.getElementById('modalDataIqama').innerText = iqama;
             document.getElementById('modalDataDate').innerText = date;
             document.getElementById('modalDataMobile').innerText = phone || 'N/A';
-            
+
             let titleEl = document.getElementById('modalTitleName');
             let plateCell = document.getElementById('modalDataPlateCell');
             let iqamaLabel = document.getElementById('modalLabelIqama');
@@ -1511,12 +1478,12 @@
                 titleEl.innerText = tr("Driver Details");
                 iqamaLabel.innerText = tr("Iqama/National ID");
                 plateCell.style.display = 'block';
-                
+
                 let plateBox = document.getElementById('modalDataPlate'); plateBox.innerHTML = '';
                 let segments = plate ? plate.split(' ') : ['--'];
                 segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
             }
-            
+
             // Load custom image if available
             const viewport = document.getElementById('modalMediaViewport');
             const lookupKey = isGuard ? 'SLP_GUARD_IMG_' : 'SLP_IMG_';
@@ -1529,7 +1496,7 @@
 
             document.getElementById('driverProfileModal').classList.add('modal-active');
         }
-        
+
         function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
 
         /* --- DRIVER & GUARD EDIT MODAL LOGIC --- */
@@ -1539,7 +1506,7 @@
             document.getElementById('editIqama').value = iqama;
             // Clear field if it was set to N/A so the user sees a blank input
             document.getElementById('editPhone').value = (phone === 'N/A' || phone === '--') ? '' : phone;
-            
+
             let titleEl = document.getElementById('editModalTitle');
             let labelName = document.getElementById('editLabelName');
             let labelId = document.getElementById('editLabelId');
@@ -1577,7 +1544,7 @@
             // Force N/A if left blank by user during an edit
             const newPhone = document.getElementById('editPhone').value.trim() || 'N/A';
             const recordType = document.getElementById('editRecordType').value;
-            
+
             // Persist Image Renames Locally
             const oldKey = oldName.trim().toUpperCase();
             const newKey = newName.trim().toUpperCase();
@@ -1592,7 +1559,7 @@
                     } catch(e) { console.warn("Storage full."); }
                 }
             }
-            
+
             // OVERRIDE ENGINE: Save this edit locally so it NEVER gets reverted by a server refresh
             let localOverrides = JSON.parse(localStorage.getItem('SLP_OVERRIDES')) || {};
             let originalKey = Object.keys(localOverrides).find(k => localOverrides[k].name === oldName && localOverrides[k].type === recordType) || oldName;
@@ -1619,9 +1586,9 @@
         function deleteDriver() {
             const oldName = document.getElementById('editOriginalName').value;
             const recordType = document.getElementById('editRecordType').value;
-            
+
             const confirmMsg = (recordType === 'guard') ? "Are you sure you want to delete this guard?" : "Are you sure you want to delete this driver?";
-            
+
             if (confirm(tr(confirmMsg) || confirmMsg)) {
                 // OVERRIDE ENGINE: Save delete locally to prevent server reverting
                 let localDeletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
@@ -1635,7 +1602,7 @@
 
         function setDriverMode(mode, element) {
             element.parentNode.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active')); element.classList.add('active');
-            
+
             if(mode === "existing") {
                 document.getElementById('driverLookupGroup').style.display = "block";
                 document.getElementById('scanBoxDriver').style.display = 'none';
@@ -1836,7 +1803,7 @@
             cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
             const overlay = document.getElementById('cameraOverlay'), video = document.getElementById('cameraVideo');
             overlay.classList.add('open');
-            
+
             document.getElementById('cameraInstructionLabel').innerText = getInstructionText(scanType);
 
             try { 
@@ -1848,7 +1815,7 @@
                     } 
                 }); 
                 video.srcObject = cameraStream; 
-                
+
                 // Attempt to apply continuous autofocus if the hardware supports it
                 try {
                     const track = cameraStream.getVideoTracks()[0];
@@ -1875,12 +1842,12 @@
             ring.style.left = e.clientX + 'px';
             ring.style.top = e.clientY + 'px';
             ring.style.display = 'block';
-            
+
             // Restart the animation for rapid tapping
             ring.style.animation = 'none';
             void ring.offsetWidth; 
             ring.style.animation = 'focusPulse 0.6s ease-out';
-            
+
             setTimeout(() => { ring.style.display = 'none'; }, 600);
 
             if (cameraStream) {
@@ -1897,7 +1864,7 @@
             const canvas = document.getElementById('cameraCanvas');
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
-            
+
             const currentStatusId = cameraTargetStatusId;
             const currentScanType = cameraTargetScanType;
 
@@ -1924,10 +1891,10 @@
         function handleFileSelected(inputEl, statusLabelId, scanType) {
             const file = inputEl.files[0];
             if (!file) return; 
-            
+
             // Push to background process immediately
             runLocalOcrEngine(file, statusLabelId, scanType);
-            
+
             // Clear the value so they can select the same file again if they cancel the next step
             inputEl.value = '';
 
@@ -1947,7 +1914,7 @@
             try {
                 const processedBlob = await preprocessImageForOcr(file, scanType);
                 const base64Data = await blobToBase64(processedBlob);
-                
+
                 // CAPTURE IMAGE FOR MODAL
                 if (statusLabelId === 'driverPhotoStatus' || (!temporaryCapturedImage && statusLabelId === 'iqamaStatus')) {
                     temporaryCapturedImage = 'data:image/jpeg;base64,' + base64Data;
@@ -1966,36 +1933,36 @@
                     let idMatch = cleanText.match(/\b[12]\d{9}\b/);
                     let idNum = idMatch ? idMatch[0] : "";
                     if (idMatch) { document.getElementById('iqamaNumber').value = idNum; matched = true; }
-                    
+
                     let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
                     let nameMatch = lines.find(line => {
                         // Check for English Name (Iqama)
                         let isEnglishName = /^[A-Z][A-Z\s.']{7,45}$/.test(line) && !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line);
-                        
+
                         // Check for Arabic Name (Saudi National ID)
                         let isArabicName = /^[\u0600-\u06FF\s]{10,60}$/.test(line) && !/المملكة|العربية|السعودية|وزارة|الداخلية|بطاقة|الهوية|الوطنية|الرقم|تاريخ|الانتهاء|مكان|الميلاد|جهة|الإصدار|نسخة|تاريخه|الحفظ/.test(line);
 
                         if (idNum.startsWith('1')) return isArabicName;
                         if (idNum.startsWith('2')) return isEnglishName;
-                        
+
                         return isEnglishName || isArabicName;
                     });
-                    
+
                     if (nameMatch) { document.getElementById('driverName').value = nameMatch; matched = true; }
                 }
                 else if (scanType === "PLATE") {
                     let finalDigits = null;
                     let finalLetters = null;
-                    
+
                     let lines = cleanText.split('\n');
-                    
+
                     // 1. Try to find digits and letters on the same line (prioritizing the bottom/last ones)
                     for (let i = lines.length - 1; i >= 0; i--) {
                         let line = lines[i];
                         let dMatch = line.match(/\b\d{3,4}\b/);
                         let lMatches = line.match(/\b[A-Z]{3}\b/g);
                         if (lMatches) lMatches = lMatches.filter(l => l !== 'KSA');
-                        
+
                         if (!lMatches || lMatches.length === 0) {
                             let sMatch = line.match(/\b([A-Z])\s+([A-Z])\s+([A-Z])\b/);
                             if (sMatch) {
@@ -2016,14 +1983,14 @@
                         let allDMatches = cleanText.match(/\b\d{3,4}\b/g);
                         let allLMatches = cleanText.match(/\b[A-Z]{3}\b/g);
                         if (allLMatches) allLMatches = allLMatches.filter(l => l !== 'KSA');
-                        
+
                         if (!allLMatches || allLMatches.length === 0) {
                             let allSMatches = cleanText.match(/\b([A-Z])\s+([A-Z])\s+([A-Z])\b/g);
                             if (allSMatches) {
                                 allLMatches = allSMatches.map(m => m.replace(/\s+/g, '')).filter(m => m !== 'KSA');
                             }
                         }
-                        
+
                         if (!finalDigits && allDMatches) finalDigits = allDMatches[allDMatches.length - 1];
                         if (!finalLetters && allLMatches && allLMatches.length > 0) finalLetters = allLMatches[allLMatches.length - 1];
                     }
@@ -2037,14 +2004,14 @@
                     let badgeMatch = cleanText.match(/LP\d+/i) || cleanText.match(/[A-Z]{2}\d{4}\b/i);
                     let foundId = badgeMatch ? badgeMatch[0] : "";
                     let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
-                    
+
                     // Specific fix: Ignore repeating artifacts like WWWWWW, NNNN, AAAAA
                     let nameMatch = lines.find(line => 
                         /^[A-Z][A-Z\s.']{2,25}$/i.test(line) && 
                         !/LP|ASSOCIATE|EVERY|DOORBELL|DAY|AL\s+ABEER|SAUDI|SECURITY|GATEWAY/i.test(line) &&
                         !/^(.)\1+$/.test(line.replace(/\s/g, '')) 
                     );
-                    
+
                     let foundName = nameMatch || (foundId ? "Officer #" + foundId : "");
 
                     if (scanType === "OFFICER") {
@@ -2085,20 +2052,20 @@
             const sealVal = document.getElementById('signOutSeal').value.trim();
             if (!sealVal) { alert('Please attach a departure seal number.'); return; }
             if(!currentSignOutContext) return;
-            
+
             const { driverName, plateNumber, securityName, dockNumber } = currentSignOutContext;
             const btn = document.getElementById('btnConfirmSignOut');
             btn.innerText = tr("Processing..."); btn.disabled = true;
 
             try {
                 const payload = { driverName, plateNumber, securityName, dockNumber, direction: "Outbound", sealNumber: sealVal, actionByEmail: loggedInUser.email, actionByName: loggedInUser.name };
-                
+
                 fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
                     .catch(e => console.error("Background save issue:", e));
-                
+
                 globalLogsCache.push({ ...payload, timestamp: new Date().toISOString() });
                 window.handleLogsResponse(globalLogsCache);
-                
+
                 closeSignOutModal();
                 setTimeout(fetchLogs, 3000);
             } finally {
@@ -2137,7 +2104,7 @@
             if(parts.length >= 2) { return `<div class="plate-box-split"><div class="plate-segment">${parts[0]}</div><div class="plate-segment">${parts[1]}</div></div>`; }
             return `<div class="plate-box-split"><div class="plate-segment">${plateStr || '--'}</div></div>`;
         }
-        
+
         function getBadgeClass(displayDir, isOut) {
             if(isOut || displayDir.includes("OUTBOUND") || displayDir.includes("مغادرة")) return "badge out";
             if(displayDir.includes("INBOUND") || displayDir.includes("دخول")) return "badge in";
@@ -2146,27 +2113,60 @@
         }
 
         /* ---------------- Analytics Hub Dynamism ---------------- */
-        
+
         function applyAnalyticsFilters() {
             let range = currentAnalyticsDateRange;
             let fromStr = document.getElementById('analyticsCustomDateFrom').value;
             let toStr = document.getElementById('analyticsCustomDateTo').value;
             let query = (document.getElementById('analyticsSearchQuery').value || '').toLowerCase().trim();
             const now = new Date();
-            
+
             let filtered = globalHistoryListCache.filter(r => {
                 const refDate = new Date(r.checkInTime || r.timestamp);
                 if (isNaN(refDate.getTime())) return range === 'all';
-                if (range === 'today') return refDate.toDateString() === now.toDateString();
-                if (range === 'weekly') { const d = new Date(now); d.setDate(now.getDate() - 7); return refDate >= d && refDate <= now; }
-                if (range === 'monthly') { const d = new Date(now); d.setMonth(now.getMonth() - 1); return refDate >= d && refDate <= now; }
-                if (range === '6months') { const d = new Date(now); d.setMonth(now.getMonth() - 6); return refDate >= d && refDate <= now; }
-                if (range === '1year') { const d = new Date(now); d.setFullYear(now.getFullYear() - 1); return refDate >= d && refDate <= now; }
+                
+                if (range === 'today') {
+                    return refDate.toDateString() === now.toDateString();
+                }
+                if (range === 'weekly') { 
+                    const d = new Date(now); 
+                    d.setDate(now.getDate() - 7); 
+                    d.setHours(0,0,0,0);
+                    return refDate >= d; 
+                }
+                if (range === 'monthly') { 
+                    const d = new Date(now); 
+                    d.setMonth(now.getMonth() - 1); 
+                    d.setHours(0,0,0,0);
+                    return refDate >= d; 
+                }
+                if (range === '6months') { 
+                    const d = new Date(now); 
+                    d.setMonth(now.getMonth() - 6); 
+                    d.setHours(0,0,0,0);
+                    return refDate >= d; 
+                }
+                if (range === '1year') { 
+                    const d = new Date(now); 
+                    d.setFullYear(now.getFullYear() - 1); 
+                    d.setHours(0,0,0,0);
+                    return refDate >= d; 
+                }
                 if (range === 'custom') {
-                    if (!fromStr || !toStr) return true;
-                    const from = new Date(fromStr); from.setHours(0,0,0,0);
-                    const to = new Date(toStr); to.setHours(23,59,59,999);
-                    return refDate >= from && refDate <= to;
+                    if (!fromStr && !toStr) return true; // Show all if calendar is totally empty
+                    
+                    let isValid = true;
+                    if (fromStr) {
+                        const from = new Date(fromStr);
+                        from.setHours(0,0,0,0); // Start of selected day
+                        isValid = isValid && (refDate >= from);
+                    }
+                    if (toStr) {
+                        const to = new Date(toStr);
+                        to.setHours(23,59,59,999); // End of selected day
+                        isValid = isValid && (refDate <= to);
+                    }
+                    return isValid;
                 }
                 return true; 
             });
@@ -2175,7 +2175,8 @@
                 filtered = filtered.filter(r => 
                     (r.driverName || '').toLowerCase().includes(query) ||
                     (r.plateNumber || '').toLowerCase().includes(query) ||
-                    (r.securityName || '').toLowerCase().includes(query)
+                    (r.securityName || '').toLowerCase().includes(query) ||
+                    (r.dockNumber || '').toString().toLowerCase().includes(query)
                 );
             }
             updateAnalyticsHub(filtered, range);
@@ -2183,36 +2184,41 @@
         }
 
         function renderAnalyticsTable(list) {
+            const tbody = document.getElementById('analyticsLogTableBody');
+            tbody.innerHTML = '';
             const container = document.getElementById('analyticsGroupedTables');
-            let combinedHTML = '';
-            
+            container.innerHTML = '';
             if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">${tr('No records match this filter.')}</td></tr>`;
                 container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;">${tr('No records match this filter.')}</div>`;
                 return;
             }
 
+            // Group by direction
             let groups = {};
             list.forEach(r => {
                 let dirSafe = r.direction ? r.direction : '';
                 let entryReasonSafe = r.entryReason && r.entryReason !== "Unknown" ? r.entryReason : 'OUTBOUND';
                 let displayDir = r.isInside ? dirSafe.split(' - ')[0].toUpperCase() : entryReasonSafe.split(' - ')[0].toUpperCase();
-                
+                let cssClass = getBadgeClass(displayDir, !r.isInside && displayDir==='OUTBOUND');
+
+                // Does NOT output the Iqama ID for security reasons
+                tbody.innerHTML += `<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${cssClass}">${tr(displayDir)}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${r.sealNumber || '--'}</td><td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${r.isInside?'<span style="color:var(--accent-color); font-weight:700;">'+tr('Inside')+'</span>':formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td></tr>`;
                 if (!groups[displayDir]) groups[displayDir] = [];
                 groups[displayDir].push(r);
             });
 
+            // Render Accordions
             for (let [dir, items] of Object.entries(groups)) {
                 let cssClass = getBadgeClass(dir, false); 
-                let isOpen = openAccordionDirs.includes(dir) ? 'open' : '';
                 
-                let rowsHtml = '';
-                items.forEach(r => {
+                let rowsHtml = items.map(r => {
                     let rDirSafe = r.direction ? r.direction : '';
                     let rEntryReasonSafe = r.entryReason && r.entryReason !== "Unknown" ? r.entryReason : 'OUTBOUND';
                     let rDisplayDir = r.isInside ? rDirSafe.split(' - ')[0].toUpperCase() : rEntryReasonSafe.split(' - ')[0].toUpperCase();
                     let rCssClass = getBadgeClass(rDisplayDir, !r.isInside && rDisplayDir==='OUTBOUND');
 
-                    rowsHtml += `<tr>
+                    return `<tr>
                         <td><strong>${r.driverName}</strong></td>
                         <td>${generatePlateBumperUI(r.plateNumber)}</td>
                         <td><span class="${rCssClass}">${tr(rDisplayDir)}</span></td>
@@ -2223,34 +2229,37 @@
                         <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td>
                         <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td>
                     </tr>`;
-                });
+                }).join('');
 
-                combinedHTML += `
-                    <div class="accordion-wrapper ${isOpen}">
-                        <div class="accordion-header" onclick="toggleAccordion(this, '${dir}')">
+                let tableHtml = `
+                    <table style="min-width: 800px; margin-top: 0;">
+                        <thead><tr>
+                            <th data-i18n="Driver">${tr('Driver')}</th>
+                            <th data-i18n="Plate">${tr('Plate')}</th>
+                            <th data-i18n="Direction">${tr('Direction')}</th>
+                            <th data-i18n="Dock">${tr('Dock')}</th>
+                            <th data-i18n="Seal Number">${tr('Seal Number')}</th>
+                            <th data-i18n="Check In Truck">${tr('Check In Truck')}</th>
+                            <th data-i18n="Check Out">${tr('Check Out')}</th>
+                            <th data-i18n="Duration">${tr('Duration')}</th>
+                            <th data-i18n="Security">${tr('Security')}</th>
+                        </tr></thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                `;
+
+                container.innerHTML += `
+                    <div class="accordion-wrapper">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
                             <div class="accordion-title"><span class="${cssClass}" style="margin-right: 10px;">${tr(dir)}</span></div>
                             <div class="accordion-badge">${items.length}</div>
                         </div>
-                        <div class="accordion-content ${isOpen}">
-                            <table style="min-width: 800px; margin-top: 0;">
-                                <thead><tr>
-                                    <th>${tr('Driver')}</th>
-                                    <th>${tr('Plate')}</th>
-                                    <th>${tr('Direction')}</th>
-                                    <th>${tr('Dock')}</th>
-                                    <th>${tr('Seal Number')}</th>
-                                    <th>${tr('Check In Truck')}</th>
-                                    <th>${tr('Check Out')}</th>
-                                    <th>${tr('Duration')}</th>
-                                    <th>${tr('Security')}</th>
-                                </tr></thead>
-                                <tbody>${rowsHtml}</tbody>
-                            </table>
+                        <div class="accordion-content">
+                            ${tableHtml}
                         </div>
                     </div>
                 `;
             }
-            container.innerHTML = combinedHTML;
         }
 
         function setAnalyticsDateFilter(range, btnEl) {
@@ -2301,9 +2310,10 @@
             }
             const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
             let max = Math.max(...dataObj.map(item => item.count));
-            
+
+            // Adjusted height, padding, and borders
             let html = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:180px; padding-bottom:30px; border-bottom:2px solid rgba(255,255,255,0.05); border-left:2px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
-            
+
             dataObj.slice(0, 5).forEach((item, index) => {
                 let color = colors[index % colors.length];
                 let heightPct = max > 0 ? (item.count / max) * 100 : 0;
@@ -2326,14 +2336,14 @@
                 containerEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem;">${tr(emptyLabel)}</div>`;
                 return;
             }
-            
+
             // Limit to 10 points to prevent overlapping
             let chartData = [...dataObj.slice(-10)];
             let max = Math.max(...chartData.map(item => item.count));
             if(max === 0) max = 1;
-            
+
             let html = `<div style="position:relative; width:100%; height:200px; margin-top:1rem;">`;
-            
+
             let svgPoints = chartData.map((item, i) => {
                 let x = chartData.length > 1 ? (i / (chartData.length - 1)) * 900 + 50 : 500;
                 let y = 140 - ((item.count / max) * 90);
@@ -2345,12 +2355,12 @@
                     <line x1="0" y1="150" x2="1000" y2="150" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
                     <!-- Path -->
                     <polyline fill="none" stroke="var(--accent-color)" stroke-width="4" points="${svgPoints}" />`;
-            
+
             chartData.forEach((item, i) => {
                 let x = chartData.length > 1 ? (i / (chartData.length - 1)) * 900 + 50 : 500;
                 let y = 140 - ((item.count / max) * 90);
                 html += `<circle cx="${x}" cy="${y}" r="8" fill="var(--card-bg)" stroke="var(--accent-color)" stroke-width="4" />`;
-                
+
                 html += `<text x="${x}" y="${y - 20}" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle">${item.count}</text>`;
                 html += `<text x="${x}" y="175" fill="var(--text-muted)" font-size="16" font-weight="bold" text-anchor="middle" letter-spacing="1">${tr(item.label)}</text>`;
             });
@@ -2464,13 +2474,239 @@
             if(dlDocks) dlDocks.innerHTML = [...docks].sort().map(v => `<option value="${v}">`).join('');
         }
 
-        /* ---------------- CORE ENGINE RESPONSES ---------------- */
+        /* ---------------- Driver Cards Rendering ---------------- */
+        function compileDriversRegistryCards(data) {
+            let deletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
+            const container = document.getElementById('driversRegistryContainer'); container.innerHTML = '';
+
+            let uniqueDriversMap = {};
+
+            data.forEach(item => {
+                if(!item.driverName || item.driverName.trim() === "") return;
+                // If this driver was deleted locally, skip rendering them
+                if (deletes.some(d => d.type === 'driver' && d.name === item.driverName)) return; 
+
+                if(!uniqueDriversMap[item.driverName]) {
+                    uniqueDriversMap[item.driverName] = { 
+                        name: item.driverName, plate: item.plateNumber || "--", registered: item.timestamp, id: item.iqamaNumber || "N/A", phone: item.mobileNumber || "N/A"
+                    };
+                } else {
+                    if (item.mobileNumber && item.mobileNumber !== "N/A" && item.mobileNumber !== "--") {
+                        uniqueDriversMap[item.driverName].phone = item.mobileNumber;
+                    }
+                    if (item.iqamaNumber && item.iqamaNumber !== "N/A" && item.iqamaNumber !== "--") {
+                        uniqueDriversMap[item.driverName].id = item.iqamaNumber;
+                    }
+                }
+            });
+
+            let list = Object.values(uniqueDriversMap);
+            driversRegistryList = list; 
+            document.getElementById('metric-drivers-count').innerText = list.length;
+            if(list.length === 0) { container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem; font-size:0.8rem;">${tr('No personnel maps cataloged.')}</div>`; return; }
+
+            list.forEach(driver => {
+                let dateFormatted = fmtDate(driver.registered);
+                container.innerHTML += `
+                    <div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${(driver.plate || '').toLowerCase()}">
+                        <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id.replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${driver.phone.replace(/'/g, "\\'")}', false)">✏️</button></div>
+                        <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">${tr('Verified')}</span><span class="tag-badge carrier">${tr('SLP')}</span></div></div></div>
+                        <div class="driver-card-info-grid"><div class="info-block"><p>🆔 ${tr('Iqama/National ID')}</p><data>${driver.id}</data></div><div class="info-block"><p>📅 ${tr('Registered Date')}</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 ${tr('Mobile Number')}</p><data>${driver.phone}</data></div></div>
+                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id.replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${driver.phone.replace(/'/g, "\\'")}', false)">${tr('View Records')}</button>
+                    </div>`;
+            });
+        }
+
+        function filterRegistryCards() {
+            let query = document.getElementById('driverRegistrySearch').value.toLowerCase();
+            document.querySelectorAll('.driver-registry-card:not(.security-card)').forEach(card => { card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none'; });
+        }
+
+        /* ---------------- Security Cards Rendering ---------------- */
+        function compileSecurityRegistryCards(data) {
+            let deletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
+            const container = document.getElementById('securityRegistryContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let uniqueMap = {};
+            data.forEach(item => {
+                if (!item.securityName || item.securityName.trim() === "" || item.securityName === "Unknown") return;
+                // If this guard was deleted locally, skip rendering them
+                if (deletes.some(d => d.type === 'guard' && d.name === item.securityName)) return; 
+
+                if (!uniqueMap[item.securityName]) {
+                    uniqueMap[item.securityName] = {
+                        name: item.securityName,
+                        id: item.securityId || "N/A",
+                        registered: item.timestamp,
+                        phone: item.guardMobile || item.mobileNumber || "N/A"
+                    };
+                } else {
+                    if (item.guardMobile && item.guardMobile !== "N/A" && item.guardMobile !== "--") {
+                        uniqueMap[item.securityName].phone = item.guardMobile;
+                    } else if (item.mobileNumber && item.mobileNumber !== "N/A" && item.mobileNumber !== "--") {
+                        uniqueMap[item.securityName].phone = item.mobileNumber;
+                    }
+                    if (item.securityId && item.securityId !== "N/A" && item.securityId !== "--") {
+                        uniqueMap[item.securityName].id = item.securityId;
+                    }
+                }
+            });
+
+            let list = Object.values(uniqueMap);
+            securityRegistryList = list;
+
+            if (list.length === 0) {
+                container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem; font-size:0.8rem;">${tr('No personnel maps cataloged.')}</div>`;
+                return;
+            }
+
+            list.forEach(guard => {
+                let dateFormatted = fmtDate(guard.registered);
+                container.innerHTML += `
+                    <div class="driver-registry-card security-card" data-search-blob="${guard.name.toLowerCase()} ${(guard.id || '').toLowerCase()}">
+                        <div class="card-management-actions">
+                            <button class="btn-icon-manage" onclick="openEditDriverModal('${guard.name.replace(/'/g, "\\'")}', '${guard.id.replace(/'/g, "\\'")}', '', '${guard.phone.replace(/'/g, "\\'")}', true)">✏️</button>
+                        </div>
+                        <div class="driver-card-header">
+                            <div class="driver-avatar-img" style="background: rgba(56, 139, 253, 0.15); color: #79c0ff; border-color: rgba(56, 139, 253, 0.3);">🛡️</div>
+                            <div class="driver-meta">
+                                <h3>${guard.name}</h3>
+                                <div class="driver-badges">
+                                    <span class="tag-badge verified">${tr('Verified')}</span>
+                                    <span class="tag-badge carrier" style="background: rgba(163, 113, 247, 0.15); color: #d2a8ff; border: 1px solid rgba(163, 113, 247, 0.3);">${tr('Guard')}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="driver-card-info-grid">
+                            <div class="info-block"><p>🆔 ${tr('Noon ID')}</p><data>${guard.id}</data></div>
+                            <div class="info-block"><p>📅 ${tr('Registered Date')}</p><data>${dateFormatted}</data></div>
+                            <div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 ${tr('Mobile Number')}</p><data>${guard.phone}</data></div>
+                        </div>
+                        <button class="btn-card-action" onclick="openDriverProfileModal('${guard.name.replace(/'/g, "\\'")}', '${guard.id.replace(/'/g, "\\'")}', '', '${dateFormatted}', '${guard.phone.replace(/'/g, "\\'")}', true)">${tr('View Records')}</button>
+                    </div>`;
+            });
+        }
+
+        function filterSecurityCards() {
+            let query = document.getElementById('securityRegistrySearch').value.toLowerCase();
+            document.querySelectorAll('.security-card').forEach(card => {
+                card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        /* ---------------- Tables Rendering & Filters ---------------- */
+        function renderHistoryTable(list) {
+            const historyBody = document.getElementById('historyLogTableBody');
+            historyBody.innerHTML = '';
+            if (list.length === 0) {
+                historyBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">${tr('No records match this filter.')}</td></tr>`;
+                return;
+            }
+            list.forEach(r => {
+                let dirSafe = r.direction ? r.direction : '';
+                let entryReasonSafe = r.entryReason && r.entryReason !== "Unknown" ? r.entryReason : 'OUTBOUND';
+                let displayDir = r.isInside ? dirSafe.split(' - ')[0].toUpperCase() : entryReasonSafe.split(' - ')[0].toUpperCase();
+                let cssClass = getBadgeClass(displayDir, !r.isInside && displayDir==='OUTBOUND');
+
+                historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.65rem; color:var(--text-muted); font-weight:600;">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${cssClass}">${tr(displayDir)}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${r.sealNumber || '--'}</td><td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${r.isInside?'<span style="color:var(--accent-color); font-weight:700;">'+tr('Inside')+'</span>':formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td></tr>`;
+            });
+        }
+
+        function filterHistoryListByRange(range, fromStr, toStr) {
+            const now = new Date();
+            return globalHistoryListCache.filter(r => {
+                const refDate = new Date(r.checkInTime || r.timestamp);
+                if (isNaN(refDate.getTime())) return range === 'all';
+                if (range === 'today') return refDate.toDateString() === now.toDateString();
+                if (range === '7days' || range === 'weekly') { const d = new Date(now); d.setDate(now.getDate() - 7); return refDate >= d && refDate <= now; }
+                if (range === 'monthly') { const d = new Date(now); d.setMonth(now.getMonth() - 1); return refDate >= d && refDate <= now; }
+                if (range === '6months') { const d = new Date(now); d.setMonth(now.getMonth() - 6); return refDate >= d && refDate <= now; }
+                if (range === '1year') { const d = new Date(now); d.setFullYear(now.getFullYear() - 1); return refDate >= d && refDate <= now; }
+                if (range === 'custom') {
+                    if (!fromStr || !toStr) return true;
+                    const from = new Date(fromStr); const to = new Date(toStr); to.setHours(23,59,59,999);
+                    return refDate >= from && refDate <= to;
+                }
+                return true; 
+            });
+        }
+
+        function applyHistoryFilters() {
+            let range = currentHistoryDateRange;
+            let fromStr = document.getElementById('customDateFrom').value;
+            let toStr = document.getElementById('customDateTo').value;
+            let query = document.getElementById('historySearchQuery').value.toLowerCase().trim();
+
+            let filtered = filterHistoryListByRange(range, fromStr, toStr);
+
+            if (query) {
+                filtered = filtered.filter(r => 
+                    (r.driverName || '').toLowerCase().includes(query) ||
+                    (r.plateNumber || '').toLowerCase().includes(query) ||
+                    (r.securityName || '').toLowerCase().includes(query) ||
+                    (r.iqamaNumber || '').toLowerCase().includes(query)
+                );
+            }
+            renderHistoryTable(filtered);
+        }
+
+        function setHistoryDateFilter(range, btnEl) {
+            currentHistoryDateRange = range;
+            document.querySelectorAll('.filter-tabs-container:not(.analytics-filter-container) .tab-filter-item').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+            const customRow = document.getElementById('customDateRow');
+            if (range === 'custom') { customRow.style.display = 'flex'; return; }
+            customRow.style.display = 'none';
+            applyHistoryFilters();
+        }
+
+        function filterActiveTrucks() {
+            let query = document.getElementById('yardSearchQuery').value.toLowerCase().trim();
+            let rows = document.querySelectorAll('#activeYardTableBody tr');
+            rows.forEach(row => {
+                if(row.innerText.toLowerCase().includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function exportHistoryToExcel() {
+            const rows = filterHistoryListByRange(currentHistoryDateRange, document.getElementById('customDateFrom').value, document.getElementById('customDateTo').value);
+            if (rows.length === 0) { alert(tr('No records match this filter.')); return; }
+
+            const headers = [tr('Driver'), tr('Iqama Number'), tr('Plate'), tr('Direction'), tr('Dock'), tr('Seal Number'), tr('Check In Truck'), tr('Check Out'), tr('Duration'), tr('Security')];
+            const csvLines = [headers.join(',')];
+
+            rows.forEach(r => {
+                const line = [
+                    r.driverName || '', r.iqamaNumber || '', r.plateNumber || '',
+                    r.isInside ? (r.direction || '') : (r.entryReason || 'Outbound'),
+                    r.dockNumber || '', r.sealNumber || '--',
+                    formatTimeText(r.checkInTime), r.isInside ? tr('Inside') : formatTimeText(r.timestamp),
+                    calcDuration(r.checkInTime, r.isInside ? null : r.timestamp), r.securityName || ''
+                ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+                csvLines.push(line);
+            });
+
+            const csvContent = csvLines.join('\n');
+            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url;
+            a.download = `movement-history-${currentHistoryDateRange}-${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        }
+
+        /* ---------------- PAIRING ENGINE (BULLETPROOF UPDATES) ---------------- */
         window.handleLogsResponse = function(data) {
-            
+
             // --- 1. APPLY PERSISTENT LOCAL OVERRIDES ---
             let overrides = JSON.parse(localStorage.getItem('SLP_OVERRIDES')) || {};
             let processedData = (data || []).map(row => {
-                
+
                 // Driver Overrides
                 let dOrig = Object.keys(overrides).find(k => (k === row.driverName || overrides[k].name === row.driverName) && overrides[k].type === 'driver');
                 if (dOrig) {
@@ -2487,32 +2723,32 @@
                     row.securityId = overrides[gOrig].id;
                     row.guardMobile = overrides[gOrig].phone; // Safely track the guard's phone without overwriting the driver's phone for this log entry
                 }
-                
+
                 return row;
             });
             // ------------------------------------------
 
             let chronData = processedData.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)); 
             globalLogsCache = chronData;
-            
+
             const activeBody = document.getElementById('activeYardTableBody');
-            let activeHTML = '';
+            if(activeBody) activeBody.innerHTML = '';
 
             compileDriversRegistryCards(chronData);
             compileSecurityRegistryCards(chronData); 
-            
+
             if(chronData.length === 0) { renderHistoryTable([]); return; }
             document.getElementById('metric-total-checkins').innerText = chronData.length;
 
             let activeYardMap = {}; 
             let historicalPairs = [];
-            
+
             chronData.forEach(row => {
                 let p = (row.plateNumber || "").toString().trim().toUpperCase();
                 let d = (row.driverName || "").toString().trim().toUpperCase();
                 let trackingKey = p + "|||" + d;
                 let dirCheck = (row.direction || "").toString().trim();
-                
+
                 if(dirCheck !== "Outbound") {
                     activeYardMap[trackingKey] = row;
                 } else {
@@ -2535,7 +2771,7 @@
             let activeList = Object.values(activeYardMap);
             document.getElementById('metric-active-now').innerText = activeList.length;
             if (document.getElementById('activeYardCounter')) { document.getElementById('activeYardCounter').innerText = activeList.length; }
-            
+
             // FIX for Completed Today
             const todayStr = new Date().toDateString();
             const completedTodayCount = historicalPairs.filter(r => new Date(r.timestamp).toDateString() === todayStr).length;
@@ -2546,26 +2782,38 @@
             const occupiedDocksCount = document.getElementById('occupiedDocksCount');
             if (occupiedDocksContainer) {
                 occupiedDocksContainer.innerHTML = '';
+
                 let activeDocksRaw = activeList.map(r => String(r.dockNumber).trim()).filter(Boolean);
                 let activeDocksSet = new Set(activeDocksRaw);
-                if(occupiedDocksCount) occupiedDocksCount.innerText = `${activeDocksSet.size} Docks In Use`;
-                
+
+                if(occupiedDocksCount) occupiedDocksCount.innerText = `${activeDocksSet.size} ${tr('Docks In Use')}`;
+
+                // Build list of all docks to show (15 to 90, plus any outliers)
                 let allDocksToRender = new Set();
-                for (let i = 15; i <= 90; i++) { allDocksToRender.add(String(i)); }
+                for (let i = 15; i <= 90; i++) {
+                    allDocksToRender.add(String(i));
+                }
                 activeDocksRaw.forEach(d => allDocksToRender.add(d));
 
+                // Sort numerically
                 let sortedDocks = [...allDocksToRender].sort((a,b) => {
                     let numA = parseInt(a.replace(/\D/g, '')) || 0;
                     let numB = parseInt(b.replace(/\D/g, '')) || 0;
+                    if (numA === numB) return a.localeCompare(b);
                     return numA - numB;
                 });
 
                 sortedDocks.forEach(dockStr => {
                     let badge = document.createElement('div');
+
                     if (activeDocksSet.has(dockStr)) {
                         badge.className = 'dock-badge-active';
                         badge.innerText = dockStr;
-                        if (userRole !== 'ops') badge.onclick = () => highlightActiveTruck(dockStr);
+                        if (userRole !== 'ops') {
+                            badge.onclick = () => highlightActiveTruck(dockStr);
+                        } else {
+                            badge.style.cursor = 'default';
+                        }
                     } else {
                         badge.className = 'dock-badge-inactive';
                         badge.innerText = dockStr;
@@ -2576,15 +2824,15 @@
 
             if(activeBody) {
                 if(activeList.length === 0) {
-                    activeHTML = `<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.</td></tr>`;
+                    activeBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">${tr('NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.')}</td></tr>`;
                 } else {
                     activeList.reverse().forEach(r => {
                         let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
                         let cssClass = getBadgeClass(displayDir, false);
                         let activeDispType = r.dispatchType || 'DISPATCHING';
                         let activeSeal = r.sealNumber || '--';
-                        
-                        activeHTML += `<tr>
+
+                        activeBody.innerHTML += `<tr>
                             <td><strong>${r.driverName}</strong></td>
                             <td>${generatePlateBumperUI(r.plateNumber)}</td>
                             <td><span class="${cssClass}">${tr(displayDir)}</span></td>
@@ -2600,15 +2848,15 @@
                         </tr>`;
                     });
                 }
-                activeBody.innerHTML = activeHTML;
             }
 
+            // FIX for History Sorting
             globalHistoryListCache = [...historicalPairs, ...activeList.map(i => ({ ...i, checkInTime: i.timestamp, isInside: true }))]
                 .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            applyHistoryFilters(); 
-            applyAnalyticsFilters(); 
-            populateDatalists(globalHistoryListCache); 
+
+            applyHistoryFilters(); // Applies both date and search text filters
+            applyAnalyticsFilters(); // Initialize Analytics Charts
+            populateDatalists(globalHistoryListCache); // Dynamically update input dropdowns!
         };
 
         function fetchLogs() {
@@ -2633,32 +2881,85 @@
                     actionByEmail: loggedInUser.email,
                     actionByName: loggedInUser.name
                 };
-                
+
+                // Save image to local storage tied to driver name
                 if (temporaryCapturedImage) {
-                    try { localStorage.setItem('SLP_IMG_' + payload.driverName.trim().toUpperCase(), temporaryCapturedImage); } catch(e) {}
+                    try {
+                        localStorage.setItem('SLP_IMG_' + payload.driverName.trim().toUpperCase(), temporaryCapturedImage);
+                    } catch(e) { console.warn("Local storage full, cannot save image."); }
                     temporaryCapturedImage = null;
                 }
-                
+
+                // Fire post request in background
                 fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
-                    .catch(e => console.error(e));
-                
-                globalLogsCache.push({ ...payload, timestamp: new Date().toISOString() });
+                    .catch(e => console.error("Background save issue:", e));
+
+                // Optimistic UI Update instantly
+                globalLogsCache.push({
+                    ...payload,
+                    timestamp: new Date().toISOString()
+                });
                 window.handleLogsResponse(globalLogsCache);
 
+                // Reset the form but KEEP the guard details intact!
                 document.getElementById('entryForm').reset(); 
                 document.getElementById('securityNameField').value = loggedInUser.name;
                 document.getElementById('securityNameId').value = loggedInUser.noonId || '';
 
                 btn.innerText = tr("Check In Truck"); btn.disabled = false;
                 document.getElementById('sealNumberContainer').style.display = 'none'; document.getElementById('sealNumber').required = false;
+
+                // Switch exactly to Active Trucks Instead of Dashboard
                 switchView('active-trucks', document.getElementById('nav-active-trucks')); 
-                setTimeout(fetchLogs, 3500); 
+
+                setTimeout(fetchLogs, 3500); // Verify background fetch worked
             } catch (err) {
-                alert("Error saving log: " + err.message); btn.innerText = tr("Check In Truck"); btn.disabled = false;
+                alert("Error saving log: " + err.message);
+                btn.innerText = tr("Check In Truck"); btn.disabled = false;
             }
         });
 
-        // Swipe handler updates
+        /* ---------------- SWIPE NAVIGATION LOGIC ---------------- */
+        let touchstartX = 0;
+        let touchstartY = 0;
+        let touchendX = 0;
+        let touchendY = 0;
+
+        const gestureZone = document.getElementById('mainContentArea');
+
+        gestureZone.addEventListener('touchstart', function(event) {
+            touchstartX = event.changedTouches[0].screenX;
+            touchstartY = event.changedTouches[0].screenY;
+        }, {passive: true});
+
+        gestureZone.addEventListener('touchend', function(event) {
+            touchendX = event.changedTouches[0].screenX;
+            touchendY = event.changedTouches[0].screenY;
+            handleGesture(event);
+        }, {passive: true});
+
+        function handleGesture(event) {
+            // Ignore swipe if the user is scrolling inside a table or a dropdown
+            if (event.target.closest('table') || event.target.closest('.suggestions-dropdown')) {
+                return; 
+            }
+
+            const horizontalThreshold = 50; 
+            const verticalThreshold = 50; 
+
+            if (Math.abs(touchendY - touchstartY) > verticalThreshold) {
+                return; // Ignore vertical scrolling
+            }
+
+            if (touchendX < touchstartX - horizontalThreshold) {
+                swipeNext(); // Swipe Left -> Next Tab
+            }
+
+            if (touchendX > touchstartX + horizontalThreshold) {
+                swipePrev(); // Swipe Right -> Prev Tab
+            }
+        }
+
         function getAvailableViews() {
             let availableViews = [];
             document.querySelectorAll('.nav-item').forEach(item => {
@@ -2675,18 +2976,20 @@
             let currentId = activeView.id.replace('view-', '');
             let availableViews = getAvailableViews();
             let currentIndex = availableViews.indexOf(currentId);
+
             if (currentIndex >= 0 && currentIndex < availableViews.length - 1) {
                 let nextView = availableViews[currentIndex + 1];
                 switchView(nextView, document.getElementById('nav-' + nextView));
             }
         }
-        
+
         function swipePrev() {
             let activeView = document.querySelector('.app-view.active-view');
             if (!activeView) return;
             let currentId = activeView.id.replace('view-', '');
             let availableViews = getAvailableViews();
             let currentIndex = availableViews.indexOf(currentId);
+
             if (currentIndex > 0) {
                 let prevView = availableViews[currentIndex - 1];
                 switchView(prevView, document.getElementById('nav-' + prevView));
@@ -2694,7 +2997,7 @@
         }
 
         setInterval(fetchLogs, 15000);
-        setInterval(checkSessionExpiry, 60000); 
+        setInterval(checkSessionExpiry, 60000); // Check expiry every minute
         if(!introActive) { fetchLogs(); checkSessionExpiry(); }
     </script>
 </body>
