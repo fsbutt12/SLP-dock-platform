@@ -236,7 +236,7 @@
         .view-header-title p { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 6px; font-weight: 600; }
         .counter-badge-orange { display: inline-block; background: rgba(252, 194, 0, 0.15); color: var(--accent-color); border: 1px solid rgba(252, 194, 0, 0.3); font-size: 0.7rem; font-weight: bold; padding: 0.25rem 0.6rem; border-radius: 4px; margin-top: 8px; }
         
-        .filter-tabs-container { display: flex; gap: 0.25rem; background: rgba(0,0,0,0.4); padding: 0.25rem; border-radius: 6px; border: 1px solid var(--border-color); }
+        .filter-tabs-container { display: flex; gap: 0.25rem; background: rgba(0,0,0,0.4); padding: 0.25rem; border-radius: 6px; border: 1px solid var(--border-color); flex-wrap: wrap; justify-content: flex-end;}
         .tab-filter-item { background: transparent; border: none; color: var(--text-muted); font-size: 0.7rem; font-weight: 700; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; }
         .tab-filter-item.active { background: var(--accent-color); color: #000; }
         .btn-excel { background-color: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; }
@@ -550,6 +550,13 @@
                     <p data-i18n="DEEP-DIVE ANALYTICS HUB">DEEP-DIVE ANALYTICS HUB</p>
                 </div>
                 
+                <div class="header-search-box-container" style="width: 320px;">
+                    <span>🔍</span>
+                    <input type="text" id="analyticsSearchQuery" class="header-search-input" data-i18n="Search records..." placeholder="Search records..." oninput="applyAnalyticsFilters()">
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem;">
                 <div class="filter-tabs-container analytics-filter-container">
                     <button class="tab-filter-item" data-range="today" onclick="setAnalyticsDateFilter('today', this)" data-i18n="Today">Today</button>
                     <button class="tab-filter-item active" data-range="weekly" onclick="setAnalyticsDateFilter('weekly', this)" data-i18n="Weekly">Weekly</button>
@@ -595,6 +602,15 @@
                         <li><div class="legend-label-group" data-i18n="No Data">No Data</div></li>
                     </ul>
                 </div>
+            </div>
+
+            <!-- Filtered Log Table without Personal Details -->
+            <div class="card" style="margin-top: 2rem; overflow-x: auto; padding: 1.5rem; background: transparent; border: none;">
+                <h3 style="color: #fff; font-size: 0.95rem; text-transform: uppercase; margin-bottom: 1rem;" data-i18n="Filtered Movement Logs">Filtered Movement Logs</h3>
+                <table id="analyticsLogTable">
+                    <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Seal Number">Seal Number</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th></tr></thead>
+                    <tbody id="analyticsLogTableBody"><tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;" data-i18n="No records match this filter.">NO RECORDS MATCH THIS FILTER.</td></tr></tbody>
+                </table>
             </div>
         </div>
 
@@ -883,6 +899,7 @@
             "6 Months": "6 أشهر",
             "1 Year": "سنة واحدة",
             "Vehicle Processing Growth": "نمو معالجة المركبات",
+            "Filtered Movement Logs": "سجلات الحركة المفلترة",
             
             "Noon": "نون",
             "Dock Security Platform": "منصة أمن الأرصفة",
@@ -2068,6 +2085,7 @@
             let range = currentAnalyticsDateRange;
             let fromStr = document.getElementById('analyticsCustomDateFrom').value;
             let toStr = document.getElementById('analyticsCustomDateTo').value;
+            let query = (document.getElementById('analyticsSearchQuery').value || '').toLowerCase().trim();
             const now = new Date();
             
             let filtered = globalHistoryListCache.filter(r => {
@@ -2085,7 +2103,34 @@
                 }
                 return true; 
             });
+
+            if (query) {
+                filtered = filtered.filter(r => 
+                    (r.driverName || '').toLowerCase().includes(query) ||
+                    (r.plateNumber || '').toLowerCase().includes(query) ||
+                    (r.securityName || '').toLowerCase().includes(query)
+                );
+            }
             updateAnalyticsHub(filtered, range);
+            renderAnalyticsTable(filtered);
+        }
+
+        function renderAnalyticsTable(list) {
+            const tbody = document.getElementById('analyticsLogTableBody');
+            tbody.innerHTML = '';
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">${tr('No records match this filter.')}</td></tr>`;
+                return;
+            }
+            list.forEach(r => {
+                let dirSafe = r.direction ? r.direction : '';
+                let entryReasonSafe = r.entryReason && r.entryReason !== "Unknown" ? r.entryReason : 'OUTBOUND';
+                let displayDir = r.isInside ? dirSafe.split(' - ')[0].toUpperCase() : entryReasonSafe.split(' - ')[0].toUpperCase();
+                let cssClass = getBadgeClass(displayDir, !r.isInside && displayDir==='OUTBOUND');
+                
+                // Does NOT output the Iqama ID for security reasons
+                tbody.innerHTML += `<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${cssClass}">${tr(displayDir)}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${r.sealNumber || '--'}</td><td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${r.isInside?'<span style="color:var(--accent-color); font-weight:700;">'+tr('Inside')+'</span>':formatTimeText(r.timestamp)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.isInside?null:r.timestamp)}</td><td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td></tr>`;
+            });
         }
 
         function setAnalyticsDateFilter(range, btnEl) {
@@ -2137,6 +2182,7 @@
             const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
             let max = Math.max(...dataObj.map(item => item.count));
             
+            // Adjusted height, padding, and borders
             let html = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:180px; padding-bottom:30px; border-bottom:2px solid rgba(255,255,255,0.05); border-left:2px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
             
             dataObj.slice(0, 5).forEach((item, index) => {
@@ -2680,7 +2726,7 @@
                 .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
             
             applyHistoryFilters(); // Applies both date and search text filters
-            applyAnalyticsFilters(); // Initialize Charts
+            applyAnalyticsFilters(); // Initialize Analytics Charts
             populateDatalists(globalHistoryListCache); // Dynamically update input dropdowns!
         };
 
