@@ -1601,12 +1601,15 @@
                 segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
             }
 
-            // Load custom image if available
             const viewport = document.getElementById('modalMediaViewport');
             const lookupKey = isGuard ? 'SLP_GUARD_IMG_' : 'SLP_IMG_';
             const savedImage = localStorage.getItem(lookupKey + name.trim().toUpperCase());
-            if (savedImage) {
-                viewport.style.backgroundImage = `url('${savedImage}')`;
+            
+            // Failsafe rendering for the image
+            if (savedImage && savedImage !== "null" && savedImage.startsWith('data:image')) {
+                viewport.style.backgroundImage = `url("${savedImage}")`;
+                viewport.style.backgroundSize = "cover";
+                viewport.style.backgroundPosition = "center";
             } else {
                 viewport.style.backgroundImage = `url('https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800')`;
             }
@@ -1869,6 +1872,20 @@
             });
         }
 
+        // NEW: Compress the image for UI without gray scaling it
+        async function compressImageForProfile(file) {
+            const img = await loadImageRobust(file);
+            const maxDim = 500; // Small size for local storage limits
+            let w = img.width, h = img.height;
+            if (w > h) { if (w > maxDim) { h *= maxDim/w; w = maxDim; } }
+            else { if (h > maxDim) { w *= maxDim/h; h = maxDim; } }
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(w); canvas.height = Math.round(h);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            return new Promise((resolve, reject) => { canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('canvas toBlob failed')), 'image/jpeg', 0.6); });
+        }
+
         async function preprocessImageForOcr(file, scanType) {
             const img = await loadImageRobust(file);
             let sx = 0, sy = 0, sw = img.width, sh = img.height;
@@ -2029,13 +2046,18 @@
             const status = document.getElementById(statusLabelId);
             status.innerHTML = "🌀 " + tr("Preparing image..."); status.style.color = "var(--accent-color)";
             try {
+                // CAPTURE IMAGE FOR MODAL (Color, Compressed)
+                if (statusLabelId === 'driverPhotoStatus' || (!temporaryCapturedImage && statusLabelId === 'iqamaStatus')) {
+                    try {
+                        const profileBlob = await compressImageForProfile(file);
+                        const profileBase64 = await blobToBase64(profileBlob);
+                        temporaryCapturedImage = 'data:image/jpeg;base64,' + profileBase64;
+                    } catch(e) { console.warn("Could not compress profile photo", e); }
+                }
+
+                // PROCESS FOR OCR (Grayscale, High Contrast)
                 const processedBlob = await preprocessImageForOcr(file, scanType);
                 const base64Data = await blobToBase64(processedBlob);
-
-                // CAPTURE IMAGE FOR MODAL
-                if (statusLabelId === 'driverPhotoStatus' || (!temporaryCapturedImage && statusLabelId === 'iqamaStatus')) {
-                    temporaryCapturedImage = 'data:image/jpeg;base64,' + base64Data;
-                }
 
                 status.innerHTML = "🌀 " + tr("Reading with Google OCR...");
                 const response = await fetch(OCR_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ scanType: scanType === 'LOGIN_OFFICER' ? 'OFFICER' : scanType, imageObj: base64Data }) });
