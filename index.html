@@ -1355,6 +1355,7 @@
         }
 
         function highlightActiveTruck(dockNum) {
+            if (userRole === 'ops') return; // Prevent Ops from clicking docks to switch views
             switchView('active-trucks', document.getElementById('nav-active-trucks'));
             
             document.querySelectorAll('#activeYardTableBody tr').forEach(row => {
@@ -2070,7 +2071,6 @@
             const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
             let max = Math.max(...dataObj.map(item => item.count));
             
-            // Adjusted height, padding, and borders
             let html = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:180px; padding-bottom:30px; border-bottom:2px solid rgba(255,255,255,0.05); border-left:2px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
             
             dataObj.slice(0, 5).forEach((item, index) => {
@@ -2100,10 +2100,8 @@
             let max = Math.max(...chartData.map(item => item.count));
             if(max === 0) max = 1;
             
-            // Increased height to 200px
             let html = `<div style="position:relative; width:100%; height:200px; margin-top:1rem;">`;
             
-            // Map coordinates for amplitude (140 down to 50)
             let svgPoints = chartData.map((item, i) => {
                 let x = chartData.length > 1 ? (i / (chartData.length - 1)) * 900 + 50 : 500;
                 let y = 140 - ((item.count / max) * 90);
@@ -2121,7 +2119,6 @@
                 let y = 140 - ((item.count / max) * 90);
                 html += `<circle cx="${x}" cy="${y}" r="8" fill="var(--card-bg)" stroke="var(--accent-color)" stroke-width="4" />`;
                 
-                // Adjusted text positions, weights, and sizes
                 html += `<text x="${x}" y="${y - 20}" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle">${item.count}</text>`;
                 html += `<text x="${x}" y="175" fill="var(--text-muted)" font-size="16" font-weight="bold" text-anchor="middle" letter-spacing="1">${tr(item.label)}</text>`;
             });
@@ -2562,7 +2559,11 @@
                     if (activeDocksSet.has(dockStr)) {
                         badge.className = 'dock-badge-active';
                         badge.innerText = dockStr;
-                        badge.onclick = () => highlightActiveTruck(dockStr);
+                        if (userRole !== 'ops') {
+                            badge.onclick = () => highlightActiveTruck(dockStr);
+                        } else {
+                            badge.style.cursor = 'default';
+                        }
                     } else {
                         badge.className = 'dock-badge-inactive';
                         badge.innerText = dockStr;
@@ -2717,7 +2718,7 @@
             let currentIndex = views.indexOf(currentId);
             
             let nextIndex = currentIndex + 1;
-            let maxIndex = (userRole === 'admin') ? 5 : 3;
+            let maxIndex = (userRole === 'admin') ? 5 : (userRole === 'ops' ? 0 : 3);
             
             if (nextIndex <= maxIndex) {
                 let navItems = document.querySelectorAll('.nav-links .nav-item');
