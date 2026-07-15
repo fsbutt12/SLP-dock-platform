@@ -453,6 +453,10 @@
             <li class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard', this)">
                 <span class="nav-icon">📊</span><span class="nav-text" data-i18n="Dashboard">Dashboard</span>
             </li>
+            <!-- NEW ANALYTICS TAB -->
+            <li class="nav-item" id="nav-analytics" onclick="switchView('analytics', this)">
+                <span class="nav-icon">📈</span><span class="nav-text" data-i18n="Analytics">Analytics</span>
+            </li>
             <li class="nav-item" id="nav-checkin" onclick="switchView('checkin', this)">
                 <span class="nav-icon">🚛</span><span class="nav-text" data-i18n="Check-in Truck">Check-in Truck</span>
             </li>
@@ -536,14 +540,35 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- DEEP-DIVE ANALYTICS HUB -->
-            <div class="analytics-hub-title" data-i18n="DEEP-DIVE ANALYTICS HUB">DEEP-DIVE ANALYTICS HUB</div>
+        <!-- NEW DEEP-DIVE ANALYTICS VIEW -->
+        <div id="view-analytics" class="app-view">
+            <div class="view-header-row">
+                <div class="view-header-title">
+                    <h1 data-i18n="Analytics">Analytics</h1>
+                    <p data-i18n="DEEP-DIVE ANALYTICS HUB">DEEP-DIVE ANALYTICS HUB</p>
+                </div>
+                
+                <div class="filter-tabs-container analytics-filter-container">
+                    <button class="tab-filter-item" data-range="today" onclick="setAnalyticsDateFilter('today', this)" data-i18n="Today">Today</button>
+                    <button class="tab-filter-item active" data-range="weekly" onclick="setAnalyticsDateFilter('weekly', this)" data-i18n="Weekly">Weekly</button>
+                    <button class="tab-filter-item" data-range="monthly" onclick="setAnalyticsDateFilter('monthly', this)" data-i18n="Monthly">Monthly</button>
+                    <button class="tab-filter-item" data-range="6months" onclick="setAnalyticsDateFilter('6months', this)" data-i18n="6 Months">6 Months</button>
+                    <button class="tab-filter-item" data-range="1year" onclick="setAnalyticsDateFilter('1year', this)" data-i18n="1 Year">1 Year</button>
+                    <button class="tab-filter-item" data-range="custom" onclick="setAnalyticsDateFilter('custom', this)" data-i18n="Custom">Custom</button>
+                </div>
+            </div>
             
+            <div class="custom-date-row" id="analyticsCustomDateRow" style="justify-content: flex-end; margin-bottom: 1.5rem;">
+                <input type="date" id="analyticsCustomDateFrom"> <span style="color:var(--text-muted); font-size:0.8rem; font-weight:700;" data-i18n="TO">TO</span> <input type="date" id="analyticsCustomDateTo">
+                <button onclick="applyAnalyticsFilters()" data-i18n="Apply">Apply</button>
+            </div>
+
             <div class="analytics-grid">
                 <!-- Chart 1: Vehicle Processing Growth (Line Chart) -->
                 <div class="chart-card">
-                    <h3 data-i18n="Vehicle Processing Growth (7 Days)">Vehicle Processing Growth (7 Days)</h3>
+                    <h3 id="chartGrowthTitle" data-i18n="Vehicle Processing Growth">Vehicle Processing Growth</h3>
                     <div id="chartGrowthLine"></div>
                 </div>
 
@@ -571,7 +596,6 @@
                     </ul>
                 </div>
             </div>
-            
         </div>
 
         <div id="view-checkin" class="app-view">
@@ -828,6 +852,7 @@
         let securityRegistryList = []; 
         let globalHistoryListCache = [];
         let currentHistoryDateRange = 'all';
+        let currentAnalyticsDateRange = 'weekly';
         let temporaryCapturedImage = null;
         
         // Active User & Role Details 
@@ -838,6 +863,7 @@
         /* ---------------- TRANSLATIONS ---------------- */
         const translations = {
             "Dashboard": "لوحة القيادة",
+            "Analytics": "التحليلات",
             "Check-in Truck": "تسجيل دخول شاحنة",
             "Active Trucks": "الشاحنات النشطة",
             "History Log": "سجل الحركة",
@@ -852,6 +878,11 @@
             "Guard": "حارس",
             "Operations": "عمليات",
             "Admin": "مسؤول",
+            "Weekly": "أسبوعياً",
+            "Monthly": "شهرياً",
+            "6 Months": "6 أشهر",
+            "1 Year": "سنة واحدة",
+            "Vehicle Processing Growth": "نمو معالجة المركبات",
             
             "Noon": "نون",
             "Dock Security Platform": "منصة أمن الأرصفة",
@@ -1098,8 +1129,9 @@
 
             // Apply Role-Based Access Control
             document.getElementById('nav-dashboard').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
+            document.getElementById('nav-analytics').style.display = 'flex'; // Visible to all
             document.getElementById('nav-checkin').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
-            document.getElementById('nav-active-trucks').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
+            document.getElementById('nav-active-trucks').style.display = (role === 'admin' || role === 'guard' || role === 'ops') ? 'flex' : 'none';
             document.getElementById('nav-history').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
             document.getElementById('nav-drivers').style.display = (role === 'admin') ? 'flex' : 'none';
             document.getElementById('nav-security').style.display = (role === 'admin') ? 'flex' : 'none';
@@ -2032,6 +2064,40 @@
 
         /* ---------------- Analytics Hub Dynamism ---------------- */
         
+        function applyAnalyticsFilters() {
+            let range = currentAnalyticsDateRange;
+            let fromStr = document.getElementById('analyticsCustomDateFrom').value;
+            let toStr = document.getElementById('analyticsCustomDateTo').value;
+            const now = new Date();
+            
+            let filtered = globalHistoryListCache.filter(r => {
+                const refDate = new Date(r.checkInTime || r.timestamp);
+                if (isNaN(refDate.getTime())) return range === 'all';
+                if (range === 'today') return refDate.toDateString() === now.toDateString();
+                if (range === 'weekly') { const d = new Date(now); d.setDate(now.getDate() - 7); return refDate >= d && refDate <= now; }
+                if (range === 'monthly') { const d = new Date(now); d.setMonth(now.getMonth() - 1); return refDate >= d && refDate <= now; }
+                if (range === '6months') { const d = new Date(now); d.setMonth(now.getMonth() - 6); return refDate >= d && refDate <= now; }
+                if (range === '1year') { const d = new Date(now); d.setFullYear(now.getFullYear() - 1); return refDate >= d && refDate <= now; }
+                if (range === 'custom') {
+                    if (!fromStr || !toStr) return true;
+                    const from = new Date(fromStr); const to = new Date(toStr); to.setHours(23,59,59,999);
+                    return refDate >= from && refDate <= to;
+                }
+                return true; 
+            });
+            updateAnalyticsHub(filtered, range);
+        }
+
+        function setAnalyticsDateFilter(range, btnEl) {
+            currentAnalyticsDateRange = range;
+            document.querySelectorAll('.analytics-filter-container .tab-filter-item').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+            const customRow = document.getElementById('analyticsCustomDateRow');
+            if (range === 'custom') { customRow.style.display = 'flex'; return; }
+            customRow.style.display = 'none';
+            applyAnalyticsFilters();
+        }
+
         // Horizontal Bar Chart
         function buildBarChart(dataObj, containerId, emptyLabel = "No Data") {
             let containerEl = document.getElementById(containerId);
@@ -2096,7 +2162,8 @@
                 return;
             }
             
-            let chartData = [...dataObj.slice(0,7)];
+            // Limit to 10 points to prevent overlapping
+            let chartData = [...dataObj.slice(-10)];
             let max = Math.max(...chartData.map(item => item.count));
             if(max === 0) max = 1;
             
@@ -2165,18 +2232,23 @@
             if(legendEl) legendEl.innerHTML = legendHTML;
         }
 
-        function updateAnalyticsHub(logsData) {
+        function updateAnalyticsHub(logsData, range) {
             const now = new Date();
             let growthMap = {};
             logsData.forEach(log => {
                 let time = new Date(log.checkInTime || log.timestamp);
                 if (!isNaN(time.getTime())) {
-                    let diffDays = (now - time) / (1000 * 60 * 60 * 24);
-                    if (diffDays <= 7) {
-                        let dateLabel = time.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                        if (!growthMap[dateLabel]) growthMap[dateLabel] = { count: 0, ts: time.getTime() };
-                        growthMap[dateLabel].count++;
+                    let dateLabel;
+                    if (range === 'today') {
+                        let ampm = time.getHours() >= 12 ? (currentLang==='ar'?'م':'PM') : (currentLang==='ar'?'ص':'AM');
+                        dateLabel = `${time.getHours() % 12 || 12} ${ampm}`;
+                    } else if (range === '6months' || range === '1year' || range === 'all') {
+                        dateLabel = time.toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US', { month: 'short', year: '2-digit' });
+                    } else {
+                        dateLabel = time.toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric' });
                     }
+                    if (!growthMap[dateLabel]) growthMap[dateLabel] = { count: 0, ts: time.getTime() };
+                    growthMap[dateLabel].count++;
                 }
             });
             // Line Chart (Chronological order)
@@ -2373,7 +2445,10 @@
                 const refDate = new Date(r.checkInTime || r.timestamp);
                 if (isNaN(refDate.getTime())) return range === 'all';
                 if (range === 'today') return refDate.toDateString() === now.toDateString();
-                if (range === '7days') { const sevenDaysAgo = new Date(now); sevenDaysAgo.setDate(now.getDate() - 7); return refDate >= sevenDaysAgo && refDate <= now; }
+                if (range === '7days' || range === 'weekly') { const d = new Date(now); d.setDate(now.getDate() - 7); return refDate >= d && refDate <= now; }
+                if (range === 'monthly') { const d = new Date(now); d.setMonth(now.getMonth() - 1); return refDate >= d && refDate <= now; }
+                if (range === '6months') { const d = new Date(now); d.setMonth(now.getMonth() - 6); return refDate >= d && refDate <= now; }
+                if (range === '1year') { const d = new Date(now); d.setFullYear(now.getFullYear() - 1); return refDate >= d && refDate <= now; }
                 if (range === 'custom') {
                     if (!fromStr || !toStr) return true;
                     const from = new Date(fromStr); const to = new Date(toStr); to.setHours(23,59,59,999);
@@ -2404,11 +2479,11 @@
 
         function setHistoryDateFilter(range, btnEl) {
             currentHistoryDateRange = range;
-            document.querySelectorAll('.filter-tabs-container .tab-filter-item').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.filter-tabs-container:not(.analytics-filter-container) .tab-filter-item').forEach(b => b.classList.remove('active'));
             btnEl.classList.add('active');
             const customRow = document.getElementById('customDateRow');
-            if (range === 'custom') { customRow.classList.add('open'); return; }
-            customRow.classList.remove('open');
+            if (range === 'custom') { customRow.style.display = 'flex'; return; }
+            customRow.style.display = 'none';
             applyHistoryFilters();
         }
 
@@ -2605,7 +2680,7 @@
                 .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
             
             applyHistoryFilters(); // Applies both date and search text filters
-            updateAnalyticsHub(globalHistoryListCache); // Dynamically update charts!
+            applyAnalyticsFilters(); // Initialize Charts
             populateDatalists(globalHistoryListCache); // Dynamically update input dropdowns!
         };
 
@@ -2710,33 +2785,39 @@
             }
         }
         
+        function getAvailableViews() {
+            let availableViews = [];
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (window.getComputedStyle(item).display !== 'none') {
+                    availableViews.push(item.id.replace('nav-', ''));
+                }
+            });
+            return availableViews;
+        }
+
         function swipeNext() {
-            const views = ['dashboard', 'checkin', 'active-trucks', 'history', 'drivers', 'security'];
             let activeView = document.querySelector('.app-view.active-view');
-            if(!activeView) return;
+            if (!activeView) return;
             let currentId = activeView.id.replace('view-', '');
-            let currentIndex = views.indexOf(currentId);
+            let availableViews = getAvailableViews();
+            let currentIndex = availableViews.indexOf(currentId);
             
-            let nextIndex = currentIndex + 1;
-            let maxIndex = (userRole === 'admin') ? 5 : (userRole === 'ops' ? 0 : 3);
-            
-            if (nextIndex <= maxIndex) {
-                let navItems = document.querySelectorAll('.nav-links .nav-item');
-                switchView(views[nextIndex], navItems[nextIndex]);
+            if (currentIndex >= 0 && currentIndex < availableViews.length - 1) {
+                let nextView = availableViews[currentIndex + 1];
+                switchView(nextView, document.getElementById('nav-' + nextView));
             }
         }
         
         function swipePrev() {
-            const views = ['dashboard', 'checkin', 'active-trucks', 'history', 'drivers', 'security'];
             let activeView = document.querySelector('.app-view.active-view');
-            if(!activeView) return;
+            if (!activeView) return;
             let currentId = activeView.id.replace('view-', '');
-            let currentIndex = views.indexOf(currentId);
+            let availableViews = getAvailableViews();
+            let currentIndex = availableViews.indexOf(currentId);
             
-            let prevIndex = currentIndex - 1;
-            if (prevIndex >= 0) {
-                let navItems = document.querySelectorAll('.nav-links .nav-item');
-                switchView(views[prevIndex], navItems[prevIndex]);
+            if (currentIndex > 0) {
+                let prevView = availableViews[currentIndex - 1];
+                switchView(prevView, document.getElementById('nav-' + prevView));
             }
         }
 
