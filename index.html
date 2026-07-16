@@ -175,22 +175,39 @@
 
         .dashboard-mid-split { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
 
-        /* ACTIVE DOCKS BADGES */
+        /* 10-COLUMN GRID FOR ACTIVE DOCKS */
+        .docks-grid-container {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 1rem;
+            padding: 1.5rem;
+            border: 1px dashed rgba(255,255,255,0.05);
+            border-radius: 8px;
+            flex-grow: 1;
+            align-content: start;
+        }
+        @media (max-width: 1400px) { .docks-grid-container { grid-template-columns: repeat(8, 1fr); } }
+        @media (max-width: 1100px) { .docks-grid-container { grid-template-columns: repeat(6, 1fr); } }
+        @media (max-width: 800px) { .docks-grid-container { grid-template-columns: repeat(5, 1fr); } }
+        @media (max-width: 500px) { .docks-grid-container { grid-template-columns: repeat(4, 1fr); } }
+
         .dock-badge-active { 
             background: #2ea043; border: 2px solid #238636; color: #ffffff; 
-            padding: 0.75rem 1.25rem; border-radius: 6px; font-weight: 900; 
-            font-size: 1.1rem; font-family: monospace; display: inline-block; 
+            padding: 1rem 0; border-radius: 8px; font-weight: 900; 
+            font-size: 1.25rem; font-family: monospace; display: flex; 
+            align-items: center; justify-content: center;
             cursor: pointer; transition: all 0.2s ease; text-align: center;
-            min-width: 55px; box-shadow: 0 4px 12px rgba(46, 160, 67, 0.4);
+            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.4); width: 100%;
         }
-        .dock-badge-active:hover { background: #3fb950; transform: scale(1.1); }
+        .dock-badge-active:hover { background: #3fb950; transform: scale(1.08); z-index: 2; position: relative; }
 
         .dock-badge-inactive { 
             background: #f0f2f5; border: 1px solid #d0d7de; color: #24292f; 
-            padding: 0.5rem 0.85rem; border-radius: 6px; font-weight: 800; 
-            font-size: 0.95rem; font-family: monospace; display: inline-block;
-            opacity: 1; cursor: default; text-align: center; min-width: 55px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            padding: 1rem 0; border-radius: 8px; font-weight: 800; 
+            font-size: 1.1rem; font-family: monospace; display: flex; 
+            align-items: center; justify-content: center;
+            opacity: 1; cursor: default; text-align: center; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); width: 100%;
         }
 
         .highlight-row { background-color: rgba(252, 194, 0, 0.15) !important; border-left: 4px solid var(--accent-color) !important; transition: background-color 0.3s, border 0.3s; }
@@ -227,23 +244,6 @@
         .chart-legend li span { color: #fff; font-weight: 700; }
         .chart-legend li .legend-label-group { display: flex; align-items: center; gap: 8px; }
         .chart-legend li .legend-color-box { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
-
-        /* Accordion CSS for Grouped Tables */
-        .accordion-wrapper { margin-bottom: 1rem; }
-        .accordion-header {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color);
-            cursor: pointer; border-radius: 8px; transition: background 0.2s;
-        }
-        .accordion-header:hover { background: rgba(255,255,255,0.05); }
-        .accordion-title { font-weight: 800; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 10px; }
-        .accordion-badge { background: var(--card-solid); padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; color: var(--accent-color); border: 1px solid var(--border-color); }
-        .accordion-content {
-            display: none; padding: 0; border: 1px solid var(--border-color); border-top: none;
-            border-radius: 0 0 8px 8px; background: rgba(0,0,0,0.15); overflow-x: auto;
-        }
-        .accordion-content.open { display: block; }
-        .accordion-wrapper.open .accordion-header { border-radius: 8px 8px 0 0; border-bottom: 1px dashed var(--border-color); background: rgba(255,255,255,0.02); }
 
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
@@ -550,20 +550,18 @@
             </div>
 
             <div class="dashboard-mid-split">
-                <!-- CURRENTLY OCCUPIED DOCKS -->
                 <div class="card" style="display: flex; flex-direction: column; justify-content: flex-start; min-height: 250px;">
                     <div class="card-header-flex">
                         <h2 data-i18n="Currently Occupied Docks">Currently Occupied Docks</h2>
                         <span id="occupiedDocksCount" style="font-size:0.75rem; background: rgba(46,160,67,0.15); color: var(--success-color); padding: 0.2rem 0.5rem; border-radius:4px; font-weight:700;">0 <span data-i18n="Docks In Use">Docks In Use</span></span>
                     </div>
-                    <div id="occupiedDocksContainer" style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-start; align-content: flex-start; flex-grow: 1; padding: 1.5rem; border: 1px dashed rgba(255,255,255,0.05); border-radius: 8px;">
-                        <div style="width:100%; text-align:center; color:var(--text-muted); font-size:0.8rem; margin-top:2rem;" data-i18n="All docks are currently clear.">All docks are currently clear.</div>
+                    <div id="occupiedDocksContainer" class="docks-grid-container">
+                        <div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); font-size:0.8rem; margin-top:2rem;" data-i18n="All docks are currently clear.">All docks are currently clear.</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- NEW DEEP-DIVE ANALYTICS VIEW -->
         <div id="view-analytics" class="app-view">
             <div class="view-header-row">
                 <div class="view-header-title">
@@ -2435,7 +2433,6 @@
 
             let filtered = globalHistoryListCache.filter(r => {
                 const checkInMatch = isDateInRange(r.checkInTime, range, now, fromStr, toStr);
-                // In new structure, check out time exists if they checked out.
                 const checkOutMatch = r.checkOutTime ? isDateInRange(r.checkOutTime, range, now, fromStr, toStr) : false;
 
                 if (timeFilter === 'in') return checkInMatch;
@@ -2453,10 +2450,10 @@
                 );
             }
             updateAnalyticsHub(filtered, range);
-            renderAnalyticsTable(filtered); // This is what renders the accordion!
+            renderAnalyticsTable(filtered); // Renders the accordion!
         }
 
-        // ACCORDION ANALYTICS TABLE FUNCTION
+        // ACCORDION ANALYTICS TABLE FUNCTION (Restored)
         function renderAnalyticsTable(list) {
             const container = document.getElementById('analyticsGroupedTables');
             if(!container) return;
@@ -2822,7 +2819,7 @@
                 container.innerHTML += `
                     <div class="driver-registry-card security-card" data-search-blob="${guard.name.toLowerCase()} ${(guard.id || '').toLowerCase()}">
                         <div class="card-management-actions">
-                            <button class="btn-icon-manage" onclick="openEditDriverModal('${guard.name.replace(/'/g, "\\'")}', '${guard.id.replace(/'/g, "\\'")}', '', '', true)">✏️</button>
+                            <button class="btn-icon-manage" onclick="openEditDriverModal('${guard.name.replace(/'/g, "\\'")}', '${guard.id.replace(/'/g, "\\'")}', '', '${guard.phone.replace(/'/g, "\\'")}', true)">✏️</button>
                         </div>
                         <div class="driver-card-header">
                             <div class="driver-avatar-img" style="background: rgba(56, 139, 253, 0.15); color: #79c0ff; border-color: rgba(56, 139, 253, 0.3);">🛡️</div>
