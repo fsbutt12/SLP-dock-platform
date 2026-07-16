@@ -245,6 +245,23 @@
         .chart-legend li .legend-label-group { display: flex; align-items: center; gap: 8px; }
         .chart-legend li .legend-color-box { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 
+        /* Accordion CSS for Grouped Tables */
+        .accordion-wrapper { margin-bottom: 1rem; }
+        .accordion-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color);
+            cursor: pointer; border-radius: 8px; transition: background 0.2s;
+        }
+        .accordion-header:hover { background: rgba(255,255,255,0.05); }
+        .accordion-title { font-weight: 800; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .accordion-badge { background: var(--card-solid); padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; color: var(--accent-color); border: 1px solid var(--border-color); }
+        .accordion-content {
+            display: none; padding: 0; border: 1px solid var(--border-color); border-top: none;
+            border-radius: 0 0 8px 8px; background: rgba(0,0,0,0.15); overflow-x: auto;
+        }
+        .accordion-content.open { display: block; }
+        .accordion-wrapper.open .accordion-header { border-radius: 8px 8px 0 0; border-bottom: 1px dashed var(--border-color); background: rgba(255,255,255,0.02); }
+
         .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; backdrop-filter: blur(10px); }
         .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; }
         .card h2 { font-size: 0.95rem; color: #fff; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; font-weight: 700; }
@@ -628,14 +645,8 @@
                 </div>
             </div>
 
-            <!-- Single Flat Log Table for Analytics -->
-            <div class="card" style="margin-top: 2rem; overflow-x: auto; padding: 1.5rem; background: transparent; border: none;">
-                <h3 style="color: #fff; font-size: 0.95rem; text-transform: uppercase; margin-bottom: 1rem;" data-i18n="Filtered Movement Logs">Filtered Movement Logs</h3>
-                <table id="analyticsLogTable">
-                    <thead><tr><th data-i18n="Driver">Driver</th><th data-i18n="Plate">Plate</th><th data-i18n="Direction">Direction</th><th data-i18n="Dock">Dock</th><th data-i18n="Seal Number">Seal Number</th><th data-i18n="Check In Truck">Check In Truck</th><th data-i18n="Check Out">Check Out</th><th data-i18n="Duration">Duration</th><th data-i18n="Security">Security</th></tr></thead>
-                    <tbody id="analyticsLogTableBody"><tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;" data-i18n="No records match this filter.">NO RECORDS MATCH THIS FILTER.</td></tr></tbody>
-                </table>
-            </div>
+            <!-- Grouped Log Tables Restored for Analytics -->
+            <div id="analyticsGroupedTables" style="margin-top: 2rem;"></div>
         </div>
 
         <div id="view-checkin" class="app-view">
@@ -1147,6 +1158,19 @@
                 }
             });
         });
+
+        // Toggle Accordion functionality
+        window.toggleAccordion = function(el) {
+            const content = el.nextElementSibling;
+            const wrapper = el.parentElement;
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                wrapper.classList.remove('open');
+            } else {
+                content.classList.add('open');
+                wrapper.classList.add('open');
+            }
+        };
 
         // 12-Hour Auto Logout Check
         function checkSessionExpiry() {
@@ -1921,9 +1945,12 @@
         async function preprocessImageForOcr(file, scanType) {
             const img = await loadImageRobust(file);
             let sx = 0, sy = 0, sw = img.width, sh = img.height;
-            if (scanType === 'PLATE') { sw = img.width * 0.7; sh = img.height * 0.42; sx = (img.width - sw) / 2; sy = img.height * 0.52; }
+            
+            // REMOVED AGGRESSIVE CROP. If they take a close photo, cropping 50% of the bottom ruins it.
+            // Let Google Vision handle the full image. We just compress it nicely.
+            
             const targetWidth = scanType === 'PLATE' ? 1100 : 1400;
-            const scale = sw < targetWidth ? targetWidth / sw : 1;
+            const scale = sw > targetWidth ? targetWidth / sw : 1; 
             const canvas = document.createElement('canvas');
             canvas.width = Math.round(sw * scale); canvas.height = Math.round(sh * scale);
             const ctx = canvas.getContext('2d');
@@ -2444,26 +2471,74 @@
                 );
             }
             updateAnalyticsHub(filtered, range);
-            renderAnalyticsTable(filtered); // Renders the single flat table
+            renderAnalyticsTable(filtered); // Renders the accordion!
         }
 
-        // FLATTENED ANALYTICS TABLE FUNCTION
+        // ACCORDION ANALYTICS TABLE FUNCTION (Restored)
         function renderAnalyticsTable(list) {
-            const tbody = document.getElementById('analyticsLogTableBody');
-            tbody.innerHTML = '';
+            const container = document.getElementById('analyticsGroupedTables');
+            if(!container) return;
+            container.innerHTML = '';
             
             if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">${tr('No records match this filter.')}</td></tr>`;
+                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;">${tr('No records match this filter.')}</div>`;
                 return;
             }
 
+            let groups = {};
             list.forEach(r => {
                 let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
                 let cssClass = getBadgeClass(displayDir, r.checkOutTime !== "");
 
-                // Does NOT output the Iqama ID for security reasons
-                tbody.innerHTML += `<tr><td><strong>${r.driverName}</strong></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${cssClass}">${tr(displayDir)}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${r.sealNumber || '--'}</td><td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${!r.checkOutTime ? '<span style="color:var(--accent-color); font-weight:700;">'+tr('Inside')+'</span>' : formatTimeText(r.checkOutTime)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.checkOutTime)}</td><td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td></tr>`;
+                if (!groups[displayDir]) groups[displayDir] = { items: [], cssClass: cssClass };
+                groups[displayDir].items.push(r);
             });
+
+            for (let [dir, group] of Object.entries(groups)) {
+                let rowsHtml = group.items.map(r => {
+                    let activeSeal = r.sealNumber || '--';
+                    return `<tr>
+                        <td><strong>${r.driverName}</strong></td>
+                        <td>${generatePlateBumperUI(r.plateNumber)}</td>
+                        <td><span class="${group.cssClass}">${tr(dir)}</span></td>
+                        <td><strong>${r.dockNumber}</strong></td>
+                        <td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${activeSeal}</td>
+                        <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td>
+                        <td style="font-size:0.8rem; color:var(--text-muted);">${!r.checkOutTime ? '<span style="color:var(--accent-color); font-weight:700;">'+tr('Inside')+'</span>' : formatTimeText(r.checkOutTime)}</td>
+                        <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.checkOutTime)}</td>
+                        <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td>
+                    </tr>`;
+                }).join('');
+
+                let tableHtml = `
+                    <table style="min-width: 800px; margin-top: 0;">
+                        <thead><tr>
+                            <th data-i18n="Driver">${tr('Driver')}</th>
+                            <th data-i18n="Plate">${tr('Plate')}</th>
+                            <th data-i18n="Direction">${tr('Direction')}</th>
+                            <th data-i18n="Dock">${tr('Dock')}</th>
+                            <th data-i18n="Seal Number">${tr('Seal Number')}</th>
+                            <th data-i18n="Check In Truck">${tr('Check In Truck')}</th>
+                            <th data-i18n="Check Out">${tr('Check Out')}</th>
+                            <th data-i18n="Duration">${tr('Duration')}</th>
+                            <th data-i18n="Security">${tr('Security')}</th>
+                        </tr></thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                `;
+
+                container.innerHTML += `
+                    <div class="accordion-wrapper">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <div class="accordion-title"><span class="${group.cssClass}" style="margin-right: 10px;">${tr(dir)}</span></div>
+                            <div class="accordion-badge">${group.items.length}</div>
+                        </div>
+                        <div class="accordion-content">
+                            ${tableHtml}
+                        </div>
+                    </div>
+                `;
+            }
         }
 
         function setAnalyticsDateFilter(range, btnEl) {
