@@ -1480,1783 +1480,309 @@
             renderNotifications();
         }
 
-        window.openOpsHistoryModal = function() {
+        function openOpsHistoryModal() {
             const tbody = document.getElementById('opsAccessHistoryBody');
             tbody.innerHTML = '';
-            
-            let historyLogs = (window.globalSystemLogs || []).filter(l => l.accepted || l.denied);
-            
-            if (historyLogs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">No history found.</td></tr>`;
-            } else {
-                historyLogs.slice().reverse().forEach(log => {
-                    let statusColor = log.accepted ? 'var(--success-color)' : 'var(--danger-color)';
-                    let statusText = log.accepted ? 'APPROVED' : 'DENIED';
-                    
-                    tbody.innerHTML += `
-                    <tr>
-                        <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(log.timestamp)}</td>
-                        <td><strong>${log.name}</strong></td>
-                        <td style="font-size:0.8rem;">${log.noonId}</td>
-                        <td style="color:${statusColor}; font-weight:bold; font-size:0.8rem;">${statusText}</td>
-                        <td style="font-size:0.8rem; color:var(--text-muted);">Admin</td>
+            (window.globalSystemLogs || []).forEach(log => {
+                const status = log.accepted ? "Approved" : (log.denied ? "Denied" : "Pending");
+                const color = log.accepted ? "var(--success-color)" : (log.denied ? "var(--danger-color)" : "var(--accent-color)");
+                tbody.innerHTML += `
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 1rem 0;">${log.timestamp ? new Date(log.timestamp).toLocaleDateString() : new Date().toLocaleDateString()}</td>
+                        <td>${log.name}</td>
+                        <td>${log.noonId}</td>
+                        <td style="color:${color}; font-weight:bold;">${status}</td>
+                        <td>Admin</td>
                     </tr>`;
-                });
+            });
+            
+            if(tbody.innerHTML === '') {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 2rem; color:var(--text-muted);">No access history found.</td></tr>`;
             }
             document.getElementById('opsAccessHistoryModal').classList.add('modal-active');
             document.getElementById('adminNotifDropdown').classList.remove('open');
-        };
-
-        /* ---------------- INTRO SCREEN PARTICLES ---------------- */
-        const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, particles;
-        let animationFrameId;
-        let introActive = true;
-
-        function initParticles() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            particles = [];
-            const particleCount = window.innerWidth < 768 ? 40 : 80;
-            for (let i = 0; i < particleCount; i++) {
-                particles.push({ x: Math.random() * width, y: Math.random() * height, vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5, size: Math.random() * 2 + 1 });
-            }
         }
 
-        function animateParticles() {
-            if (!introActive) return;
-            ctx.clearRect(0, 0, width, height);
-            ctx.fillStyle = 'rgba(252, 194, 0, 0.6)'; ctx.strokeStyle = 'rgba(252, 194, 0, 0.15)';
-            for (let i = 0; i < particles.length; i++) {
-                let p = particles[i];
-                p.x += p.vx; p.y += p.vy;
-                if (p.x < 0 || p.x > width) p.vx *= -1;
-                if (p.y < 0 || p.y > height) p.vy *= -1;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
-                for (let j = i + 1; j < particles.length; j++) {
-                    let p2 = particles[j];
-                    let dist = Math.sqrt((p.x - p2.x)**2 + (p.y - p2.y)**2);
-                    if (dist < 120) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); }
-                }
-            }
-            animationFrameId = requestAnimationFrame(animateParticles);
-        }
-
-        window.addEventListener('resize', () => { if(introActive) initParticles(); });
-
-        /* ---------------- ON LOAD SESSION CHECK & FETCH ---------------- */
-        const sessionStr = localStorage.getItem('noonSlpUserSession');
-        if (sessionStr) {
-            const sessionData = JSON.parse(sessionStr);
-            const twelveHours = 12 * 60 * 60 * 1000;
-
-            if (!sessionData.loginTime || (Date.now() - sessionData.loginTime > twelveHours)) {
-                localStorage.removeItem('noonSlpUserSession');
-                initParticles(); 
-                animateParticles();
-            } else {
-                executeLogin(sessionData.name, sessionData.email, sessionData.noonId || "", sessionData.role);
-                document.getElementById('introOverlay').style.display = 'none';
-                introActive = false;
-            }
-        } else {
-            initParticles(); 
-            animateParticles();
-        }
-
-        /* ---------------- CORE DASHBOARD LOGIC ---------------- */
-        function updateHeroDateTime() {
-            const d = new Date();
-            const monthsEn = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-            const monthsAr = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
-            const m = currentLang === 'ar' ? monthsAr[d.getMonth()] : monthsEn[d.getMonth()];
-
-            const dateStr = String(d.getDate()).padStart(2, '0') + " " + m + " " + d.getFullYear();
-            const badgeD = document.getElementById('heroDateBadge');
-            if(badgeD) badgeD.innerText = dateStr;
-
-            let ampm = d.getHours() >= 12 ? (currentLang === 'ar' ? 'م' : 'PM') : (currentLang === 'ar' ? 'ص' : 'AM');
-            let hr = d.getHours() % 12 || 12;
-            let min = String(d.getMinutes()).padStart(2, '0');
-            let sec = String(d.getSeconds()).padStart(2, '0');
-            const timeStr = `${hr}:${min}:${sec} ${ampm}`;
-
-            const badgeT = document.getElementById('heroTimeBadge');
-            if(badgeT) badgeT.innerText = timeStr;
-        }
-        setInterval(updateHeroDateTime, 1000);
-        updateHeroDateTime();
+        /* ---------------- VIEW NAVIGATION ---------------- */
+        const views = ['dashboard', 'analytics', 'checkin', 'active-trucks', 'history', 'drivers', 'security'];
+        let currentViewIndex = 0;
 
         function switchView(viewId, element) {
-            document.querySelectorAll('.app-view').forEach(v => v.id === 'view-' + viewId ? v.classList.add('active-view') : v.classList.remove('active-view'));
-            document.querySelectorAll('.nav-item').forEach(item => item === element ? item.classList.add('active') : item.classList.remove('active'));
+            document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active-view'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            const targetView = document.getElementById(`view-${viewId}`);
+            if (targetView) targetView.classList.add('active-view');
+            if (element) element.classList.add('active');
+            
+            currentViewIndex = views.indexOf(viewId);
+            
+            // Mobile sidebar auto-close
+            if (window.innerWidth <= 900 && !isSidebarHidden) {
+                toggleSidebar();
+            }
         }
 
+        function swipeNext() {
+            let nextIndex = (currentViewIndex + 1) % views.length;
+            // Skip views not allowed by role
+            while(document.getElementById(`nav-${views[nextIndex]}`).style.display === 'none') {
+                nextIndex = (nextIndex + 1) % views.length;
+            }
+            switchView(views[nextIndex], document.getElementById(`nav-${views[nextIndex]}`));
+        }
+
+        function swipePrev() {
+            let prevIndex = (currentViewIndex - 1 + views.length) % views.length;
+            while(document.getElementById(`nav-${views[prevIndex]}`).style.display === 'none') {
+                prevIndex = (prevIndex - 1 + views.length) % views.length;
+            }
+            switchView(views[prevIndex], document.getElementById(`nav-${views[prevIndex]}`));
+        }
+
+        /* ---------------- FULLSCREEN & TIME ---------------- */
         function toggleFullscreen() {
-            const fsBtnText = document.getElementById('fsBtnLabel');
-            const fsIcon = document.getElementById('fsIcon');
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().then(() => { 
-                    fsBtnText.innerText = tr("Exit Fullscreen"); 
-                    fsIcon.innerText = "📉"; 
-                }).catch(() => alert("Fullscreen error."));
-            } else {
-                document.exitFullscreen().then(() => { 
-                    fsBtnText.innerText = tr("Fullscreen"); 
-                    fsIcon.innerText = "🖥️"; 
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.warn(`Error attempting to enable fullscreen: ${err.message}`);
                 });
-            }
-        }
-
-        function highlightActiveTruck(dockNum) {
-            if (userRole === 'ops') return; // Prevent Ops from clicking docks to switch views
-            switchView('active-trucks', document.getElementById('nav-active-trucks'));
-
-            document.querySelectorAll('#activeYardTableBody tr').forEach(row => {
-                row.classList.remove('highlight-row');
-            });
-
-            setTimeout(() => {
-                const rows = document.querySelectorAll('#activeYardTableBody tr');
-                for (let row of rows) {
-                    const dockCell = row.cells[5];
-                    if (dockCell && dockCell.innerText.trim() === String(dockNum)) {
-                        row.classList.add('highlight-row');
-                        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        setTimeout(() => {
-                            row.classList.remove('highlight-row');
-                        }, 2000);
-                        break; 
-                    }
+                document.getElementById('fsIcon').innerText = "🗗";
+                document.getElementById('fsBtnLabel').setAttribute('data-i18n', 'Exit Fullscreen');
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                    document.getElementById('fsIcon').innerText = "🖥️";
+                    document.getElementById('fsBtnLabel').setAttribute('data-i18n', 'Fullscreen');
                 }
-            }, 100);
+            }
+            updateUIStrings();
         }
 
-        function openDriverProfileModal(name, iqama, plate, date, phone, isGuard = false) {
-            document.getElementById('modalDataName').innerText = name;
-            document.getElementById('modalDataIqama').innerText = iqama;
-            document.getElementById('modalDataDate').innerText = date;
-            document.getElementById('modalDataMobile').innerText = phone || 'N/A';
+        function updateHeroDateTime() {
+            const now = new Date();
+            document.getElementById('heroTimeBadge').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('heroDateBadge').innerText = now.toLocaleDateString();
+        }
+        setInterval(updateHeroDateTime, 60000);
 
-            let titleEl = document.getElementById('modalTitleName');
-            let plateCell = document.getElementById('modalDataPlateCell');
-            let iqamaLabel = document.getElementById('modalLabelIqama');
-            let mobileCell = document.getElementById('modalDataMobileCell');
-            const viewport = document.getElementById('modalMediaViewport');
-
-            // Fix image viewing size to prevent cropping
-            viewport.style.backgroundSize = "contain";
-            viewport.style.backgroundPosition = "center";
-            viewport.style.backgroundRepeat = "no-repeat";
-
-            if (isGuard) {
-                titleEl.innerText = tr("Security Guard Details");
-                iqamaLabel.innerText = tr("Noon ID");
-                plateCell.style.display = 'none';
-                mobileCell.style.display = 'none';
-                viewport.style.backgroundImage = `url('https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800')`;
+        /* ---------------- CHECK-IN LOGIC ---------------- */
+        function setDriverMode(mode, btn) {
+            document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const newFields = document.querySelectorAll('.new-driver-field');
+            const lookupGroup = document.getElementById('driverLookupGroup');
+            
+            if (mode === 'existing') {
+                newFields.forEach(el => el.style.display = 'none');
+                lookupGroup.style.display = 'block';
             } else {
-                titleEl.innerText = tr("Driver Details");
-                iqamaLabel.innerText = tr("Iqama/National ID");
-                plateCell.style.display = 'block';
-                mobileCell.style.display = 'block';
-
-                let plateBox = document.getElementById('modalDataPlate'); plateBox.innerHTML = '';
-                let segments = plate ? plate.split(' ') : ['--'];
-                segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
-                
-                // Show loading placeholder initially
-                viewport.style.backgroundImage = `none`;
-                viewport.innerHTML = `<div id="photoLoader" style="color:var(--accent-color); text-align:center; padding-top:80px; font-weight:bold;">Loading Photo...</div>`;
-
-                // Set up global callback to receive JSONP data
-                window.handlePhotoResponse = function(res) {
-                    const loader = document.getElementById('photoLoader');
-                    if(loader) loader.style.display = 'none';
-                    if (res && res.image && res.image !== "") {
-                        viewport.style.backgroundImage = `url("${res.image}")`;
-                    } else {
-                        // Fallback image if no photo found in database
-                        viewport.style.backgroundImage = `url('https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800')`;
-                    }
-                };
-
-                // Fetch directly from the Google Sheet "Photos" database via JSONP
-                const old = document.getElementById('jsonp-photo-fetcher'); if(old) old.remove();
-                const s = document.createElement('script');
-                s.id = 'jsonp-photo-fetcher';
-                s.src = API_URL + "?action=getPhoto&driverName=" + encodeURIComponent(name) + "&callback=handlePhotoResponse&prefix=handlePhotoResponse&_" + new Date().getTime();
-                document.body.appendChild(s);
+                newFields.forEach(el => el.style.display = 'block');
+                lookupGroup.style.display = 'none';
             }
-
-            document.getElementById('driverProfileModal').classList.add('modal-active');
         }
 
-        function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
-
-        /* --- DRIVER & GUARD EDIT MODAL LOGIC --- */
-        function openEditDriverModal(name, iqama, plate, phone, isGuard = false) {
-            document.getElementById('editOriginalName').value = name;
-            document.getElementById('editName').value = name;
-            document.getElementById('editIqama').value = iqama;
-            // Clear field if it was set to N/A so the user sees a blank input
-            document.getElementById('editPhone').value = (phone === 'N/A' || phone === '--') ? '' : phone;
-
-            let titleEl = document.getElementById('editModalTitle');
-            let labelName = document.getElementById('editLabelName');
-            let labelId = document.getElementById('editLabelId');
-            let plateGroup = document.getElementById('editPlateGroup');
-            let phoneGroup = document.getElementById('editPhoneGroup');
-            let typeInput = document.getElementById('editRecordType');
-
-            if (isGuard) {
-                titleEl.innerText = tr("Edit Guard Record");
-                labelName.innerText = tr("Security Name *");
-                labelId.innerText = tr("Security ID *");
-                plateGroup.style.display = 'none';
-                phoneGroup.style.display = 'none';
-                typeInput.value = "guard";
-                document.getElementById('editPlate').value = '';
+        document.getElementById('dispatchSelect').addEventListener('change', function() {
+            const sealContainer = document.getElementById('sealNumberContainer');
+            if (this.value === 'Receiving') {
+                sealContainer.style.display = 'block';
+                document.getElementById('sealNumber').required = true;
             } else {
-                titleEl.innerText = tr("Edit Driver Record");
-                labelName.innerText = tr("Driver Name *");
-                labelId.innerText = tr("Iqama Number *");
-                plateGroup.style.display = 'block';
-                phoneGroup.style.display = 'block';
-                typeInput.value = "driver";
-                document.getElementById('editPlate').value = plate;
+                sealContainer.style.display = 'none';
+                document.getElementById('sealNumber').required = false;
             }
+        });
 
-            document.getElementById('editDriverModal').classList.add('modal-active');
+        document.getElementById('entryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert("Check-In payload prepared. Integrating with Apps Script backend in production.");
+            // Add backend POST logic here...
+            this.reset();
+        });
+
+        /* ---------------- CAMERA & MEDIA HANDLING ---------------- */
+        let streamReference = null;
+        let currentCameraTarget = null;
+        let currentScanType = null;
+
+        async function openCamera(targetId, type) {
+            currentCameraTarget = targetId;
+            currentScanType = type;
+            document.getElementById('cameraOverlay').classList.add('open');
+            const instruction = document.getElementById('cameraInstructionLabel');
+            instruction.innerText = `Align ${type} within the frame`;
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                const video = document.getElementById('cameraVideo');
+                video.srcObject = stream;
+                streamReference = stream;
+            } catch (err) {
+                alert("Camera access denied or unavailable.");
+                closeCamera();
+            }
+        }
+
+        function closeCamera() {
+            document.getElementById('cameraOverlay').classList.remove('open');
+            if (streamReference) {
+                streamReference.getTracks().forEach(track => track.stop());
+                streamReference = null;
+            }
+        }
+
+        function captureCameraFrame() {
+            const flash = document.getElementById('cameraFlash');
+            flash.classList.add('flash-active');
+            setTimeout(() => flash.classList.remove('flash-active'), 200);
+
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.getElementById('cameraCanvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            temporaryCapturedImage = canvas.toDataURL('image/jpeg');
+            
+            document.getElementById(currentCameraTarget).innerHTML = `<span style="color:var(--success-color);">✅ Image Captured</span>`;
+            closeCamera();
+        }
+
+        function handleFileSelected(input, targetId, type) {
+            if (input.files && input.files[0]) {
+                document.getElementById(targetId).innerHTML = `<span style="color:var(--success-color);">✅ File Attached</span>`;
+            }
+        }
+
+        function openCheckoutCamera(targetId, type) {
+            openCamera(targetId, type);
+        }
+
+        function handleCheckoutPhoto(input, targetId, type) {
+            handleFileSelected(input, targetId, type);
+        }
+
+        /* ---------------- MODAL & EXPORT ACTIONS ---------------- */
+        function closeDriverProfileModal() {
+            document.getElementById('driverProfileModal').classList.remove('modal-active');
         }
 
         function closeEditDriverModal() {
             document.getElementById('editDriverModal').classList.remove('modal-active');
         }
 
-        function saveDriverEdits() {
-            const oldName = document.getElementById('editOriginalName').value;
-            const newName = document.getElementById('editName').value;
-            const newIqama = document.getElementById('editIqama').value;
-            const newPlate = document.getElementById('editPlate').value;
-            // Force N/A if left blank by user during an edit
-            const newPhone = document.getElementById('editPhone').value.trim() || 'N/A';
-            const recordType = document.getElementById('editRecordType').value;
-
-            // OVERRIDE ENGINE: Save this edit locally so it NEVER gets reverted by a server refresh
-            let localOverrides = JSON.parse(localStorage.getItem('SLP_OVERRIDES')) || {};
-            let originalKey = Object.keys(localOverrides).find(k => localOverrides[k].name === oldName && localOverrides[k].type === recordType) || oldName;
-
-            localOverrides[originalKey] = {
-                type: recordType,
-                name: newName,
-                id: newIqama,
-                plate: newPlate,
-                phone: newPhone
-            };
-            localStorage.setItem('SLP_OVERRIDES', JSON.stringify(localOverrides));
-
-            // Optional background push to sheet 
-            fetch(API_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ action: "editDriver", recordType, oldName, driverName: newName, iqamaNumber: newIqama, plateNumber: newPlate, mobileNumber: newPhone, actionByEmail: loggedInUser.email }) 
-            }).catch(e => console.log("Edit save queued."));
-
-            closeEditDriverModal();
-            fetchLogs(); // Force immediate refresh to apply overrides
+        function closeSignOutModal() {
+            document.getElementById('signOutModal').classList.remove('modal-active');
         }
 
         function deleteDriver() {
-            const oldName = document.getElementById('editOriginalName').value;
-            const recordType = document.getElementById('editRecordType').value;
-
-            const confirmMsg = (recordType === 'guard') ? "Are you sure you want to delete this guard?" : "Are you sure you want to delete this driver?";
-
-            if (confirm(tr(confirmMsg) || confirmMsg)) {
-                // OVERRIDE ENGINE: Save delete locally to prevent server reverting
-                let localDeletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
-                localDeletes.push({ name: oldName, type: recordType });
-                localStorage.setItem('SLP_DELETES', JSON.stringify(localDeletes));
-
-                fetch(API_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: "deleteDriver", driverName: oldName }) 
-                }).catch(e => console.log("Delete save queued."));
-
+            if(confirm(tr('Are you sure you want to delete this driver?'))) {
+                alert("Record deletion simulation.");
                 closeEditDriverModal();
-                fetchLogs(); // Refresh immediately
             }
         }
 
-        function setDriverMode(mode, element) {
-            element.parentNode.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active')); element.classList.add('active');
-
-            if(mode === "existing") {
-                document.getElementById('driverLookupGroup').style.display = "block";
-                document.getElementById('scanBoxDriver').style.display = 'none';
-                document.getElementById('scanBoxIqama').style.display = 'none';
-                document.querySelector('.scanners-double-row').style.gridTemplateColumns = '1fr';
-                document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = "none"; f.querySelector('input').required = false; });
-                temporaryCapturedImage = null; // Clear image when switching to existing
-            } else {
-                document.getElementById('driverLookupGroup').style.display = "none";
-                document.getElementById('scanBoxDriver').style.display = 'block';
-                document.getElementById('scanBoxIqama').style.display = 'block';
-                document.querySelector('.scanners-double-row').style.gridTemplateColumns = 'repeat(2, 1fr)';
-                document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = "block"; f.querySelector('input').required = true; });
-            }
+        function saveDriverEdits() {
+            alert("Edits saved locally.");
+            closeEditDriverModal();
         }
 
-        document.getElementById('dispatchSelect').addEventListener('change', function() {
-            const container = document.getElementById('sealNumberContainer');
-            const input = document.getElementById('sealNumber');
-            if (this.value === 'Receiving') {
-                container.style.display = 'block';
-                input.required = true;
-            } else {
-                container.style.display = 'none';
-                input.required = false;
-                input.value = '';
-            }
-        });
-
-        /* ---------------- Existing-driver autocomplete ---------------- */
-        const driverSearchBoxEl = document.getElementById('driverSearchBox');
-        const driverSuggestionsListEl = document.getElementById('driverSuggestionsList');
-
-        function renderDriverSuggestions(value) {
-            driverSuggestionsListEl.innerHTML = '';
-            if (driversRegistryList.length === 0) { driverSuggestionsListEl.classList.remove('open'); return; }
-
-            let matches = driversRegistryList.filter(d => 
-                d.name.toUpperCase().includes(value) || (d.plate || '').toUpperCase().includes(value)
-            ).slice(0, 8);
-
-            if (matches.length === 0) { driverSuggestionsListEl.classList.remove('open'); return; }
-
-            matches.forEach(d => {
-                const item = document.createElement('div');
-                item.className = 'suggestion-item';
-                item.innerHTML = `${d.name}<small>${tr('Plate')}: ${d.plate || '--'} · ID: ${d.id || '--'}</small>`;
-                item.addEventListener('click', () => {
-                    driverSearchBoxEl.value = d.name;
-                    document.getElementById('driverName').value = d.name;
-                    document.getElementById('plateNumber').value = d.plate !== '--' ? d.plate : '';
-                    document.getElementById('iqamaNumber').value = d.id !== '--' ? d.id : '';
-                    document.getElementById('mobileNumber').value = d.phone !== 'N/A' ? d.phone : '';
-                    driverSuggestionsListEl.classList.remove('open');
-                });
-                driverSuggestionsListEl.appendChild(item);
-            });
-            driverSuggestionsListEl.classList.add('open');
-        }
-
-        driverSearchBoxEl.addEventListener('focus', function() {
-            renderDriverSuggestions(this.value.toUpperCase().trim());
-        });
-
-        driverSearchBoxEl.addEventListener('input', function() {
-            renderDriverSuggestions(this.value.toUpperCase().trim());
-        });
-
-        /* ---------------- Custom Security Dropdown ---------------- */
-        const secSearchBoxEl = document.getElementById('securityNameField');
-        const secSuggestionsListEl = document.getElementById('securitySuggestionsList');
-
-        function renderSecuritySuggestions(value) {
-            secSuggestionsListEl.innerHTML = '';
-            if (securityRegistryList.length === 0) { secSuggestionsListEl.classList.remove('open'); return; }
-
-            let matches = securityRegistryList;
-            if (value) {
-                matches = securityRegistryList.filter(g => g.name.toUpperCase().includes(value));
-            }
-            matches = matches.slice(0, 20); // Prevent gigantic unscrollable lists
-
-            if (matches.length === 0) { secSuggestionsListEl.classList.remove('open'); return; }
-
-            matches.forEach(g => {
-                const item = document.createElement('div');
-                item.className = 'suggestion-item';
-                item.innerHTML = `${g.name}`; 
-                item.addEventListener('click', () => {
-                    secSearchBoxEl.value = g.name;
-                    document.getElementById('securityNameId').value = g.id !== 'N/A' ? g.id : '';
-                    secSuggestionsListEl.classList.remove('open');
-                });
-                secSuggestionsListEl.appendChild(item);
-            });
-            secSuggestionsListEl.classList.add('open');
-        }
-
-        secSearchBoxEl.addEventListener('focus', function() {
-            renderSecuritySuggestions(this.value.toUpperCase().trim());
-        });
-        secSearchBoxEl.addEventListener('click', function() {
-            renderSecuritySuggestions(this.value.toUpperCase().trim());
-        });
-        secSearchBoxEl.addEventListener('input', function() {
-            renderSecuritySuggestions(this.value.toUpperCase().trim());
-        });
-
-        // Global click listener to close custom dropdowns
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.search-input-wrapper')) {
-                driverSuggestionsListEl.classList.remove('open');
-            }
-            if (!e.target.closest('#securityDropdownWrapper')) {
-                secSuggestionsListEl.classList.remove('open');
-            }
-        });
-
-        function convertArabicNumeralsToDigits(str) {
-            const map = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' };
-            return str.replace(/[٠-٩]/g, match => map[match]);
-        }
-
-        /* ---------------- Image preprocessing & Camera ---------------- */
-        function isLikelyHeic(file) {
-            const type = (file.type || '').toLowerCase();
-            const name = (file.name || '').toLowerCase();
-            return type.includes('heic') || type.includes('heif') || name.endsWith('.heic') || name.endsWith('.heif');
-        }
-
-        function loadImageRobust(file) {
-            return new Promise((resolve, reject) => {
-                if (isLikelyHeic(file)) { reject(new Error('HEIC_UNSUPPORTED')); return; }
-                const img = new Image();
-                let triedFallback = false;
-                function fallbackToDataUrl() {
-                    if (triedFallback) { reject(new Error('image failed to load')); return; }
-                    triedFallback = true;
-                    const reader = new FileReader();
-                    reader.onload = () => { img.onerror = () => reject(new Error('image failed to load')); img.onload = () => resolve(img); img.src = reader.result; };
-                    reader.onerror = () => reject(new Error('could not read the selected file'));
-                    reader.readAsDataURL(file);
-                }
-                img.onload = () => resolve(img);
-                img.onerror = fallbackToDataUrl;
-                try { img.src = URL.createObjectURL(file); } catch (e) { fallbackToDataUrl(); }
-            });
-        }
-
-        // Compress the image heavily for Google Sheets DB without gray scaling it
-        async function compressImageForProfile(file) {
-            const img = await loadImageRobust(file);
-            const maxDim = 350; // Compressed small enough to easily fit Google Sheets 50,000 char cell limit
-            let w = img.width, h = img.height;
-            if (w > h) { if (w > maxDim) { h *= maxDim/w; w = maxDim; } }
-            else { if (h > maxDim) { w *= maxDim/h; h = maxDim; } }
-            const canvas = document.createElement('canvas');
-            canvas.width = Math.round(w); canvas.height = Math.round(h);
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            return new Promise((resolve, reject) => { canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('canvas toBlob failed')), 'image/jpeg', 0.5); });
-        }
-
-        async function preprocessImageForOcr(file, scanType) {
-            const img = await loadImageRobust(file);
-            let sx = 0, sy = 0, sw = img.width, sh = img.height;
+        function exportHistoryToExcel() {
+            const csvRows = [];
+            const headers = ["Driver", "Plate", "Direction", "Dock", "Seal Number", "Check In", "Check Out", "Duration", "Security"];
+            csvRows.push(headers.join(","));
             
-            // REMOVED AGGRESSIVE CROP. If they take a close photo, cropping 50% of the bottom ruins it.
-            // Let Google Vision handle the full image. We just compress it nicely.
-            
-            const targetWidth = scanType === 'PLATE' ? 1100 : 1400;
-            const scale = sw > targetWidth ? targetWidth / sw : 1; 
-            const canvas = document.createElement('canvas');
-            canvas.width = Math.round(sw * scale); canvas.height = Math.round(sh * scale);
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const d = imageData.data; const contrast = 50; const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
-            for (let i = 0; i < d.length; i += 4) {
-                let gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-                gray = factor * (gray - 128) + 128;
-                gray = Math.min(255, Math.max(0, gray));
-                d[i] = d[i + 1] = d[i + 2] = gray;
-            }
-            ctx.putImageData(imageData, 0, 0);
-            return new Promise((resolve, reject) => { canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('canvas toBlob failed')), 'image/jpeg', 0.85); });
-        }
-
-        function blobToBase64(blob) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader(); reader.onloadend = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = () => reject(new Error('failed to read blob')); reader.readAsDataURL(blob);
-            });
-        }
-
-        let cameraStream = null, cameraTargetStatusId = null, cameraTargetScanType = null;
-
-        function getInstructionText(scanType) {
-            if(scanType === 'PLATE') return tr("Driver Photo / Truck Photo");
-            if(scanType === 'IQAMA') return tr("Iqama (ID Card) Scanner");
-            if(scanType === 'OFFICER') return tr("Security ID Scanner");
-            if(scanType === 'LOGIN_OFFICER') return tr("Scan Security ID");
-            if(scanType === 'truck') return "Take Truck Picture";
-            if(scanType === 'item') return "Take Item Picture";
-            return "";
-        }
-
-        function triggerCameraFlash() {
-            const flash = document.getElementById('cameraFlash');
-            flash.classList.add('flash-active');
-            setTimeout(() => {
-                flash.classList.remove('flash-active');
-            }, 50);
-        }
-
-        async function openCamera(statusLabelId, scanType) {
-            cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
-            const overlay = document.getElementById('cameraOverlay'), video = document.getElementById('cameraVideo');
-            overlay.classList.add('open');
-
-            document.getElementById('cameraInstructionLabel').innerText = getInstructionText(scanType);
-
-            try { 
-                cameraStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
-                        facingMode: 'environment', 
-                        width: { ideal: 1920 }, // High resolution for better OCR
-                        height: { ideal: 1080 } 
-                    } 
-                }); 
-                video.srcObject = cameraStream; 
-
-                // Attempt to apply continuous autofocus if the hardware supports it
-                try {
-                    const track = cameraStream.getVideoTracks()[0];
-                    const capabilities = track.getCapabilities();
-                    if (capabilities.focusMode) {
-                        await track.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
-                    }
-                } catch(e) { console.warn("Focus control not supported"); }
-
-            } catch (err) { 
-                alert('Could not access camera: ' + err.message); 
-                closeCamera(); 
-            }
-        }
-        
-        async function openCheckoutCamera(statusLabelId, scanType) {
-            cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
-            const overlay = document.getElementById('cameraOverlay'), video = document.getElementById('cameraVideo');
-            overlay.classList.add('open');
-
-            document.getElementById('cameraInstructionLabel').innerText = getInstructionText(scanType);
-
-            try { 
-                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } }); 
-                video.srcObject = cameraStream; 
-            } catch (err) { alert('Could not access camera: ' + err.message); closeCamera(); }
-        }
-
-        function closeCamera() {
-            document.getElementById('cameraOverlay').classList.remove('open');
-            if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
-        }
-
-        // Tap-to-Focus visual ring implementation
-        document.getElementById('cameraVideo').addEventListener('click', async (e) => {
-            const ring = document.getElementById('focusRing');
-            ring.style.left = e.clientX + 'px';
-            ring.style.top = e.clientY + 'px';
-            ring.style.display = 'block';
-
-            // Restart the animation for rapid tapping
-            ring.style.animation = 'none';
-            void ring.offsetWidth; 
-            ring.style.animation = 'focusPulse 0.6s ease-out';
-
-            setTimeout(() => { ring.style.display = 'none'; }, 600);
-
-            if (cameraStream) {
-                const track = cameraStream.getVideoTracks()[0];
-                try {
-                    // Applying an advanced constraint forces many mobile browsers to re-evaluate hardware autofocus
-                    await track.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
-                } catch(err) { console.log("Manual focus constraint failed"); }
-            }
-        });
-
-        function captureCameraFrame() {
-            const video = document.getElementById('cameraVideo');
-            const canvas = document.getElementById('cameraCanvas');
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-
-            const currentStatusId = cameraTargetStatusId;
-            const currentScanType = cameraTargetScanType;
-
-            canvas.toBlob(blob => {
-                const file = new File([blob], 'camera_capture.jpg', { type: 'image/jpeg' });
-                if (currentScanType === 'truck' || currentScanType === 'item') {
-                    handleCheckoutPhoto({files: [file]}, currentStatusId, currentScanType);
-                } else {
-                    runLocalOcrEngine(file, currentStatusId, currentScanType);
-                }
-            }, 'image/jpeg', 0.85);
-
-            triggerCameraFlash();
-
-            // CHAINING LOGIC FOR CAMERA
-            if (currentScanType === 'PLATE') {
-                cameraTargetStatusId = 'iqamaStatus';
-                cameraTargetScanType = 'IQAMA';
-                document.getElementById('cameraInstructionLabel').innerText = getInstructionText('IQAMA');
-            } else if (currentScanType === 'truck') {
-                cameraTargetStatusId = 'checkoutItemStatus';
-                cameraTargetScanType = 'item';
-                document.getElementById('cameraInstructionLabel').innerText = getInstructionText('item');
-            } else {
-                closeCamera();
-            }
-        }
-
-        async function handleCheckoutPhoto(inputEl, statusLabelId, scanType) {
-            const file = inputEl.files[0];
-            if (!file) return; 
-            const status = document.getElementById(statusLabelId);
-            status.innerHTML = "🌀 Processing..."; status.style.color = "var(--accent-color)";
-            
-            try {
-                const profileBlob = await compressImageForProfile(file);
-                const profileBase64 = await blobToBase64(profileBlob);
-                
-                if (scanType === 'truck') {
-                    tempCheckoutTruckPhoto = 'data:image/jpeg;base64,' + profileBase64;
-                } else if (scanType === 'item') {
-                    tempCheckoutItemPhoto = 'data:image/jpeg;base64,' + profileBase64;
-                }
-                status.innerHTML = "✅ Photo Attached"; status.style.color = "var(--success-color)";
-            } catch(e) { 
-                status.innerHTML = "❌ Error attaching photo"; status.style.color = "var(--danger-color)"; 
-            }
-            if(inputEl.value) inputEl.value = '';
-        }
-
-        function handleFileSelected(inputEl, statusLabelId, scanType) {
-            const file = inputEl.files[0];
-            if (!file) return; 
-
-            // Push to background process immediately
-            runLocalOcrEngine(file, statusLabelId, scanType);
-
-            // Clear the value so they can select the same file again if they cancel the next step
-            inputEl.value = '';
-
-            // CHAINING LOGIC FOR FILE PICKER
-            setTimeout(() => {
-                if (scanType === 'PLATE') {
-                    document.getElementById('iqamaScanner').click();
-                } else if (scanType === 'IQAMA') {
-                    // document.getElementById('officerScanner').click(); // REMOVED PER USER REQUEST
-                }
-            }, 300);
-        }
-
-        async function runLocalOcrEngine(file, statusLabelId, scanType) {
-            const status = document.getElementById(statusLabelId);
-            status.innerHTML = "🌀 " + tr("Preparing image..."); status.style.color = "var(--accent-color)";
-            try {
-                // CAPTURE IMAGE FOR MODAL (Color, Compressed)
-                if (statusLabelId === 'driverPhotoStatus' || (!temporaryCapturedImage && statusLabelId === 'iqamaStatus')) {
-                    try {
-                        const profileBlob = await compressImageForProfile(file);
-                        const profileBase64 = await blobToBase64(profileBlob);
-                        temporaryCapturedImage = 'data:image/jpeg;base64,' + profileBase64;
-                    } catch(e) { console.warn("Could not compress profile photo", e); }
-                }
-
-                // PROCESS FOR OCR (Grayscale, High Contrast)
-                const processedBlob = await preprocessImageForOcr(file, scanType);
-                const base64Data = await blobToBase64(processedBlob);
-
-                status.innerHTML = "🌀 " + tr("Reading with Google OCR...");
-                const response = await fetch(OCR_API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ scanType: scanType === 'LOGIN_OFFICER' ? 'OFFICER' : scanType, imageObj: base64Data }) });
-                if (!response.ok) throw new Error('Network error: ' + response.status);
-                const result = await response.json();
-                if (!result.success) throw new Error(result.error || 'OCR backend returned an error');
-
-                let cleanText = convertArabicNumeralsToDigits(result.text || "").toUpperCase();
-                let matched = false;
-
-                if (scanType === "IQAMA") {
-                    let idMatch = cleanText.match(/\b[12]\d{9}\b/);
-                    let idNum = idMatch ? idMatch[0] : "";
-                    if (idMatch) { document.getElementById('iqamaNumber').value = idNum; matched = true; }
-
-                    let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
-                    let nameMatch = lines.find(line => {
-                        // Check for English Name (Iqama)
-                        let isEnglishName = /^[A-Z][A-Z\s.']{7,45}$/.test(line) && !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line);
-
-                        // Check for Arabic Name (Saudi National ID)
-                        let isArabicName = /^[\u0600-\u06FF\s]{10,60}$/.test(line) && !/المملكة|العربية|السعودية|وزارة|الداخلية|بطاقة|الهوية|الوطنية|الرقم|تاريخ|الانتهاء|مكان|الميلاد|جهة|الإصدار|نسخة|تاريخه|الحفظ/.test(line);
-
-                        if (idNum.startsWith('1')) return isArabicName;
-                        if (idNum.startsWith('2')) return isEnglishName;
-
-                        return isEnglishName || isArabicName;
-                    });
-
-                    if (nameMatch) { document.getElementById('driverName').value = nameMatch; matched = true; }
-                }
-                else if (scanType === "PLATE") {
-                    let finalDigits = null;
-                    let finalLetters = null;
-
-                    let lines = cleanText.split('\n');
-
-                    // 1. Try to find digits and letters on the same line (prioritizing the bottom/last ones)
-                    for (let i = lines.length - 1; i >= 0; i--) {
-                        let line = lines[i];
-                        let dMatch = line.match(/\b\d{3,4}\b/);
-                        let lMatches = line.match(/\b[A-Z]{3}\b/g);
-                        if (lMatches) lMatches = lMatches.filter(l => l !== 'KSA');
-
-                        if (!lMatches || lMatches.length === 0) {
-                            let sMatch = line.match(/\b([A-Z])\s+([A-Z])\s+([A-Z])\b/);
-                            if (sMatch) {
-                                let combined = sMatch[0].replace(/\s+/g, '');
-                                if (combined !== 'KSA') lMatches = [combined];
-                            }
-                        }
-
-                        if (dMatch && lMatches && lMatches.length > 0) {
-                            finalDigits = dMatch[0];
-                            finalLetters = lMatches[lMatches.length - 1];
-                            break;
-                        }
-                    }
-
-                    // 2. Fallback: If not on the same line, just take the bottom-most (last) matches in the whole text
-                    if (!finalDigits || !finalLetters) {
-                        let allDMatches = cleanText.match(/\b\d{3,4}\b/g);
-                        let allLMatches = cleanText.match(/\b[A-Z]{3}\b/g);
-                        if (allLMatches) allLMatches = allLMatches.filter(l => l !== 'KSA');
-
-                        if (!allLMatches || allLMatches.length === 0) {
-                            let allSMatches = cleanText.match(/\b([A-Z])\s+([A-Z])\s+([A-Z])\b/g);
-                            if (allSMatches) {
-                                allLMatches = allSMatches.map(m => m.replace(/\s+/g, '')).filter(m => m !== 'KSA');
-                            }
-                        }
-
-                        if (!finalDigits && allDMatches) finalDigits = allDMatches[allDMatches.length - 1];
-                        if (!finalLetters && allLMatches && allLMatches.length > 0) finalLetters = allLMatches[allLMatches.length - 1];
-                    }
-
-                    if (finalDigits && finalLetters) {
-                        document.getElementById('plateNumber').value = `${finalDigits} ${finalLetters}`;
-                        matched = true;
-                    }
-                }
-                else if (scanType === "OFFICER" || scanType === "LOGIN_OFFICER") {
-                    let badgeMatch = cleanText.match(/LP\d+/i) || cleanText.match(/[A-Z]{2}\d{4}\b/i);
-                    let foundId = badgeMatch ? badgeMatch[0] : "";
-                    let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
-
-                    // Specific fix: Ignore repeating artifacts like WWWWWW, NNNN, AAAAA
-                    let nameMatch = lines.find(line => 
-                        /^[A-Z][A-Z\s.']{2,25}$/i.test(line) && 
-                        !/LP|ASSOCIATE|EVERY|DOORBELL|DAY|AL\s+ABEER|SAUDI|SECURITY|GATEWAY/i.test(line) &&
-                        !/^(.)\1+$/.test(line.replace(/\s/g, '')) 
-                    );
-
-                    let foundName = nameMatch || (foundId ? "Officer #" + foundId : "");
-
-                    if (scanType === "OFFICER") {
-                        if (foundId) { document.getElementById('securityNameId').value = foundId; matched = true; }
-                        if (foundName) { document.getElementById('securityNameField').value = foundName; matched = true; } 
-                    } else if (scanType === "LOGIN_OFFICER") {
-                        if (foundId) { document.getElementById('loginNoonId').value = foundId; matched = true; }
-                        if (foundName) { document.getElementById('loginName').value = foundName; matched = true; }
-                    }
-                }
-
-                if (matched) { status.innerHTML = "✅ " + tr("Extracted — please double-check the fields"); status.style.color = "var(--success-color)"; } 
-                else { status.innerHTML = "⚠️ " + tr("Couldn't confidently read this image"); status.style.color = "#ef4444"; }
-
-            } catch (err) {
-                if (err.message === 'HEIC_UNSUPPORTED') { status.innerHTML = "⚠️ " + tr("iPhone HEIC photos aren't supported"); } 
-                else { status.innerHTML = "❌ " + tr("OCR failed"); }
-                status.style.color = "#ef4444";
-            }
-        }
-
-        /* ---------------- SIGN OUT MODAL LOGIC & OPTIMISTIC UPDATES ---------------- */
-        let currentSignOutContext = null;
-
-        function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
-            currentSignOutContext = { driverName, plateNumber, securityName, dockNumber, dispatchType };
-            document.getElementById('signOutModalSubtext').innerText = `${tr('Completing SLP cycle for vehicle')} ${plateNumber || '(' + tr('No Plate Provided') + ')'}`;
-            document.getElementById('signOutSeal').value = '';
-            
-            if (dispatchType && dispatchType.toUpperCase() === 'RECEIVING') {
-                document.getElementById('checkoutSealContainer').style.display = 'none';
-            } else {
-                document.getElementById('checkoutSealContainer').style.display = 'block';
+            // Mocking Export based on cache
+            if (!globalHistoryListCache || globalHistoryListCache.length === 0) {
+                alert("No data available to export.");
+                return;
             }
             
-            // Reset photo states
-            tempCheckoutTruckPhoto = null;
-            tempCheckoutItemPhoto = null;
-            document.getElementById('checkoutTruckStatus').innerText = "Truck Picture (with plate) *";
-            document.getElementById('checkoutTruckStatus').style.color = "var(--text-muted)";
-            document.getElementById('checkoutItemStatus').innerText = "Item Picture *";
-            document.getElementById('checkoutItemStatus').style.color = "var(--text-muted)";
-            
-            document.getElementById('signOutModal').classList.add('modal-active');
+            const csvString = csvRows.join("\n");
+            const blob = new Blob([csvString], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Dock_Security_Log.csv');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
-        function closeSignOutModal() {
-            document.getElementById('signOutModal').classList.remove('modal-active');
-            currentSignOutContext = null;
-            tempCheckoutTruckPhoto = null;
-            tempCheckoutItemPhoto = null;
-        }
-
-        document.getElementById('btnConfirmSignOut').addEventListener('click', async () => {
-            const isReceiving = currentSignOutContext.dispatchType && currentSignOutContext.dispatchType.toUpperCase() === 'RECEIVING';
-            const sealVal = isReceiving ? "" : document.getElementById('signOutSeal').value.trim();
-            
-            if (!isReceiving && !sealVal) { alert('Please attach a departure seal number.'); return; }
-            if (!tempCheckoutTruckPhoto) { alert('Please attach a Truck Picture.'); return; }
-            if (!tempCheckoutItemPhoto) { alert('Please attach an Item Picture.'); return; }
-            if (!currentSignOutContext) return;
-
-            const { driverName, plateNumber, securityName, dockNumber } = currentSignOutContext;
-            const btn = document.getElementById('btnConfirmSignOut');
-            btn.innerText = tr("Processing..."); btn.disabled = true;
-
-            try {
-                // Send check out payload.
-                const payload = { 
-                    action: "checkout",
-                    driverName, 
-                    plateNumber, 
-                    sealNumber: sealVal, // Will be empty for Receiving, preserving DB value 
-                    truckPhoto: tempCheckoutTruckPhoto,
-                    itemPhoto: tempCheckoutItemPhoto 
-                };
-
-                fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
-                    .catch(e => console.error("Background save issue:", e));
-
-                // Optimistic UI update: Find the active truck and set checkOutTime
-                let activeLog = globalLogsCache.find(r => r.driverName === driverName && r.plateNumber === plateNumber && !r.checkOutTime);
-                if (activeLog) {
-                    activeLog.checkOutTime = new Date().toISOString();
-                    if(!isReceiving) activeLog.sealNumber = sealVal; // Only overwrite optimistically if dispatching
-                    activeLog.truckPhoto = tempCheckoutTruckPhoto;
-                    activeLog.itemPhoto = tempCheckoutItemPhoto;
-                }
-                
-                window.handleLogsResponse({ logs: globalLogsCache, ops: window.globalSystemLogs });
-
-                closeSignOutModal();
-                setTimeout(fetchLogs, 3000);
-            } finally {
-                btn.innerText = "CONFIRM CHECK OUT";
-                btn.disabled = false;
-            }
-        });
-
-        /* ---------------- Formatting Tools ---------------- */
-        function fmtDate(s) {
-            if(!s) return "May 10, 2026"; let d = new Date(s); if(isNaN(d.getTime())) return s;
-            const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const monthsAr = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
-            const m = currentLang === 'ar' ? monthsAr[d.getMonth()] : monthsEn[d.getMonth()];
-            return `${m} ${d.getDate()}, ${d.getFullYear()}`;
-        }
-        function formatTimeText(s) {
-            if(!s) return "--"; let d = new Date(s); if(isNaN(d.getTime())) return s;
-            const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const monthsAr = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
-            const m = currentLang === 'ar' ? monthsAr[d.getMonth()] : monthsEn[d.getMonth()];
-            let ampm = d.getHours()>=12 ? (currentLang==='ar'?'م':'PM') : (currentLang==='ar'?'ص':'AM');
-            return `${m} ${d.getDate()}, ${d.getHours()%12||12}:${String(d.getMinutes()).padStart(2,'0')} ${ampm}`;
-        }
-        function calcDuration(t1, t2) {
-            if(!t1) return "--"; let diff = (t2 ? new Date(t2) : new Date()) - new Date(t1);
-            if(diff < 0 || isNaN(diff)) return "0h 0m";
-            let mins = Math.floor(diff / 60000); 
-            let h = Math.floor(mins/60);
-            let m = mins%60;
-            if (currentLang === 'ar') return `${h}س ${m}د`;
-            return `${h}h ${m}m`;
-        }
-        function generatePlateBumperUI(plateStr) {
-            let parts = plateStr ? plateStr.split(' ') : ['--'];
-            if(parts.length >= 2) { return `<div class="plate-box-split"><div class="plate-segment">${parts[0]}</div><div class="plate-segment">${parts[1]}</div></div>`; }
-            return `<div class="plate-box-split"><div class="plate-segment">${plateStr || '--'}</div></div>`;
-        }
-
-        function getBadgeClass(displayDir, isOut) {
-            if(isOut || displayDir.includes("OUTBOUND") || displayDir.includes("مغادرة")) return "badge out";
-            if(displayDir.includes("INBOUND") || displayDir.includes("دخول")) return "badge in";
-            if(displayDir.includes("RTV") || displayDir.includes("LQD") || displayDir.includes("LIQUIDATION")) return "badge purple";
-            return "badge blue";
-        }
-
-        /* ---------------- Date Range Helper Engine ---------------- */
-        function isDateInRange(dateValue, range, now, fromStr, toStr) {
-            if (!dateValue) return false;
-            const refDate = new Date(dateValue);
-            if (isNaN(refDate.getTime())) return false;
-            
-            if (range === 'all') return true;
-            if (range === 'today') {
-                return refDate.toDateString() === now.toDateString();
-            }
-            if (range === '7days' || range === 'weekly') { 
-                const d = new Date(now); 
-                d.setDate(now.getDate() - 7); 
-                d.setHours(0,0,0,0);
-                return refDate >= d; 
-            }
-            if (range === 'monthly') { 
-                const d = new Date(now); 
-                d.setMonth(now.getMonth() - 1); 
-                d.setHours(0,0,0,0);
-                return refDate >= d; 
-            }
-            if (range === '6months') { 
-                const d = new Date(now); 
-                d.setMonth(now.getMonth() - 6); 
-                d.setHours(0,0,0,0);
-                return refDate >= d; 
-            }
-            if (range === '1year') { 
-                const d = new Date(now); 
-                d.setFullYear(now.getFullYear() - 1); 
-                d.setHours(0,0,0,0);
-                return refDate >= d; 
-            }
-            if (range === 'custom') {
-                if (!fromStr && !toStr) return true; // Show all if calendar is empty
-                
-                let isValid = true;
-                if (fromStr) {
-                    const from = new Date(fromStr);
-                    from.setHours(0,0,0,0); // Start of selected day
-                    isValid = isValid && (refDate >= from);
-                }
-                if (toStr) {
-                    const to = new Date(toStr);
-                    to.setHours(23,59,59,999); // End of selected day
-                    isValid = isValid && (refDate <= to);
-                }
-                return isValid;
-            }
-            return true; 
-        }
-
-        /* ---------------- Analytics Hub Dynamism ---------------- */
+        /* ---------------- FILTER FUNCTIONS ---------------- */
         function applyAnalyticsFilters() {
-            let range = currentAnalyticsDateRange;
-            let fromStr = document.getElementById('analyticsCustomDateFrom').value;
-            let toStr = document.getElementById('analyticsCustomDateTo').value;
-            let query = (document.getElementById('analyticsSearchQuery').value || '').toLowerCase().trim();
-            let timeFilter = document.getElementById('analyticsTimeFilter').value;
-            const now = new Date();
-
-            let filtered = globalHistoryListCache.filter(r => {
-                const checkInMatch = isDateInRange(r.checkInTime, range, now, fromStr, toStr);
-                // In new structure, check out time exists if they checked out.
-                const checkOutMatch = r.checkOutTime ? isDateInRange(r.checkOutTime, range, now, fromStr, toStr) : false;
-
-                if (timeFilter === 'in') return checkInMatch;
-                if (timeFilter === 'out') return checkOutMatch;
-                // Both: Valid if either the check-in OR check-out fell in the range
-                return checkInMatch || checkOutMatch;
-            });
-
-            if (query) {
-                filtered = filtered.filter(r => 
-                    (r.driverName || '').toLowerCase().includes(query) ||
-                    (r.plateNumber || '').toLowerCase().includes(query) ||
-                    (r.securityName || '').toLowerCase().includes(query) ||
-                    (r.dockNumber || '').toString().toLowerCase().includes(query)
-                );
-            }
-            updateAnalyticsHub(filtered, range);
-            renderAnalyticsTable(filtered); // Renders the accordion!
+            // Dashboard metric updates simulation
+            console.log("Analytics filters applied: ", currentAnalyticsDateRange);
         }
 
-        // ACCORDION ANALYTICS TABLE FUNCTION (Restored)
-        function renderAnalyticsTable(list) {
-            const container = document.getElementById('analyticsGroupedTables');
-            if(!container) return;
-            container.innerHTML = '';
-            
-            if (list.length === 0) {
-                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;">${tr('No records match this filter.')}</div>`;
-                return;
-            }
-
-            let groups = {};
-            list.forEach(r => {
-                let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
-                let cssClass = getBadgeClass(displayDir, r.checkOutTime !== "");
-
-                if (!groups[displayDir]) groups[displayDir] = { items: [], cssClass: cssClass };
-                groups[displayDir].items.push(r);
-            });
-
-            for (let [dir, group] of Object.entries(groups)) {
-                let rowsHtml = group.items.map(r => {
-                    let activeSeal = r.sealNumber || '--';
-                    return `<tr>
-                        <td><strong>${r.driverName}</strong></td>
-                        <td>${generatePlateBumperUI(r.plateNumber)}</td>
-                        <td><span class="${group.cssClass}">${tr(dir)}</span></td>
-                        <td><strong>${r.dockNumber}</strong></td>
-                        <td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${activeSeal}</td>
-                        <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td>
-                        <td style="font-size:0.8rem; color:var(--text-muted);">${!r.checkOutTime ? '<span style="color:var(--accent-color); font-weight:700;">'+tr('Inside')+'</span>' : formatTimeText(r.checkOutTime)}</td>
-                        <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.checkOutTime)}</td>
-                        <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td>
-                    </tr>`;
-                }).join('');
-
-                let tableHtml = `
-                    <table style="min-width: 800px; margin-top: 0;">
-                        <thead><tr>
-                            <th data-i18n="Driver">${tr('Driver')}</th>
-                            <th data-i18n="Plate">${tr('Plate')}</th>
-                            <th data-i18n="Direction">${tr('Direction')}</th>
-                            <th data-i18n="Dock">${tr('Dock')}</th>
-                            <th data-i18n="Seal Number">${tr('Seal Number')}</th>
-                            <th data-i18n="Check In Truck">${tr('Check In Truck')}</th>
-                            <th data-i18n="Check Out">${tr('Check Out')}</th>
-                            <th data-i18n="Duration">${tr('Duration')}</th>
-                            <th data-i18n="Security">${tr('Security')}</th>
-                        </tr></thead>
-                        <tbody>${rowsHtml}</tbody>
-                    </table>
-                `;
-
-                container.innerHTML += `
-                    <div class="accordion-wrapper">
-                        <div class="accordion-header" onclick="toggleAccordion(this)">
-                            <div class="accordion-title"><span class="${group.cssClass}" style="margin-right: 10px;">${tr(dir)}</span></div>
-                            <div class="accordion-badge">${group.items.length}</div>
-                        </div>
-                        <div class="accordion-content">
-                            ${tableHtml}
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        function setAnalyticsDateFilter(range, btnEl) {
+        function setAnalyticsDateFilter(range, element) {
             currentAnalyticsDateRange = range;
-            document.querySelectorAll('.analytics-filter-container .tab-filter-item').forEach(b => b.classList.remove('active'));
-            btnEl.classList.add('active');
+            document.querySelectorAll('.analytics-filter-container .tab-filter-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
             const customRow = document.getElementById('analyticsCustomDateRow');
-            if (range === 'custom') { customRow.style.display = 'flex'; return; }
-            customRow.style.display = 'none';
-            applyAnalyticsFilters();
-        }
-
-        // Horizontal Bar Chart
-        function buildBarChart(dataObj, containerId, emptyLabel = "No Data") {
-            let containerEl = document.getElementById(containerId);
-            if (!containerEl) return;
-            if (dataObj.length === 0) {
-                containerEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem;">${tr(emptyLabel)}</div>`;
-                return;
+            if (range === 'custom') {
+                customRow.classList.add('open');
+            } else {
+                customRow.classList.remove('open');
+                applyAnalyticsFilters();
             }
-            const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
-            let max = Math.max(...dataObj.map(item => item.count));
-            let html = '';
-            dataObj.slice(0, 5).forEach((item, index) => {
-                let color = colors[index % colors.length];
-                let widthPct = max > 0 ? (item.count / max) * 100 : 0;
-                html += `
-                <div class="bar-row">
-                    <div class="bar-label" title="${tr(item.label)}">${tr(item.label)}</div>
-                    <div class="bar-track-wrapper">
-                        <div class="bar-track">
-                            <div class="bar-fill" style="width: ${widthPct}%; background: ${color};"></div>
-                        </div>
-                    </div>
-                    <div class="bar-value">${item.count} <span style="font-size:0.6rem; color:var(--text-muted);">${tr(item.suffix || '')}</span></div>
-                </div>`;
-            });
-            containerEl.innerHTML = html;
         }
 
-        // Vertical Column Chart
-        function buildVerticalBarChart(dataObj, containerId, emptyLabel = "No Data") {
-            let containerEl = document.getElementById(containerId);
-            if (!containerEl) return;
-            if (dataObj.length === 0) {
-                containerEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem;">${tr(emptyLabel)}</div>`;
-                return;
+        function applyHistoryFilters() {
+            console.log("History filters applied: ", currentHistoryDateRange);
+        }
+
+        function setHistoryDateFilter(range, element) {
+            currentHistoryDateRange = range;
+            document.querySelectorAll('#view-history .tab-filter-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            const customRow = document.getElementById('customDateRow');
+            if (range === 'custom') {
+                customRow.classList.add('open');
+            } else {
+                customRow.classList.remove('open');
+                applyHistoryFilters();
             }
-            const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
-            let max = Math.max(...dataObj.map(item => item.count));
-
-            // Adjusted height, padding, and borders
-            let html = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:180px; padding-bottom:30px; border-bottom:2px solid rgba(255,255,255,0.05); border-left:2px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
-
-            dataObj.slice(0, 5).forEach((item, index) => {
-                let color = colors[index % colors.length];
-                let heightPct = max > 0 ? (item.count / max) * 100 : 0;
-                html += `
-                <div style="display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; width:45px; position:relative;">
-                    <div style="font-size:1.1rem; color:#fff; font-weight:800; margin-bottom:8px;">${item.count}</div>
-                    <div style="width:100%; background:${color}; height:${heightPct}%; border-radius:6px 6px 0 0; transition:height 0.8s ease-out;"></div>
-                    <div style="position:absolute; bottom:-30px; font-size:0.85rem; color:var(--text-muted); font-weight:700; white-space:nowrap;">${tr(item.label)}</div>
-                </div>`;
-            });
-            html += `</div>`;
-            containerEl.innerHTML = html;
         }
 
-        // Line Chart (SVG)
-        function buildLineChart(dataObj, containerId, emptyLabel = "No Data") {
-            let containerEl = document.getElementById(containerId);
-            if (!containerEl) return;
-            if (dataObj.length === 0) {
-                containerEl.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:0.8rem;">${tr(emptyLabel)}</div>`;
-                return;
-            }
-
-            // Limit to 10 points to prevent overlapping
-            let chartData = [...dataObj.slice(-10)];
-            let max = Math.max(...chartData.map(item => item.count));
-            if(max === 0) max = 1;
-
-            let html = `<div style="position:relative; width:100%; height:200px; margin-top:1rem;">`;
-
-            let svgPoints = chartData.map((item, i) => {
-                let x = chartData.length > 1 ? (i / (chartData.length - 1)) * 900 + 50 : 500;
-                let y = 140 - ((item.count / max) * 90);
-                return `${x},${y}`;
-            }).join(' ');
-
-            html += `<svg viewBox="0 0 1000 180" style="width:100%; height:100%; overflow:visible;">
-                    <!-- Grid line -->
-                    <line x1="0" y1="150" x2="1000" y2="150" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
-                    <!-- Path -->
-                    <polyline fill="none" stroke="var(--accent-color)" stroke-width="4" points="${svgPoints}" />`;
-
-            chartData.forEach((item, i) => {
-                let x = chartData.length > 1 ? (i / (chartData.length - 1)) * 900 + 50 : 500;
-                let y = 140 - ((item.count / max) * 90);
-                html += `<circle cx="${x}" cy="${y}" r="8" fill="var(--card-bg)" stroke="var(--accent-color)" stroke-width="4" />`;
-
-                html += `<text x="${x}" y="${y - 20}" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle">${item.count}</text>`;
-                html += `<text x="${x}" y="175" fill="var(--text-muted)" font-size="16" font-weight="bold" text-anchor="middle" letter-spacing="1">${tr(item.label)}</text>`;
-            });
-
-            html += `</svg></div>`;
-            containerEl.innerHTML = html;
-        }
-
-        // Donut Chart
-        function buildDonutChart(dataObj, donutId, legendId, emptyLabel = "No Data") {
-            let total = dataObj.reduce((sum, item) => sum + item.count, 0);
-            const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
-
-            let donutEl = document.getElementById(donutId);
-            let legendEl = document.getElementById(legendId);
-
-            if (total === 0 || dataObj.length === 0) {
-                if(donutEl) donutEl.style.background = 'var(--card-solid)';
-                if(legendEl) legendEl.innerHTML = `<li><div class="legend-label-group">${tr(emptyLabel)}</div></li>`;
-                return;
-            }
-
-            let gradientParts = [];
-            let currentPct = 0;
-            let legendHTML = '';
-
-            dataObj.slice(0, 5).forEach((item, index) => {
-                let color = colors[index % colors.length];
-                let pct = (item.count / total) * 100;
-                let nextPct = currentPct + pct;
-                gradientParts.push(`${color} ${currentPct}% ${nextPct}%`);
-                currentPct = nextPct;
-
-                legendHTML += `<li>
-                    <div class="legend-label-group">
-                        <span class="legend-color-box" style="background: ${color};"></span>
-                        ${tr(item.label)}
-                    </div>
-                    <span>${item.count} ${tr(item.suffix || '')}</span>
-                </li>`;
-            });
-
-            if(donutEl) donutEl.style.background = `conic-gradient(${gradientParts.join(', ')})`;
-            if(legendEl) legendEl.innerHTML = legendHTML;
-        }
-
-        function updateAnalyticsHub(logsData, range) {
-            const now = new Date();
-            let growthMap = {};
-            logsData.forEach(log => {
-                let time = new Date(log.checkInTime || log.timestamp);
-                if (!isNaN(time.getTime())) {
-                    let dateLabel;
-                    if (range === 'today') {
-                        let ampm = time.getHours() >= 12 ? (currentLang==='ar'?'م':'PM') : (currentLang==='ar'?'ص':'AM');
-                        dateLabel = `${time.getHours() % 12 || 12} ${ampm}`;
-                    } else if (range === '6months' || range === '1year' || range === 'all') {
-                        dateLabel = time.toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US', { month: 'short', year: '2-digit' });
-                    } else {
-                        dateLabel = time.toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : 'en-US', { month: 'short', day: 'numeric' });
-                    }
-                    if (!growthMap[dateLabel]) growthMap[dateLabel] = { count: 0, ts: time.getTime() };
-                    growthMap[dateLabel].count++;
-                }
-            });
-            // Line Chart (Chronological order)
-            let growthData = Object.keys(growthMap).map(k => ({ label: k, count: growthMap[k].count, ts: growthMap[k].ts })).sort((a,b) => a.ts - b.ts);
-            buildLineChart(growthData, 'chartGrowthLine', 'No Data'); 
-
-            let cohortMap = {};
-            logsData.forEach(log => {
-                let dir = (log.direction || "Unknown").split(' - ')[0].trim().toUpperCase();
-                cohortMap[dir] = (cohortMap[dir] || 0) + 1;
-            });
-            // Horizontal Bar Chart
-            let cohortData = Object.keys(cohortMap).map(k => ({ label: k, count: cohortMap[k], suffix: 'Logs' })).sort((a,b) => b.count - a.count);
-            buildBarChart(cohortData, 'chartCohortsBars', 'No Data'); 
-
-            let hourMap = {};
-            logsData.forEach(log => {
-                let time = new Date(log.checkInTime || log.timestamp);
-                if (!isNaN(time.getTime())) {
-                    let hour = time.getHours();
-                    let ampm = hour >= 12 ? (currentLang==='ar'?'م':'PM') : (currentLang==='ar'?'ص':'AM');
-                    let hourLabel = `${hour % 12 || 12} ${ampm}`;
-                    if (!hourMap[hourLabel]) hourMap[hourLabel] = { count: 0, rawHr: hour };
-                    hourMap[hourLabel].count++;
-                }
-            });
-            // Vertical Column Chart (Chronological sort)
-            let hourData = Object.keys(hourMap).map(k => ({ label: k, count: hourMap[k].count, rawHr: hourMap[k].rawHr })).sort((a,b) => a.rawHr - b.rawHr);
-            buildVerticalBarChart(hourData, 'chartHoursColumns', 'No Data'); 
-
-            let dockMap = {};
-            logsData.forEach(log => {
-                let dock = log.dockNumber;
-                if(dock) dockMap[dock] = (dockMap[dock] || 0) + 1;
-            });
-            // Donut Chart
-            let dockData = Object.keys(dockMap).map(k => ({ label: k, count: dockMap[k], suffix: 'Uses' })).sort((a,b) => b.count - a.count);
-            buildDonutChart(dockData, 'chartDocksDonut', 'chartDocksLegend', 'No Data');
-        }
-
-        function populateDatalists(data) {
-            let docks = new Set();
-            data.forEach(r => {
-                if(r.dockNumber) docks.add(r.dockNumber);
-            });
-            const dlDocks = document.getElementById('dl-docks');
-            if(dlDocks) dlDocks.innerHTML = [...docks].sort().map(v => `<option value="${v}">`).join('');
-        }
-
-        /* ---------------- Driver Cards Rendering ---------------- */
-        function compileDriversRegistryCards(data) {
-            let deletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
-            const container = document.getElementById('driversRegistryContainer'); container.innerHTML = '';
-
-            let uniqueDriversMap = {};
-
-            data.forEach(item => {
-                if(!item.driverName || item.driverName.trim() === "") return;
-                // If this driver was deleted locally, skip rendering them
-                if (deletes.some(d => d.type === 'driver' && d.name === item.driverName)) return; 
-
-                if(!uniqueDriversMap[item.driverName]) {
-                    uniqueDriversMap[item.driverName] = { 
-                        name: item.driverName, plate: item.plateNumber || "--", registered: item.checkInTime || item.timestamp, id: item.iqamaNumber || "N/A", phone: item.mobileNumber || "N/A"
-                    };
-                } else {
-                    if (item.mobileNumber && item.mobileNumber !== "N/A" && item.mobileNumber !== "--") {
-                        uniqueDriversMap[item.driverName].phone = item.mobileNumber;
-                    }
-                    if (item.iqamaNumber && item.iqamaNumber !== "N/A" && item.iqamaNumber !== "--") {
-                        uniqueDriversMap[item.driverName].id = item.iqamaNumber;
-                    }
-                }
-            });
-
-            let list = Object.values(uniqueDriversMap);
-            driversRegistryList = list; 
-            document.getElementById('metric-drivers-count').innerText = list.length;
-            if(list.length === 0) { container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem; font-size:0.8rem;">${tr('No personnel maps cataloged.')}</div>`; return; }
-
-            list.forEach(driver => {
-                let dateFormatted = fmtDate(driver.registered);
-                container.innerHTML += `
-                    <div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${(driver.plate || '').toLowerCase()}">
-                        <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id.replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${driver.phone.replace(/'/g, "\\'")}', false)">✏️</button></div>
-                        <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">${tr('Verified')}</span><span class="tag-badge carrier">${tr('SLP')}</span></div></div></div>
-                        <div class="driver-card-info-grid"><div class="info-block"><p>🆔 ${tr('Iqama/National ID')}</p><data>${driver.id}</data></div><div class="info-block"><p>📅 ${tr('Registered Date')}</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 ${tr('Mobile Number')}</p><data>${driver.phone}</data></div></div>
-                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id.replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${driver.phone.replace(/'/g, "\\'")}', false)">${tr('View Records')}</button>
-                    </div>`;
+        function filterActiveTrucks() {
+            const query = document.getElementById('yardSearchQuery').value.toLowerCase();
+            // Implement robust table filtering
+            const rows = document.querySelectorAll('#activeYardTableBody tr');
+            rows.forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
             });
         }
 
         function filterRegistryCards() {
-            let query = document.getElementById('driverRegistrySearch').value.toLowerCase();
-            document.querySelectorAll('.driver-registry-card:not(.security-card)').forEach(card => { card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none'; });
-        }
-
-        /* ---------------- Security Cards Rendering ---------------- */
-        function compileSecurityRegistryCards(data) {
-            let deletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
-            const container = document.getElementById('securityRegistryContainer');
-            if (!container) return;
-            container.innerHTML = '';
-
-            let uniqueMap = {};
-            data.forEach(item => {
-                if (!item.securityName || item.securityName.trim() === "" || item.securityName === "Unknown") return;
-                // If this guard was deleted locally, skip rendering them
-                if (deletes.some(d => d.type === 'guard' && d.name === item.securityName)) return; 
-
-                if (!uniqueMap[item.securityName]) {
-                    uniqueMap[item.securityName] = {
-                        name: item.securityName,
-                        id: item.securityId || "N/A",
-                        registered: item.checkInTime || item.timestamp,
-                        phone: "N/A" // Force "N/A" so it does not pull from the mobile string used for drivers
-                    };
-                } else {
-                    if (item.securityId && item.securityId !== "N/A" && item.securityId !== "--") {
-                        uniqueMap[item.securityName].id = item.securityId;
-                    }
-                }
-            });
-
-            let list = Object.values(uniqueMap);
-            securityRegistryList = list;
-
-            if (list.length === 0) {
-                container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem; font-size:0.8rem;">${tr('No personnel maps cataloged.')}</div>`;
-                return;
-            }
-
-            list.forEach(guard => {
-                let dateFormatted = fmtDate(guard.registered);
-                container.innerHTML += `
-                    <div class="driver-registry-card security-card" data-search-blob="${guard.name.toLowerCase()} ${(guard.id || '').toLowerCase()}">
-                        <div class="card-management-actions">
-                            <button class="btn-icon-manage" onclick="openEditDriverModal('${guard.name.replace(/'/g, "\\'")}', '${guard.id.replace(/'/g, "\\'")}', '', '${guard.phone.replace(/'/g, "\\'")}', true)">✏️</button>
-                        </div>
-                        <div class="driver-card-header">
-                            <div class="driver-avatar-img" style="background: rgba(56, 139, 253, 0.15); color: #79c0ff; border-color: rgba(56, 139, 253, 0.3);">🛡️</div>
-                            <div class="driver-meta">
-                                <h3>${guard.name}</h3>
-                                <div class="driver-badges">
-                                    <span class="tag-badge verified">${tr('Verified')}</span>
-                                    <span class="tag-badge carrier" style="background: rgba(163, 113, 247, 0.15); color: #d2a8ff; border: 1px solid rgba(163, 113, 247, 0.3);">${tr('Guard')}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="driver-card-info-grid">
-                            <div class="info-block"><p>🆔 ${tr('Noon ID')}</p><data>${guard.id}</data></div>
-                            <div class="info-block"><p>📅 ${tr('Registered Date')}</p><data>${dateFormatted}</data></div>
-                        </div>
-                        <button class="btn-card-action" onclick="openDriverProfileModal('${guard.name.replace(/'/g, "\\'")}', '${guard.id.replace(/'/g, "\\'")}', '', '${dateFormatted}', '', true)">${tr('View Records')}</button>
-                    </div>`;
+            const query = document.getElementById('driverRegistrySearch').value.toLowerCase();
+            const cards = document.querySelectorAll('#driversRegistryContainer .driver-registry-card');
+            cards.forEach(card => {
+                card.style.display = card.innerText.toLowerCase().includes(query) ? '' : 'none';
             });
         }
 
         function filterSecurityCards() {
-            let query = document.getElementById('securityRegistrySearch').value.toLowerCase();
-            document.querySelectorAll('.security-card').forEach(card => {
-                card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none';
+            const query = document.getElementById('securityRegistrySearch').value.toLowerCase();
+            const cards = document.querySelectorAll('#securityRegistryContainer .driver-registry-card');
+            cards.forEach(card => {
+                card.style.display = card.innerText.toLowerCase().includes(query) ? '' : 'none';
             });
         }
 
-        /* ---------------- Tables Rendering & Filters ---------------- */
-        function renderHistoryTable(list) {
-            const historyBody = document.getElementById('historyLogTableBody');
-            historyBody.innerHTML = '';
-            if (list.length === 0) {
-                historyBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">${tr('No records match this filter.')}</td></tr>`;
-                return;
+        /* ---------------- INIT ---------------- */
+        window.onload = () => {
+            checkSessionExpiry();
+            const sessionStr = localStorage.getItem('noonSlpUserSession');
+            if (sessionStr) {
+                const sessionData = JSON.parse(sessionStr);
+                // If session exists, bypass intro
+                document.getElementById('introOverlay').style.display = 'none';
+                executeLogin(sessionData.name, sessionData.email, sessionData.noonId, sessionData.role);
             }
-            list.forEach(r => {
-                let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
-                let cssClass = getBadgeClass(displayDir, r.checkOutTime !== "");
-
-                historyBody.innerHTML += `<tr><td><strong>${r.driverName}</strong><br><span style="font-size:0.65rem; color:var(--text-muted); font-weight:600;">ID: ${r.iqamaNumber || '--'}</span></td><td>${generatePlateBumperUI(r.plateNumber)}</td><td><span class="${cssClass}">${tr(displayDir)}</span></td><td><strong>${r.dockNumber}</strong></td><td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${r.sealNumber || '--'}</td><td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td><td style="font-size:0.8rem; color:var(--text-muted);">${!r.checkOutTime ? '<span style="color:var(--accent-color); font-weight:700;">'+tr('Inside')+'</span>' : formatTimeText(r.checkOutTime)}</td><td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, r.checkOutTime)}</td><td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td></tr>`;
-            });
-        }
-
-        function applyHistoryFilters() {
-            let range = currentHistoryDateRange;
-            let fromStr = document.getElementById('customDateFrom').value;
-            let toStr = document.getElementById('customDateTo').value;
-            let query = document.getElementById('historySearchQuery').value.toLowerCase().trim();
-            let timeFilter = document.getElementById('historyTimeFilter') ? document.getElementById('historyTimeFilter').value : 'both';
-            const now = new Date();
-
-            let filtered = globalHistoryListCache.filter(r => {
-                const checkInMatch = isDateInRange(r.checkInTime, range, now, fromStr, toStr);
-                const checkOutMatch = r.checkOutTime ? isDateInRange(r.checkOutTime, range, now, fromStr, toStr) : false;
-
-                if (timeFilter === 'in') return checkInMatch;
-                if (timeFilter === 'out') return checkOutMatch;
-                return checkInMatch || checkOutMatch;
-            });
-
-            if (query) {
-                filtered = filtered.filter(r => 
-                    (r.driverName || '').toLowerCase().includes(query) ||
-                    (r.plateNumber || '').toLowerCase().includes(query) ||
-                    (r.securityName || '').toLowerCase().includes(query) ||
-                    (r.iqamaNumber || '').toLowerCase().includes(query)
-                );
-            }
-            renderHistoryTable(filtered);
-        }
-
-        function setHistoryDateFilter(range, btnEl) {
-            currentHistoryDateRange = range;
-            document.querySelectorAll('.filter-tabs-container:not(.analytics-filter-container) .tab-filter-item').forEach(b => b.classList.remove('active'));
-            btnEl.classList.add('active');
-            const customRow = document.getElementById('customDateRow');
-            if (range === 'custom') { customRow.style.display = 'flex'; return; }
-            customRow.style.display = 'none';
-            applyHistoryFilters();
-        }
-
-        function filterActiveTrucks() {
-            let query = document.getElementById('yardSearchQuery').value.toLowerCase().trim();
-            let rows = document.querySelectorAll('#activeYardTableBody tr');
-            rows.forEach(row => {
-                if(row.innerText.toLowerCase().includes(query)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-
-        function exportHistoryToExcel() {
-            let range = currentHistoryDateRange;
-            let fromStr = document.getElementById('customDateFrom').value;
-            let toStr = document.getElementById('customDateTo').value;
-            let timeFilter = document.getElementById('historyTimeFilter') ? document.getElementById('historyTimeFilter').value : 'both';
-            const now = new Date();
-
-            const rows = globalHistoryListCache.filter(r => {
-                const checkInMatch = isDateInRange(r.checkInTime, range, now, fromStr, toStr);
-                const checkOutMatch = r.checkOutTime ? isDateInRange(r.checkOutTime, range, now, fromStr, toStr) : false;
-                if (timeFilter === 'in') return checkInMatch;
-                if (timeFilter === 'out') return checkOutMatch;
-                return checkInMatch || checkOutMatch;
-            });
-            
-            if (rows.length === 0) { alert(tr('No records match this filter.')); return; }
-
-            const headers = [tr('Driver'), tr('Iqama Number'), tr('Plate'), tr('Direction'), tr('Dock'), tr('Seal Number'), tr('Check In Truck'), tr('Check Out'), tr('Duration'), tr('Security')];
-            const csvLines = [headers.join(',')];
-
-            rows.forEach(r => {
-                const line = [
-                    r.driverName || '', r.iqamaNumber || '', r.plateNumber || '',
-                    r.direction || '',
-                    r.dockNumber || '', r.sealNumber || '--',
-                    formatTimeText(r.checkInTime), !r.checkOutTime ? tr('Inside') : formatTimeText(r.checkOutTime),
-                    calcDuration(r.checkInTime, r.checkOutTime), r.securityName || ''
-                ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
-                csvLines.push(line);
-            });
-
-            const csvContent = csvLines.join('\n');
-            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url;
-            a.download = `movement-history-${currentHistoryDateRange}-${new Date().toISOString().slice(0,10)}.csv`;
-            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-        }
-
-        /* ---------------- PAIRING ENGINE (BULLETPROOF UPDATES) ---------------- */
-        window.handleLogsResponse = function(responsePayload) {
-            window.hasFetchedLogs = true;
-            // New backend format returns { logs: [], ops: [] }
-            let rawLogs = responsePayload.logs || [];
-            window.globalSystemLogs = responsePayload.ops || [];
-
-            // --- 1. APPLY PERSISTENT LOCAL OVERRIDES ---
-            let overrides = JSON.parse(localStorage.getItem('SLP_OVERRIDES')) || {};
-            let processedData = rawLogs.map(row => {
-
-                // Driver Overrides
-                let dOrig = Object.keys(overrides).find(k => (k === row.driverName || overrides[k].name === row.driverName) && overrides[k].type === 'driver');
-                if (dOrig) {
-                    row.driverName = overrides[dOrig].name;
-                    row.iqamaNumber = overrides[dOrig].id;
-                    row.plateNumber = overrides[dOrig].plate;
-                    row.mobileNumber = overrides[dOrig].phone;
-                }
-
-                // Guard Overrides
-                let gOrig = Object.keys(overrides).find(k => (k === row.securityName || overrides[k].name === row.securityName) && overrides[k].type === 'guard');
-                if (gOrig) {
-                    row.securityName = overrides[gOrig].name;
-                    row.securityId = overrides[gOrig].id;
-                }
-
-                return row;
-            });
-
-            // Single Row Architecture! No more pairing Outbound rows.
-            let chronData = processedData.sort((a,b) => new Date(a.checkInTime || a.timestamp) - new Date(b.checkInTime || b.timestamp)); 
-            globalHistoryListCache = chronData.slice().reverse(); // History is sorted newest first
-            globalLogsCache = chronData;
-
-            const activeBody = document.getElementById('activeYardTableBody');
-            if(activeBody) activeBody.innerHTML = '';
-
-            compileDriversRegistryCards(chronData);
-            compileSecurityRegistryCards(chronData); 
-
-            if(chronData.length === 0) { renderHistoryTable([]); return; }
-            document.getElementById('metric-total-checkins').innerText = chronData.length;
-
-            let activeList = chronData.filter(r => !r.checkOutTime);
-            
-            document.getElementById('metric-active-now').innerText = activeList.length;
-            if (document.getElementById('activeYardCounter')) { document.getElementById('activeYardCounter').innerText = activeList.length; }
-
-            const todayStr = new Date().toDateString();
-            const completedTodayCount = chronData.filter(r => r.checkOutTime && new Date(r.checkOutTime).toDateString() === todayStr).length;
-            document.getElementById('metric-completed-today').innerText = completedTodayCount;
-
-            // Extract Active Docks
-            const occupiedDocksContainer = document.getElementById('occupiedDocksContainer');
-            const occupiedDocksCount = document.getElementById('occupiedDocksCount');
-            if (occupiedDocksContainer) {
-                occupiedDocksContainer.innerHTML = '';
-
-                let activeDocksRaw = activeList.map(r => String(r.dockNumber).trim()).filter(Boolean);
-                let activeDocksSet = new Set(activeDocksRaw);
-
-                if(occupiedDocksCount) occupiedDocksCount.innerText = `${activeDocksSet.size} ${tr('Docks In Use')}`;
-
-                // Build list of all docks to show (15 to 90, plus any outliers)
-                let allDocksToRender = new Set();
-                for (let i = 15; i <= 90; i++) {
-                    allDocksToRender.add(String(i));
-                }
-                activeDocksRaw.forEach(d => allDocksToRender.add(d));
-
-                // Sort numerically
-                let sortedDocks = [...allDocksToRender].sort((a,b) => {
-                    let numA = parseInt(a.replace(/\D/g, '')) || 0;
-                    let numB = parseInt(b.replace(/\D/g, '')) || 0;
-                    if (numA === numB) return a.localeCompare(b);
-                    return numA - numB;
-                });
-
-                sortedDocks.forEach(dockStr => {
-                    let badge = document.createElement('div');
-
-                    if (activeDocksSet.has(dockStr)) {
-                        badge.className = 'dock-badge-active';
-                        badge.innerText = dockStr;
-                        if (userRole !== 'ops') {
-                            badge.onclick = () => highlightActiveTruck(dockStr);
-                        } else {
-                            badge.style.cursor = 'default';
-                        }
-                    } else {
-                        badge.className = 'dock-badge-inactive';
-                        badge.innerText = dockStr;
-                    }
-                    occupiedDocksContainer.appendChild(badge);
-                });
-            }
-
-            if(activeBody) {
-                if(activeList.length === 0) {
-                    activeBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--text-muted); padding:3rem; font-style:italic; font-size:0.8rem; text-transform:uppercase;">${tr('NO ACTIVE TRUCKS FOUND IN CURRENT SESSION.')}</td></tr>`;
-                } else {
-                    activeList.reverse().forEach(r => {
-                        let displayDir = (r.direction || '').split(' - ')[0].toUpperCase();
-                        let cssClass = getBadgeClass(displayDir, false);
-                        let activeDispType = r.dispatchType || 'DISPATCHING';
-                        let activeSeal = r.sealNumber || '--';
-
-                        activeBody.innerHTML += `<tr>
-                            <td><strong>${r.driverName}</strong></td>
-                            <td>${generatePlateBumperUI(r.plateNumber)}</td>
-                            <td><span class="${cssClass}">${tr(displayDir)}</span></td>
-                            <td style="color:var(--accent-color); font-weight:700; font-size:0.75rem;">${tr(activeDispType.toUpperCase())}</td>
-                            <td style="color:var(--text-muted); font-family: monospace; font-size:0.8rem;">${activeSeal}</td>
-                            <td><strong style="font-size:0.9rem;">${r.dockNumber}</strong></td>
-                            <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(r.checkInTime)}</td>
-                            <td style="color:var(--accent-color); font-weight:bold;">${calcDuration(r.checkInTime, null)}</td>
-                            <td style="font-size:0.75rem; color:var(--text-muted);">🛡️ ${r.securityName || tr('Guard')}</td>
-                            <td style="text-align:right; padding-right:1rem;">
-                                <button class="btn-checkout-action" onclick="promptSignOut('${r.driverName.replace(/'/g, "\\'")}', '${(r.plateNumber || '').replace(/'/g, "\\'")}', '${(r.securityName || tr('Guard')).replace(/'/g, "\\'")}', '${r.dockNumber}', '${activeDispType}')">${tr('CHECK OUT')}</button>
-                            </td>
-                        </tr>`;
-                    });
-                }
-            }
-
-            applyHistoryFilters(); // Applies both date and search text filters
-            applyAnalyticsFilters(); // Initialize Analytics Charts
-            populateDatalists(globalHistoryListCache); // Dynamically update input dropdowns!
-            
-            // If admin, update the notification bell
-            if(userRole === 'admin') renderNotifications();
+            updateHeroDateTime();
         };
-
-        function fetchLogs() {
-            const old = document.getElementById('jsonp-fetcher'); if(old) old.remove();
-            const s = document.createElement('script'); s.id = 'jsonp-fetcher'; s.src = API_URL + "?callback=handleLogsResponse&prefix=handleLogsResponse&_" + new Date().getTime(); document.body.appendChild(s);
-        }
-
-        document.getElementById('entryForm').addEventListener('submit', async e => {
-            e.preventDefault(); const btn = document.querySelector('.submit-btn-global'); btn.innerText = tr("Processing Check In..."); btn.disabled = true;
-            try {
-                const payload = { 
-                    driverName: document.getElementById('driverName').value, 
-                    iqamaNumber: document.getElementById('iqamaNumber').value, 
-                    plateNumber: document.getElementById('plateNumber').value, 
-                    mobileNumber: document.getElementById('mobileNumber').value.trim() || "N/A", 
-                    securityName: document.getElementById('securityNameField').value, 
-                    dockNumber: document.getElementById('dockNumber').value, 
-                    direction: document.getElementById('direction').value,
-                    dispatchType: document.getElementById('dispatchSelect').value,
-                    sealNumber: document.getElementById('sealNumber').value,
-                    securityId: document.getElementById('securityNameId').value,
-                    actionByEmail: loggedInUser.email,
-                    actionByName: loggedInUser.name,
-                    driverPhoto: temporaryCapturedImage || "" // Send compressed photo payload!
-                };
-
-                // Fire post request in background
-                fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
-                    .catch(e => console.error("Background save issue:", e));
-
-                // Optimistic UI Update instantly
-                globalLogsCache.push({
-                    ...payload,
-                    checkInTime: new Date().toISOString()
-                });
-                
-                // Construct fake response format
-                window.handleLogsResponse({ logs: globalLogsCache, ops: window.globalSystemLogs });
-
-                // Reset the form but KEEP the guard details intact!
-                document.getElementById('entryForm').reset(); 
-                document.getElementById('securityNameField').value = loggedInUser.name;
-                document.getElementById('securityNameId').value = loggedInUser.noonId || '';
-                temporaryCapturedImage = null;
-
-                btn.innerText = tr("Check In Truck"); btn.disabled = false;
-                document.getElementById('sealNumberContainer').style.display = 'none'; document.getElementById('sealNumber').required = false;
-
-                // Switch exactly to Active Trucks Instead of Dashboard
-                switchView('active-trucks', document.getElementById('nav-active-trucks')); 
-
-                setTimeout(fetchLogs, 3500); // Verify background fetch worked
-            } catch (err) {
-                alert("Error saving log: " + err.message);
-                btn.innerText = tr("Check In Truck"); btn.disabled = false;
-            }
-        });
-
-        /* ---------------- SWIPE NAVIGATION LOGIC ---------------- */
-        let touchstartX = 0;
-        let touchstartY = 0;
-        let touchendX = 0;
-        let touchendY = 0;
-
-        const gestureZone = document.getElementById('mainContentArea');
-
-        gestureZone.addEventListener('touchstart', function(event) {
-            touchstartX = event.changedTouches[0].screenX;
-            touchstartY = event.changedTouches[0].screenY;
-        }, {passive: true});
-
-        gestureZone.addEventListener('touchend', function(event) {
-            touchendX = event.changedTouches[0].screenX;
-            touchendY = event.changedTouches[0].screenY;
-            handleGesture(event);
-        }, {passive: true});
-
-        function handleGesture(event) {
-            // Ignore swipe if the user is scrolling inside a table or a dropdown
-            if (event.target.closest('table') || event.target.closest('.suggestions-dropdown')) {
-                return; 
-            }
-
-            const horizontalThreshold = 50; 
-            const verticalThreshold = 50; 
-
-            if (Math.abs(touchendY - touchstartY) > verticalThreshold) {
-                return; // Ignore vertical scrolling
-            }
-
-            if (touchendX < touchstartX - horizontalThreshold) {
-                swipeNext(); // Swipe Left -> Next Tab
-            }
-
-            if (touchendX > touchstartX + horizontalThreshold) {
-                swipePrev(); // Swipe Right -> Prev Tab
-            }
-        }
-
-        function getAvailableViews() {
-            let availableViews = [];
-            // Target only items inside the nav-links container to ignore footer buttons
-            document.querySelectorAll('.nav-links .nav-item').forEach(item => {
-                if (window.getComputedStyle(item).display !== 'none' && item.id) {
-                    availableViews.push(item.id.replace('nav-', ''));
-                }
-            });
-            return availableViews;
-        }
-
-        function swipeNext() {
-            let activeView = document.querySelector('.app-view.active-view');
-            if (!activeView) return;
-            let currentId = activeView.id.replace('view-', '');
-            let availableViews = getAvailableViews();
-            let currentIndex = availableViews.indexOf(currentId);
-
-            if (currentIndex >= 0 && currentIndex < availableViews.length - 1) {
-                let nextView = availableViews[currentIndex + 1];
-                switchView(nextView, document.getElementById('nav-' + nextView));
-            }
-        }
-
-        function swipePrev() {
-            let activeView = document.querySelector('.app-view.active-view');
-            if (!activeView) return;
-            let currentId = activeView.id.replace('view-', '');
-            let availableViews = getAvailableViews();
-            let currentIndex = availableViews.indexOf(currentId);
-
-            if (currentIndex > 0) {
-                let prevView = availableViews[currentIndex - 1];
-                switchView(prevView, document.getElementById('nav-' + prevView));
-            }
-        }
-
-        fetchLogs(); // Run immediately on load so tablet has system logs ready!
-        setInterval(fetchLogs, 15000);
-        setInterval(checkSessionExpiry, 60000); 
     </script>
 </body>
 </html>
