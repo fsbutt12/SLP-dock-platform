@@ -176,7 +176,7 @@
 
         .dashboard-mid-split { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem; }
 
-        /* 10-COLUMN GRID FOR ACTIVE DOCKS */
+        /* MULTI-COLUMN GRID FOR ACTIVE DOCKS */
         .docks-grid-container {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
@@ -296,8 +296,8 @@
         .btn-checkout-action:hover { background: var(--danger-color); color: #fff; }
 
         /* CHECKIN FORM REDESIGN */
-        .scanners-double-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem; max-width: 850px; margin-left: auto; margin-right: auto; }
-        @media (max-width: 768px) { .scanners-double-row { grid-template-columns: 1fr; } }
+        .scanners-double-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem; max-width: 850px; margin-left: auto; margin-right: auto; transition: grid-template-columns 0.3s; }
+        @media (max-width: 768px) { .scanners-double-row { grid-template-columns: 1fr !important; } }
         .scan-box-dashed { background: transparent; border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 2.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden; }
         .scan-box-dashed:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.02); }
         .scan-box-dashed .icon { font-size: 1.8rem; margin-bottom: 0.8rem; display: block; color: var(--text-muted); opacity: 0.7; }
@@ -492,7 +492,6 @@
             <li class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard', this)">
                 <span class="nav-icon">📊</span><span class="nav-text" data-i18n="Dashboard">Dashboard</span>
             </li>
-            <!-- NEW ANALYTICS TAB -->
             <li class="nav-item" id="nav-analytics" onclick="switchView('analytics', this)">
                 <span class="nav-icon">📈</span><span class="nav-text" data-i18n="Analytics">Analytics</span>
             </li>
@@ -615,25 +614,21 @@
             </div>
 
             <div class="analytics-grid">
-                <!-- Chart 1: Vehicle Processing Growth (Line Chart) -->
                 <div class="chart-card">
                     <h3 id="chartGrowthTitle" data-i18n="Vehicle Processing Growth">Vehicle Processing Growth</h3>
                     <div id="chartGrowthLine"></div>
                 </div>
 
-                <!-- Chart 2: Movement Cohorts (Horizontal Bars) -->
                 <div class="chart-card">
                     <h3 data-i18n="Movement Cohorts">Movement Cohorts</h3>
                     <div class="bar-chart-container" id="chartCohortsBars"></div>
                 </div>
 
-                <!-- Chart 3: Peak Operating Hours (Vertical Columns) -->
                 <div class="chart-card">
                     <h3 data-i18n="Peak Operating Hours">Peak Operating Hours</h3>
                     <div id="chartHoursColumns"></div>
                 </div>
 
-                <!-- Chart 4: Dock Utilization Ranking (Donut) -->
                 <div class="chart-card">
                     <h3 data-i18n="Dock Utilization Ranking">Dock Utilization Ranking</h3>
                     <div class="donut-container">
@@ -646,7 +641,6 @@
                 </div>
             </div>
 
-            <!-- Grouped Log Tables Restored for Analytics -->
             <div id="analyticsGroupedTables" style="margin-top: 2rem;"></div>
         </div>
 
@@ -656,11 +650,17 @@
                     <div class="view-header-title"><h1 data-i18n="Truck Entry Form">Truck Entry Form</h1></div>
                 </header>
 
-                <div class="scanners-double-row">
+                <div class="scanners-double-row" id="checkinScannersRow">
                     <div class="scan-box-dashed" id="scanBoxDriver" onclick="document.getElementById('driverPhotoInput').click()">
                         <div><span class="icon">📷</span><span class="label-text" id="driverPhotoStatus" data-i18n="Driver Photo / Truck Photo">Driver Photo / Truck Photo</span></div>
                         <input type="file" id="driverPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'driverPhotoStatus', 'PLATE')">
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('driverPhotoStatus', 'PLATE')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
+                    </div>
+                    <!-- DYNAMIC RECEIVING FIELD FOR EXTRA SNAP -->
+                    <div class="scan-box-dashed" id="scanBoxItem" style="display:none;" onclick="document.getElementById('itemPhotoInput').click()">
+                        <div><span class="icon">📦</span><span class="label-text" id="itemPhotoStatus">Item Picture *</span></div>
+                        <input type="file" id="itemPhotoInput" accept="image/*" style="display:none;" onchange="handleFileSelected(this, 'itemPhotoStatus', 'ITEM_PHOTO')">
+                        <div class="camera-btn-inline" onclick="event.stopPropagation(); openCamera('itemPhotoStatus', 'ITEM_PHOTO')">📸 <span data-i18n="Use Camera">Use Camera</span></div>
                     </div>
                     <div class="scan-box-dashed" id="scanBoxIqama" onclick="document.getElementById('iqamaScanner').click()">
                         <div><span class="icon">🪪</span><span class="label-text" id="iqamaStatus" data-i18n="Iqama (ID Card) Scanner">Iqama (ID Card) Scanner</span></div>
@@ -697,7 +697,6 @@
 
                             <div class="form-section-divider" data-i18n="Security & Facility Details">Security & Facility Details</div>
 
-                            <!-- Checkin Security fields are auto-filled by Login Guardrail -->
                             <div class="form-group" id="securityDropdownWrapper" style="position: relative;">
                                 <label class="badge-style" data-i18n="Security Name *">Security Name *</label>
                                 <input type="text" id="securityNameField" class="input-box-styled" required data-i18n="Security Name *" placeholder="Enter verification guard identity" autocomplete="off">
@@ -715,7 +714,7 @@
                             </div>
 
                             <div class="form-group"><label class="badge-style" data-i18n="Purpose / Direction *">Purpose / Direction *</label>
-                                <select id="direction" class="input-box-styled" style="font-size: 0.85rem;">
+                                <select id="direction" class="input-box-styled" style="font-size: 0.85rem;" onchange="handlePurposeChange(this)">
                                     <option value="Inbound - تنزيل بضائع">Inbound - تنزيل بضائع</option>
                                     <option value="RTV Handover - تسليم مرتجعات">RTV Handover - تسليم مرتجعات</option>
                                     <option value="ST CFCs - نقل بضائع بين مستودعات نون">ST CFCs - نقل بضائع بين مستودعات نون</option>
@@ -729,10 +728,14 @@
                                     <option value="BT SuperMall - رجيع سوبر مول">BT SuperMall - رجيع سوبر مول</option>
                                     <option value="BT Minutes - رجيع مينيتس">BT Minutes - رجيع مينيتس</option>
                                     <option value="Liquidation - إعادة بيع البضائع التالفة">Liquidation - إعادة بيع البضائع التالفة</option>
+                                    <option value="Others">Others - أخرى</option>
                                 </select>
+                                <!-- HIDDEN SPECIFY BOX FOR OTHERS -->
+                                <input type="text" id="directionCustom" class="input-box-styled" placeholder="Please specify purpose..." style="display:none; margin-top:0.75rem;">
                             </div>
+                            
                             <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style" data-i18n="Dispatching / Receiving *">Dispatching / Receiving *</label>
-                                <select id="dispatchSelect" class="input-box-styled" required>
+                                <select id="dispatchSelect" class="input-box-styled" required onchange="handleDispatchChange(this)">
                                     <option value="" data-i18n="Select...">Select...</option>
                                     <option value="Dispatching" data-i18n="Dispatching">Dispatching</option>
                                     <option value="Receiving" data-i18n="Receiving">Receiving</option>
@@ -767,7 +770,6 @@
         <div id="view-history" class="app-view">
             <div class="view-header-row">
                 <div class="view-header-title"><h1 data-i18n="Movement History">Movement History</h1><p data-i18n="Site Movement Activity">Site Movement Activity</p></div>
-                <!-- ADMIN ONLY EXPORT BUTTON -->
                 <button class="btn-excel" id="btnExportExcel" onclick="exportHistoryToExcel()" data-i18n="Export to Excel">⤓ Export to Excel</button>
             </div>
             <div class="card" style="padding: 1.5rem; background: transparent; border:none;">
@@ -809,7 +811,6 @@
             <div class="drivers-grid" id="driversRegistryContainer"></div>
         </div>
 
-        <!-- SECURITY GUARD DATABASE VIEW -->
         <div id="view-security" class="app-view">
             <div class="view-header-row">
                 <div class="view-header-title">
@@ -875,13 +876,11 @@
                 <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1.5rem;" id="signOutModalSubtext" data-i18n="Completing SLP cycle...">Completing SLP cycle...</p>
 
                 <div class="scanners-double-row" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                    <!-- Truck Picture (Check Out) -->
                     <div class="scan-box-dashed" onclick="document.getElementById('checkoutTruckPhotoInput').click()" style="padding: 1.5rem 1rem;">
                         <div><span class="icon" style="font-size:1.5rem; margin-bottom:0.4rem;">📷</span><span class="label-text" id="checkoutTruckStatus">Truck Picture (with plate) *</span></div>
                         <input type="file" id="checkoutTruckPhotoInput" accept="image/*" style="display:none;" onchange="handleCheckoutPhoto(this, 'checkoutTruckStatus', 'truck')">
                         <div class="camera-btn-inline" onclick="event.stopPropagation(); openCheckoutCamera('checkoutTruckStatus', 'truck')">📸 Use Camera</div>
                     </div>
-                    <!-- Item Picture (Check Out) -->
                     <div class="scan-box-dashed" onclick="document.getElementById('checkoutItemPhotoInput').click()" style="padding: 1.5rem 1rem;">
                         <div><span class="icon" style="font-size:1.5rem; margin-bottom:0.4rem;">📦</span><span class="label-text" id="checkoutItemStatus">Item Picture *</span></div>
                         <input type="file" id="checkoutItemPhotoInput" accept="image/*" style="display:none;" onchange="handleCheckoutPhoto(this, 'checkoutItemStatus', 'item')">
@@ -940,7 +939,6 @@
     </div>
 
     <script>
-        // Force LTR (English) immediately upon execution to prevent flashing RTL logic.
         let currentLang = 'en';
         document.documentElement.dir = 'ltr';
         document.documentElement.lang = 'en';
@@ -957,19 +955,20 @@
 
         let currentHistoryDateRange = 'all';
         let currentAnalyticsDateRange = 'weekly';
-        let temporaryCapturedImage = null;
         
-        // Check out image holders
+        // Check In Image Holders
+        let temporaryCapturedImage = null; // Re-mapped as default truck/driver snap
+        let temporaryCapturedItemImage = null; // New storage for Receiving check-in item snap
+        
+        // Check Out Image Holders
         let tempCheckoutTruckPhoto = null;
         let tempCheckoutItemPhoto = null;
 
-        // Active User & Role Details 
         let loggedInUser = { name: "Guest User", email: "Not signed in", noonId: "", picture: "" };
-        let userRole = 'guard'; // Default role is 'guard'. Admin unlocks special features.
-        let isSidebarHidden = false; // Toggle tracker
-        let isConfirmingState = false; // Camera preview verification check state
+        let userRole = 'guard'; 
+        let isSidebarHidden = false; 
+        let isConfirmingState = false; 
 
-        /* ---------------- TRANSLATIONS ---------------- */
         const translations = {
             "Dashboard": "لوحة القيادة",
             "Analytics": "التحليلات",
@@ -993,7 +992,6 @@
             "1 Year": "سنة واحدة",
             "Vehicle Processing Growth": "نمو معالجة المركبات",
             "Filtered Movement Logs": "سجلات الحركة المفلترة",
-
             "Noon": "نون",
             "Dock Security Platform": "منصة أمن الأرصفة",
             "Guest User": "مستخدم ضيف",
@@ -1150,7 +1148,6 @@
         document.addEventListener("DOMContentLoaded", () => {
             updateUIStrings();
 
-            // Auto-fill listeners for Security database 
             document.getElementById('securityNameId').addEventListener('input', function() {
                 if(!securityRegistryList) return;
                 let match = securityRegistryList.find(g => g.id.toLowerCase() === this.value.toLowerCase().trim());
@@ -1158,9 +1155,90 @@
                     document.getElementById('securityNameField').value = match.name;
                 }
             });
+
+            // --- INSTANT Conflict Validation Input Event Listeners ---
+            document.getElementById('iqamaNumber').addEventListener('input', runInstantConflictCheck);
+            document.getElementById('plateNumber').addEventListener('input', runInstantConflictCheck);
         });
 
-        // Toggle Accordion functionality
+        // --- INSTANT REGISTRY CONFLICT VALIDATION ENGINE ---
+        function runInstantConflictCheck(e) {
+            const isNewDriverMode = document.getElementById('toggleNewDriverBtn').classList.contains('active');
+            if (!isNewDriverMode || !window.driversRegistryList) return;
+
+            const targetField = e.target;
+            const val = targetField.value.trim().toLowerCase();
+            if (!val) return;
+
+            if (targetField.id === 'iqamaNumber') {
+                let match = driversRegistryList.find(d => d.id && d.id.trim().toLowerCase() === val && d.id !== 'N/A' && d.id !== '--');
+                if (match) {
+                    targetField.value = '';
+                    if (currentLang === 'ar') {
+                        alert("⚠️ عذراً: رقم الإقامة هذا مسجل بالفعل في النظام!\n\nيرجى استخدام وضع 'سائق حالي' (Existing Driver).");
+                    } else {
+                        alert("⚠️ Duplicate Found: This Iqama Number already exists inside the master driver database!\n\nPlease switch to 'Existing Driver' mode.");
+                    }
+                }
+            }
+
+            if (targetField.id === 'plateNumber') {
+                const normalizedPlate = val.replace(/\s+/g, '');
+                let match = driversRegistryList.find(d => d.plate && d.plate.trim().replace(/\s+/g, '').toLowerCase() === normalizedPlate && d.plate !== 'N/A' && d.plate !== '--');
+                if (match) {
+                    targetField.value = '';
+                    if (currentLang === 'ar') {
+                        alert("⚠️ عذراً: رقم لوحة الشاحنة مسجل بالفعل في النظام!\n\nيرجى استخدام وضع 'سائق حالي' (Existing Driver).");
+                    } else {
+                        alert("⚠️ Duplicate Found: This Truck Plate Number already exists inside the master driver database!\n\nPlease switch to 'Existing Driver' mode.");
+                    }
+                }
+            }
+        }
+
+        // --- DYNAMIC OTHERS OPTION DISPATCHER ---
+        function handlePurposeChange(selectEl) {
+            const customInput = document.getElementById('directionCustom');
+            if (selectEl.value === 'Others') {
+                customInput.style.display = 'block';
+                customInput.required = true;
+            } else {
+                customInput.style.display = 'none';
+                customInput.required = false;
+                customInput.value = '';
+            }
+        }
+
+        // --- DYNAMIC RECEIVING STRUCTURAL PIPELINE ---
+        function handleDispatchChange(selectEl) {
+            const scannersRow = document.getElementById('checkinScannersRow');
+            const itemBox = document.getElementById('scanBoxItem');
+            const driverBoxLabel = document.getElementById('driverPhotoStatus');
+            const sealContainer = document.getElementById('sealNumberContainer');
+            const sealInput = document.getElementById('sealNumber');
+
+            if (selectEl.value === 'Receiving') {
+                // Morph Scanners into 3-Column Box Grid Array
+                scannersRow.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                itemBox.style.display = 'block';
+                driverBoxLabel.innerText = "Truck Picture (Check-In) *";
+                
+                // Toggle Seal elements 
+                sealContainer.style.display = 'block';
+                sealInput.required = true;
+            } else {
+                // Standard 2-Column Base Parameters
+                scannersRow.style.gridTemplateColumns = 'repeat(2, 1fr)';
+                itemBox.style.display = 'none';
+                driverBoxLabel.innerText = tr("Driver Photo / Truck Photo");
+                temporaryCapturedItemImage = null; // Flush active stream references
+                
+                sealContainer.style.display = 'none';
+                sealInput.required = false;
+                sealInput.value = '';
+            }
+        }
+
         window.toggleAccordion = function(el) {
             const content = el.nextElementSibling;
             const wrapper = el.parentElement;
@@ -1173,24 +1251,6 @@
             }
         };
 
-        // 12-Hour Auto Logout Check
-        function checkSessionExpiry() {
-            const sessionStr = localStorage.getItem('noonSlpUserSession');
-            if (sessionStr) {
-                const sessionData = JSON.parse(sessionStr);
-                const twelveHours = 12 * 60 * 60 * 1000;
-                if (!sessionData.loginTime || (Date.now() - sessionData.loginTime > twelveHours)) {
-                    logoutUser();
-                }
-            }
-        }
-
-        function logoutUser() {
-            localStorage.removeItem('noonSlpUserSession');
-            location.reload();
-        }
-
-        /* ---------------- SIDEBAR TOGGLE LOGIC ---------------- */
         function toggleSidebar() {
             isSidebarHidden = !isSidebarHidden;
             const sidebar = document.getElementById('appSidebar');
@@ -1208,7 +1268,6 @@
             }
         }
 
-        /* ---------------- CUSTOM LOGIN & ADMIN TOGGLE LOGIC ---------------- */
         let currentLoginMode = 'guard';
         const allowedEmails = [
             "ruh01dock.security1@noon.com", "ruh01dock.security2@noon.com", "ruh01dock.security3@noon.com",
@@ -1235,7 +1294,7 @@
                 scanBox.style.display = 'none';
                 noonId.style.display = 'none';
                 pass.style.display = 'none';
-            } else { // Guard
+            } else { 
                 scanBox.style.display = 'block';
                 noonId.style.display = 'block';
                 pass.style.display = 'none';
@@ -1254,7 +1313,6 @@
                 loginTime: Date.now()
             }));
 
-            // Apply Role-Based Access Control
             document.getElementById('nav-dashboard').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
             document.getElementById('nav-analytics').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none'; 
             document.getElementById('nav-checkin').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
@@ -1293,7 +1351,6 @@
                         introActive = false; 
                         cancelAnimationFrame(animationFrameId); 
 
-                        // Setup correct default view & notifications
                         if (role === 'ops') {
                             switchView('dashboard', document.getElementById('nav-dashboard'));
                         } else if (role === 'guard') {
@@ -1369,14 +1426,13 @@
                     alert("Access request sent to Admin. Please wait for approval.");
                 }
 
-            } else { // Guard
+            } else { 
                 if(!nameInput || !emailInput || !noonIdInput) return alert("Please fill all fields to authorize access.");
                 if (!allowedEmails.includes(emailInput.toLowerCase())) return alert("Access Denied. Unauthorized Security Email.");
                 executeLogin(nameInput, emailInput, noonIdInput, 'guard');
             }
         });
 
-        /* --- ADMIN NOTIFICATIONS & HISTORY SYNC --- */
         function checkAdminNotifications() {
             if (userRole !== 'admin') {
                 document.getElementById('adminBellContainer').style.display = 'none';
@@ -1396,7 +1452,6 @@
 
         function renderNotifications() {
             if (userRole !== 'admin') return;
-            
             let requestsMap = {}; 
             
             (window.globalSystemLogs || []).forEach(log => {
@@ -1488,7 +1543,6 @@
             document.getElementById('adminNotifDropdown').classList.remove('open');
         };
 
-        /* ---------------- INTRO SCREEN PARTICLES ---------------- */
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
         let width, height, particles;
@@ -1526,27 +1580,6 @@
 
         window.addEventListener('resize', () => { if(introActive) initParticles(); });
 
-        /* ---------------- ON LOAD SESSION CHECK & FETCH ---------------- */
-        const sessionStr = localStorage.getItem('noonSlpUserSession');
-        if (sessionStr) {
-            const sessionData = JSON.parse(sessionStr);
-            const twelveHours = 12 * 60 * 60 * 1000;
-
-            if (!sessionData.loginTime || (Date.now() - sessionData.loginTime > twelveHours)) {
-                localStorage.removeItem('noonSlpUserSession');
-                initParticles(); 
-                animateParticles();
-            } else {
-                executeLogin(sessionData.name, sessionData.email, sessionData.noonId || "", sessionData.role);
-                document.getElementById('introOverlay').style.display = 'none';
-                introActive = false;
-            }
-        } else {
-            initParticles(); 
-            animateParticles();
-        }
-
-        /* ---------------- CORE DASHBOARD LOGIC ---------------- */
         function updateHeroDateTime() {
             const d = new Date();
             const monthsEn = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
@@ -1671,7 +1704,6 @@
 
         function closeDriverProfileModal() { document.getElementById('driverProfileModal').classList.remove('modal-active'); }
 
-        /* --- DRIVER & GUARD EDIT MODAL LOGIC --- */
         function openEditDriverModal(name, iqama, plate, phone, isGuard = false) {
             document.getElementById('editOriginalName').value = name;
             document.getElementById('editName').value = name;
@@ -1765,33 +1797,29 @@
             if(mode === "existing") {
                 document.getElementById('driverLookupGroup').style.display = "block";
                 document.getElementById('scanBoxDriver').style.display = 'none';
+                document.getElementById('scanBoxItem').style.display = 'none';
                 document.getElementById('scanBoxIqama').style.display = 'none';
                 document.querySelector('.scanners-double-row').style.gridTemplateColumns = '1fr';
                 document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = "none"; f.querySelector('input').required = false; });
                 temporaryCapturedImage = null; 
+                temporaryCapturedItemImage = null;
             } else {
                 document.getElementById('driverLookupGroup').style.display = "none";
                 document.getElementById('scanBoxDriver').style.display = 'block';
                 document.getElementById('scanBoxIqama').style.display = 'block';
-                document.querySelector('.scanners-double-row').style.gridTemplateColumns = 'repeat(2, 1fr)';
+                
+                const isReceiving = document.getElementById('dispatchSelect').value === 'Receiving';
+                if (isReceiving) {
+                    document.getElementById('scanBoxItem').style.display = 'block';
+                    document.querySelector('.scanners-double-row').style.gridTemplateColumns = 'repeat(3, 1fr)';
+                } else {
+                    document.getElementById('scanBoxItem').style.display = 'none';
+                    document.querySelector('.scanners-double-row').style.gridTemplateColumns = 'repeat(2, 1fr)';
+                }
                 document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = "block"; f.querySelector('input').required = true; });
             }
         }
 
-        document.getElementById('dispatchSelect').addEventListener('change', function() {
-            const container = document.getElementById('sealNumberContainer');
-            const input = document.getElementById('sealNumber');
-            if (this.value === 'Receiving') {
-                container.style.display = 'block';
-                input.required = true;
-            } else {
-                container.style.display = 'none';
-                input.required = false;
-                input.value = '';
-            }
-        });
-
-        /* ---------------- Existing-driver autocomplete ---------------- */
         const driverSearchBoxEl = document.getElementById('driverSearchBox');
         const driverSuggestionsListEl = document.getElementById('driverSuggestionsList');
 
@@ -1830,7 +1858,6 @@
             renderDriverSuggestions(this.value.toUpperCase().trim());
         });
 
-        /* ---------------- Custom Security Dropdown ---------------- */
         const secSearchBoxEl = document.getElementById('securityNameField');
         const secSuggestionsListEl = document.getElementById('securitySuggestionsList');
 
@@ -1870,21 +1897,6 @@
             renderSecuritySuggestions(this.value.toUpperCase().trim());
         });
 
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.search-input-wrapper')) {
-                driverSuggestionsListEl.classList.remove('open');
-            }
-            if (!e.target.closest('#securityDropdownWrapper')) {
-                secSuggestionsListEl.classList.remove('open');
-            }
-        });
-
-        function convertArabicNumeralsToDigits(str) {
-            const map = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' };
-            return str.replace(/[٠-٩]/g, match => map[match]);
-        }
-
-        /* ---------------- Image preprocessing & Camera ---------------- */
         function isLikelyHeic(file) {
             const type = (file.type || '').toLowerCase();
             const name = (file.name || '').toLowerCase();
@@ -1936,10 +1948,10 @@
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const d = imageData.data; const contrast = 50; const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
             for (let i = 0; i < d.length; i += 4) {
-                let gay = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-                gay = factor * (gay - 128) + 128;
-                gay = Math.min(255, Math.max(0, gay));
-                d[i] = d[i + 1] = d[i + 2] = gay;
+                let gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                gray = factor * (gray - 128) + 128;
+                gray = Math.min(255, Math.max(0, gray));
+                d[i] = d[i + 1] = d[i + 2] = gray;
             }
             ctx.putImageData(imageData, 0, 0);
             return new Promise((resolve, reject) => { canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('canvas toBlob failed')), 'image/jpeg', 0.85); });
@@ -1955,7 +1967,8 @@
         let cameraStream = null, cameraTargetStatusId = null, cameraTargetScanType = null;
 
         function getInstructionText(scanType) {
-            if(scanType === 'PLATE') return tr("Driver Photo / Truck Photo");
+            if(scanType === 'PLATE') return "Take Truck Picture";
+            if(scanType === 'ITEM_PHOTO') return "Take Check-In Item Picture";
             if(scanType === 'IQAMA') return tr("Iqama (ID Card) Scanner");
             if(scanType === 'OFFICER') return tr("Security ID Scanner");
             if(scanType === 'LOGIN_OFFICER') return tr("Scan Security ID");
@@ -2035,7 +2048,6 @@
         function handleCameraCancel() {
             if (isConfirmingState) {
                 isConfirmingState = false;
-                
                 const video = document.getElementById('cameraVideo');
                 if(video) video.play();
                 
@@ -2075,14 +2087,26 @@
 
             if (isConfirmingState) {
                 isConfirmingState = false;
-                
                 document.querySelector('.btn-capture').innerHTML = `📸 <span data-i18n="Capture">Capture</span>`;
                 document.querySelector('.btn-cancel-cam').innerHTML = tr('Cancel');
                 document.querySelector('.btn-cancel-cam').removeAttribute('style');
 
                 if (video && video.paused) video.play();
 
+                const isReceiving = document.getElementById('dispatchSelect').value === 'Receiving';
+
                 if (cameraTargetScanType === 'PLATE') {
+                    if (isReceiving) {
+                        cameraTargetStatusId = 'itemPhotoStatus';
+                        cameraTargetScanType = 'ITEM_PHOTO';
+                        document.getElementById('cameraInstructionLabel').innerText = getInstructionText('ITEM_PHOTO');
+                    } else {
+                        cameraTargetStatusId = 'iqamaStatus';
+                        cameraTargetScanType = 'IQAMA';
+                        document.getElementById('cameraInstructionLabel').innerText = getInstructionText('IQAMA');
+                    }
+                    updateUIStrings();
+                } else if (cameraTargetScanType === 'ITEM_PHOTO') {
                     cameraTargetStatusId = 'iqamaStatus';
                     cameraTargetScanType = 'IQAMA';
                     document.getElementById('cameraInstructionLabel').innerText = getInstructionText('IQAMA');
@@ -2161,6 +2185,13 @@
 
             setTimeout(() => {
                 if (scanType === 'PLATE') {
+                    const isReceiving = document.getElementById('dispatchSelect').value === 'Receiving';
+                    if (isReceiving) {
+                        document.getElementById('itemPhotoInput').click();
+                    } else {
+                        document.getElementById('iqamaScanner').click();
+                    }
+                } else if (scanType === 'ITEM_PHOTO') {
                     document.getElementById('iqamaScanner').click();
                 }
             }, 300);
@@ -2170,6 +2201,14 @@
             const status = document.getElementById(statusLabelId);
             status.innerHTML = "🌀 " + tr("Preparing image..."); status.style.color = "var(--accent-color)";
             try {
+                if (scanType === 'ITEM_PHOTO') {
+                    const profileBlob = await compressImageForProfile(file);
+                    const profileBase64 = await blobToBase64(profileBlob);
+                    temporaryCapturedItemImage = 'data:image/jpeg;base64,' + profileBase64;
+                    status.innerHTML = "✅ Photo Attached"; status.style.color = "var(--success-color)";
+                    return;
+                }
+
                 if (statusLabelId === 'driverPhotoStatus' || (!temporaryCapturedImage && statusLabelId === 'iqamaStatus')) {
                     try {
                         const profileBlob = await compressImageForProfile(file);
@@ -2193,7 +2232,11 @@
                 if (scanType === "IQAMA") {
                     let idMatch = cleanText.match(/\b[12]\d{9}\b/);
                     let idNum = idMatch ? idMatch[0] : "";
-                    if (idMatch) { document.getElementById('iqamaNumber').value = idNum; matched = true; }
+                    if (idMatch) { 
+                        document.getElementById('iqamaNumber').value = idNum; 
+                        matched = true; 
+                        document.getElementById('iqamaNumber').dispatchEvent(new Event('input'));
+                    }
 
                     let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
                     let nameMatch = lines.find(line => {
@@ -2251,6 +2294,7 @@
                     if (finalDigits && finalLetters) {
                         document.getElementById('plateNumber').value = `${finalDigits} ${finalLetters}`;
                         matched = true;
+                        document.getElementById('plateNumber').dispatchEvent(new Event('input'));
                     }
                 }
                 else if (scanType === "OFFICER" || scanType === "LOGIN_OFFICER") {
@@ -2285,7 +2329,6 @@
             }
         }
 
-        /* ---------------- SIGN OUT MODAL LOGIC & OPTIMISTIC UPDATES ---------------- */
         let currentSignOutContext = null;
 
         function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
@@ -2351,7 +2394,6 @@
                 }
                 
                 window.handleLogsResponse({ logs: globalLogsCache, ops: window.globalSystemLogs });
-
                 closeSignOutModal();
                 setTimeout(fetchLogs, 3000);
             } finally {
@@ -2360,7 +2402,6 @@
             }
         });
 
-        /* ---------------- Formatting Tools ---------------- */
         function fmtDate(s) {
             if(!s) return "May 10, 2026"; let d = new Date(s); if(isNaN(d.getTime())) return s;
             const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -2398,7 +2439,6 @@
             return "badge blue";
         }
 
-        /* ---------------- Date Range Helper Engine ---------------- */
         function isDateInRange(dateValue, range, now, fromStr, toStr) {
             if (!dateValue) return false;
             const refDate = new Date(dateValue);
@@ -2434,7 +2474,6 @@
             }
             if (range === 'custom') {
                 if (!fromStr && !toStr) return true; 
-                
                 let isValid = true;
                 if (fromStr) {
                     const from = new Date(fromStr);
@@ -2451,7 +2490,6 @@
             return true; 
         }
 
-        /* ---------------- Analytics Hub Dynamism ---------------- */
         function applyAnalyticsFilters() {
             let range = currentAnalyticsDateRange;
             let fromStr = document.getElementById('analyticsCustomDateFrom').value;
@@ -2745,11 +2783,9 @@
             if(dlDocks) dlDocks.innerHTML = [...docks].sort().map(v => `<option value="${v}">`).join('');
         }
 
-        /* ---------------- Driver Cards Rendering ---------------- */
         function compileDriversRegistryCards(data) {
             let deletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
             const container = document.getElementById('driversRegistryContainer'); container.innerHTML = '';
-
             let uniqueDriversMap = {};
 
             data.forEach(item => {
@@ -2792,7 +2828,6 @@
             document.querySelectorAll('.driver-registry-card:not(.security-card)').forEach(card => { card.style.display = card.getAttribute('data-search-blob').includes(query) ? 'flex' : 'none'; });
         }
 
-        /* ---------------- Security Cards Rendering ---------------- */
         function compileSecurityRegistryCards(data) {
             let deletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
             const container = document.getElementById('securityRegistryContainer');
@@ -2859,7 +2894,6 @@
             });
         }
 
-        /* ---------------- Tables Rendering & Filters ---------------- */
         function renderHistoryTable(list) {
             const historyBody = document.getElementById('historyLogTableBody');
             historyBody.innerHTML = '';
@@ -2964,7 +2998,6 @@
             document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
         }
 
-        /* ---------------- PAIRING ENGINE (BULLETPROOF UPDATES) ---------------- */
         window.handleLogsResponse = function(responsePayload) {
             window.hasFetchedLogs = true;
             let rawLogs = responsePayload.logs || [];
@@ -3085,7 +3118,6 @@
             applyHistoryFilters(); 
             applyAnalyticsFilters(); 
             populateDatalists(globalHistoryListCache); 
-            
             if(userRole === 'admin') renderNotifications();
         };
 
@@ -3097,7 +3129,6 @@
         document.getElementById('entryForm').addEventListener('submit', async e => {
             e.preventDefault(); 
             
-            // --- CORE REGISTRY CONFLICT VALIDATION ENGINE ---
             const isNewDriverMode = document.getElementById('toggleNewDriverBtn').classList.contains('active');
             if (isNewDriverMode && window.driversRegistryList) {
                 const checkIqama = document.getElementById('iqamaNumber').value.trim().toLowerCase();
@@ -3108,12 +3139,28 @@
 
                 if (iqamaConflicted || plateConflicted) {
                     if (currentLang === 'ar') {
-                        alert("⚠️ عذراً: رقم الإقامة هذا أو لوحة الشاحنة مسجلة بالفعل في قاعدة البيانات المرجعية للسائقين.\n\nيرجى إلغاء العملية وتغيير الوضع إلى وضع 'سائق حالي' (Existing Driver) وإجراء عملية البحث.");
+                        alert("⚠️ عذراً: رقم الإقامة هذا أو لوحة الشاحنة مسجلة بالفعل في قاعدة البيانات.\n\nيرجى استخدام وضع 'سائق حالي' (Existing Driver).");
                     } else {
-                        alert("⚠️ Data Conflict: This Iqama Number or Truck Plate Number already exists inside the master driver database.\n\nPlease cancel this entry, switch to 'Existing Driver' mode, and search for the driver's profile.");
+                        alert("⚠️ Data Conflict: This Iqama Number or Truck Plate Number already exists inside the database.\n\nPlease switch to 'Existing Driver' mode.");
                     }
                     return; 
                 }
+            }
+
+            // Map standard or custom purpose value securely
+            let directionVal = document.getElementById('direction').value;
+            if (directionVal === 'Others') {
+                directionVal = document.getElementById('directionCustom').value.trim();
+                if (!directionVal) {
+                    alert(currentLang === 'ar' ? "يرجى تحديد الغرض المخصص." : "Please specify the purpose field.");
+                    return;
+                }
+            }
+
+            const dispatchMode = document.getElementById('dispatchSelect').value;
+            if (dispatchMode === 'Receiving') {
+                if (!temporaryCapturedImage) { alert(currentLang === 'ar' ? 'يرجى التقاط صورة الشاحنة الواردة.' : 'Please capture the incoming Truck Picture.'); return; }
+                if (!temporaryCapturedItemImage) { alert(currentLang === 'ar' ? 'يرجى التقاط صورة البضاعة الواردة.' : 'Please capture the incoming Check-In Item Picture.'); return; }
             }
 
             const btn = document.querySelector('.submit-btn-global'); btn.innerText = tr("Processing Check In..."); btn.disabled = true;
@@ -3125,13 +3172,14 @@
                     mobileNumber: document.getElementById('mobileNumber').value.trim() || "N/A", 
                     securityName: document.getElementById('securityNameField').value, 
                     dockNumber: document.getElementById('dockNumber').value, 
-                    direction: document.getElementById('direction').value,
-                    dispatchType: document.getElementById('dispatchSelect').value,
+                    direction: directionVal,
+                    dispatchType: dispatchMode,
                     sealNumber: document.getElementById('sealNumber').value,
                     securityId: document.getElementById('securityNameId').value,
                     actionByEmail: loggedInUser.email,
                     actionByName: loggedInUser.name,
-                    driverPhoto: temporaryCapturedImage || "" 
+                    driverPhoto: temporaryCapturedImage || "",
+                    checkInItemPhoto: temporaryCapturedItemImage || ""
                 };
 
                 fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
@@ -3148,10 +3196,14 @@
                 document.getElementById('securityNameField').value = loggedInUser.name;
                 document.getElementById('securityNameId').value = loggedInUser.noonId || '';
                 temporaryCapturedImage = null;
+                temporaryCapturedItemImage = null;
+
+                // Reset Dynamic Option Layouts to default state
+                document.getElementById('directionCustom').style.display = 'none';
+                document.getElementById('directionCustom').required = false;
+                handleDispatchChange(document.getElementById('dispatchSelect'));
 
                 btn.innerText = tr("Check In Truck"); btn.disabled = false;
-                document.getElementById('sealNumberContainer').style.display = 'none'; document.getElementById('sealNumber').required = false;
-
                 switchView('active-trucks', document.getElementById('nav-active-trucks')); 
 
                 setTimeout(fetchLogs, 3500); 
@@ -3161,7 +3213,6 @@
             }
         });
 
-        /* ---------------- SWIPE NAVIGATION LOGIC ---------------- */
         let touchstartX = 0;
         let touchstartY = 0;
         let touchendX = 0;
@@ -3184,21 +3235,11 @@
             if (event.target.closest('table') || event.target.closest('.suggestions-dropdown')) {
                 return; 
             }
-
             const horizontalThreshold = 50; 
             const verticalThreshold = 50; 
-
-            if (Math.abs(touchendY - touchstartY) > verticalThreshold) {
-                return; 
-            }
-
-            if (touchendX < touchstartX - horizontalThreshold) {
-                swipeNext(); 
-            }
-
-            if (touchendX > touchstartX + horizontalThreshold) {
-                swipePrev(); 
-            }
+            if (Math.abs(touchendY - touchstartY) > verticalThreshold) return; 
+            if (touchendX < touchstartX - horizontalThreshold) swipeNext(); 
+            if (touchendX > touchstartX + horizontalThreshold) swipePrev(); 
         }
 
         function getAvailableViews() {
@@ -3243,3 +3284,4 @@
     </script>
 </body>
 </html>
+    
