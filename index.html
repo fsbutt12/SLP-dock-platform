@@ -1387,7 +1387,6 @@ function switchLoginMode(mode) {
         pass.style.display = 'none';
     }
 }
-
 function executeLogin(name, email, noonId, role, isInitialLoad = false) {
     loggedInUser = { name: name, noonId: noonId, email: email, picture: "👤" };
     userRole = role;
@@ -1402,71 +1401,72 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
         }));
     }
 
-            document.getElementById('nav-dashboard').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
-            document.getElementById('nav-analytics').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none'; 
-            document.getElementById('nav-checkin').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
-            document.getElementById('nav-active-trucks').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none'; 
-            document.getElementById('nav-history').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
-            document.getElementById('nav-drivers').style.display = (role === 'admin') ? 'flex' : 'none';
-            document.getElementById('nav-security').style.display = (role === 'admin') ? 'flex' : 'none';
-            document.getElementById('btnExportExcel').style.display = (role === 'admin') ? 'block' : 'none';
+    document.getElementById('nav-dashboard').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none';
+    document.getElementById('nav-analytics').style.display = (role === 'admin' || role === 'ops') ? 'flex' : 'none'; 
+    document.getElementById('nav-checkin').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
+    document.getElementById('nav-active-trucks').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none'; 
+    document.getElementById('nav-history').style.display = (role === 'admin' || role === 'guard') ? 'flex' : 'none';
+    document.getElementById('nav-drivers').style.display = (role === 'admin') ? 'flex' : 'none';
+    document.getElementById('nav-security').style.display = (role === 'admin') ? 'flex' : 'none';
+    document.getElementById('btnExportExcel').style.display = (role === 'admin') ? 'block' : 'none';
 
-            if (role === 'guard') {
-                document.getElementById('securityNameField').value = name;
-                document.getElementById('securityNameId').value = noonId;
-            }
+    if (role === 'guard') {
+        document.getElementById('securityNameField').value = name;
+        document.getElementById('securityNameId').value = noonId;
+    }
 
-            document.getElementById('sidebarUserName').innerText = name + (role === 'admin' ? " (Admin)" : (role === 'ops' ? " (Ops)" : ""));
-            document.getElementById('sidebarUserEmail').innerText = email;
-            document.getElementById('sidebarUserPic').innerText = "👤";
+    document.getElementById('sidebarUserName').innerText = name + (role === 'admin' ? " (Admin)" : (role === 'ops' ? " (Ops)" : ""));
+    document.getElementById('sidebarUserEmail').innerText = email;
+    document.getElementById('sidebarUserPic').innerText = "👤";
 
-            const introOverlay = document.getElementById('introOverlay');
+    const introOverlay = document.getElementById('introOverlay');
 
-            if (isInitialLoad) {
-                introOverlay.style.display = 'none';
-                introOverlay.classList.add('hidden');
-                introActive = false;
-                cancelAnimationFrame(animationFrameId);
+    if (isInitialLoad) {
+        introOverlay.style.display = 'none';
+        introOverlay.classList.add('hidden');
+        introActive = false;
+        cancelAnimationFrame(animationFrameId);
 
-                if (role === 'ops') {
-                    switchView('dashboard', document.getElementById('nav-dashboard'));
-                } else {
-                    switchView('checkin', document.getElementById('nav-checkin'));
-                    if (role === 'admin') checkAdminNotifications();
-                }
-            } else {
-                const statusBox = document.getElementById('authStatus');
-                const authText = document.getElementById('authText');
-                const container = document.getElementById('loginContainer');
-
-                document.getElementById('customLoginBox').style.display = 'none';
-                document.querySelector('.login-tabs').style.display = 'none';
-                statusBox.style.display = 'block';
-
-                setTimeout(() => {
-                    authText.innerText = "SYSTEM AUTHENTICATION COMPLETE";
-                    authText.style.color = "var(--success-color)";
-                    authText.classList.remove('pulsing');
-                    container.style.boxShadow = "0 0 80px rgba(46, 160, 67, 0.25), 0 20px 40px rgba(0,0,0,0.8)";
-
-                    setTimeout(() => {
-                        introOverlay.classList.add('hidden');
-                        setTimeout(() => { 
-                            introOverlay.style.display = 'none';
-                            introActive = false; 
-                            cancelAnimationFrame(animationFrameId); 
-
-                            if (role === 'ops') {
-                                switchView('dashboard', document.getElementById('nav-dashboard'));
-                            } else {
-                                switchView('checkin', document.getElementById('nav-checkin'));
-                                if (role === 'admin') checkAdminNotifications();
-                            }
-                        }, 1000);
-                    }, 1200);
-                }, 1200); 
-            }
+        if (role === 'ops') {
+            switchView('dashboard', document.getElementById('nav-dashboard'));
+        } else {
+            switchView('checkin', document.getElementById('nav-checkin'));
+            if (role === 'admin') checkAdminNotifications();
         }
+    } else {
+        const statusBox = document.getElementById('authStatus');
+        const authText = document.getElementById('authText');
+        const container = document.getElementById('loginContainer');
+
+        document.getElementById('customLoginBox').style.display = 'none';
+        document.querySelector('.login-tabs').style.display = 'none';
+        statusBox.style.display = 'block';
+
+        setTimeout(() => {
+            authText.innerText = "SYSTEM AUTHENTICATION COMPLETE";
+            authText.style.color = "var(--success-color)";
+            authText.classList.remove('pulsing');
+            container.style.boxShadow = "0 0 80px rgba(46, 160, 67, 0.25), 0 20px 40px rgba(0,0,0,0.8)";
+
+            setTimeout(() => {
+                introOverlay.classList.add('hidden');
+                setTimeout(() => { 
+                    introOverlay.style.display = 'none';
+                    introActive = false; 
+                    cancelAnimationFrame(animationFrameId); 
+
+                    if (role === 'ops') {
+                        switchView('dashboard', document.getElementById('nav-dashboard'));
+                    } else {
+                        switchView('checkin', document.getElementById('nav-checkin'));
+                        if (role === 'admin') checkAdminNotifications();
+                    }
+                }, 1000);
+            }, 1200);
+        }, 1200); 
+    }
+} // <--- THIS BRACE CLOSES EXECUTELOGIN CORRECTLY                introOverlay.classList.add('hidden');
+            
 
         window.logoutUser = function() {
             localStorage.removeItem('noonSlpUserSession');
