@@ -253,7 +253,7 @@
             padding: 1rem 1.5rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color);
             cursor: pointer; border-radius: 8px; transition: background 0.2s;
         }
-        .accordion-header:hover { background: rgba(252, 194, 0, 0.05); }
+        .accordion-header:hover { background: rgba(255,255,255,0.05); }
         .accordion-title { font-weight: 800; font-size: 0.95rem; color: #fff; display: flex; align-items: center; gap: 10px; }
         .accordion-badge { background: var(--card-solid); padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; color: var(--accent-color); border: 1px solid var(--border-color); }
         .accordion-content {
@@ -292,7 +292,7 @@
 
         .btn-mini { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.3rem 0.75rem; font-size: 0.7rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; font-weight: 600; transition: 0.2s; }
         .btn-mini:hover { border-color: var(--accent-color); color: var(--accent-color); }
-        .btn-checkout-action { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 0.4rem 1rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .btn-checkout-action { background: transparent; color: var(--danger-color); border: 1px solid var(--danger-color); padding: 0.4rem 1rem; font-size: 0.7 Cantidad; font-weight: 800; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
         .btn-checkout-action:hover { background: var(--danger-color); color: #fff; }
 
         /* CHECKIN FORM REDESIGN */
@@ -678,7 +678,6 @@
                         </button>
                     </div>
 
-                    <!-- STRICT AUTOCOMPLETE SUPPRESSION APPLIED AT FORM SCOPE -->
                     <form id="entryForm" autocomplete="off">
                         <div class="form-grid-columns">
 
@@ -1153,11 +1152,19 @@
                 }
             });
 
-            // --- INSTANT Conflict Validation Listeners ---
+            // --- INSTANT Conflict Validation Input Event Listeners ---
             document.getElementById('iqamaNumber').addEventListener('input', runInstantConflictCheck);
+            document.getElementById('iqamaNumber').addEventListener('change', runInstantConflictCheck);
+            document.getElementById('iqamaNumber').addEventListener('blur', runInstantConflictCheck);
+            
             document.getElementById('plateNumber').addEventListener('input', runInstantConflictCheck);
+            document.getElementById('plateNumber').addEventListener('change', runInstantConflictCheck);
+            document.getElementById('plateNumber').addEventListener('blur', runInstantConflictCheck);
 
-            // --- INITIAL LOAD REFRESH PERSISTENCE GUARDRAIL ---
+            // --- INSTANT DOCK CHECK LISTENER ---
+            document.getElementById('dockNumber').addEventListener('change', checkDockOccupation);
+            document.getElementById('dockNumber').addEventListener('blur', checkDockOccupation);
+
             checkSessionOnLoad();
         });
 
@@ -1172,7 +1179,6 @@
                     initParticles(); 
                     animateParticles();
                 } else {
-                    // Pass true as 5th argument to declare instant silent load
                     executeLogin(sessionData.name, sessionData.email, sessionData.noonId || "", sessionData.role, true);
                 }
             } else {
@@ -1181,17 +1187,17 @@
             }
         }
 
-        // --- INSTANT CONFLICT CHECK (FIXED: MAINTAINS INPUT VALUE ON SCREEN) ---
+        // --- FIXED CASTING ENGINE: ROBUST LOOKUP SUPPORTS NUMBERS AND STRINGS ---
         function runInstantConflictCheck(e) {
             const isNewDriverMode = document.getElementById('toggleNewDriverBtn').classList.contains('active');
-            if (!isNewDriverMode || !window.driversRegistryList) return;
+            if (!isNewDriverMode || !driversRegistryList || driversRegistryList.length === 0) return;
 
             const targetField = e.target;
             const val = targetField.value.trim().toLowerCase();
             if (!val) return;
 
             if (targetField.id === 'iqamaNumber') {
-                let match = driversRegistryList.find(d => d.id && d.id.trim().toLowerCase() === val && d.id !== 'N/A' && d.id !== '--');
+                let match = driversRegistryList.find(d => d.id && String(d.id).trim().toLowerCase() === val && String(d.id) !== 'N/A' && String(d.id) !== '--');
                 if (match) {
                     if (currentLang === 'ar') {
                         alert(`⚠️ عذراً: رقم الإقامة هذا (${targetField.value}) مسجل بالفعل في النظام!\n\nيرجى استخدام وضع 'سائق حالي' (Existing Driver).`);
@@ -1203,7 +1209,7 @@
 
             if (targetField.id === 'plateNumber') {
                 const normalizedPlate = val.replace(/\s+/g, '').toLowerCase();
-                let match = driversRegistryList.find(d => d.plate && d.plate.trim().replace(/\s+/g, '').toLowerCase() === normalizedPlate && d.plate !== 'N/A' && d.plate !== '--');
+                let match = driversRegistryList.find(d => d.plate && String(d.plate).trim().replace(/\s+/g, '').toLowerCase() === normalizedPlate && String(d.plate) !== 'N/A' && String(d.plate) !== '--');
                 if (match) {
                     if (currentLang === 'ar') {
                         alert(`⚠️ عذراً: رقم لوحة الشاحنة (${targetField.value}) مسجل بالفعل في النظام!\n\nيرجى استخدام وضع 'سائق حالي' (Existing Driver).`);
@@ -1211,6 +1217,24 @@
                         alert(`⚠️ Duplicate Found: This Truck Plate Number (${targetField.value}) already exists inside the master driver database!\n\nPlease switch to 'Existing Driver' mode.`);
                     }
                 }
+            }
+        }
+
+        // --- NEW REAL-TIME DOCK MONITORING VALVE ---
+        function checkDockOccupation() {
+            const dockField = document.getElementById('dockNumber');
+            const dockVal = dockField.value.trim().toUpperCase();
+            if (!dockVal || !globalLogsCache || globalLogsCache.length === 0) return;
+
+            // Detect if an active track row contains this target dock token space without checkOutTime
+            let match = globalLogsCache.find(r => !r.checkOutTime && String(r.dockNumber).trim().toUpperCase() === dockVal);
+            if (match) {
+                if (currentLang === 'ar') {
+                    alert(`⚠️ عذراً: الرصيف رقم (${dockVal}) محجوز ومسجل به شاحنة بالداخل حالياً!`);
+                } else {
+                    alert(`⚠️ Dock Occupied: Dock Number (${dockVal}) is already checked in with an active truck inside!`);
+                }
+                dockField.value = ''; // Safely clear parameter to protect warehouse space conflicts
             }
         }
 
@@ -1312,7 +1336,6 @@
             }
         }
 
-        // --- GLOBAL SESSION MANAGEMENT pipeline (FIXED REFRESH BEHAVIOR) ---
         function executeLogin(name, email, noonId, role, isInitialLoad = false) {
             loggedInUser = { name: name, noonId: noonId, email: email, picture: "👤" };
             userRole = role;
@@ -1348,7 +1371,6 @@
             const introOverlay = document.getElementById('introOverlay');
 
             if (isInitialLoad) {
-                // Silent fast layout rendering for browser refreshes
                 introOverlay.style.display = 'none';
                 introOverlay.classList.add('hidden');
                 introActive = false;
@@ -1361,7 +1383,6 @@
                     if (role === 'admin') checkAdminNotifications();
                 }
             } else {
-                // Interactive transition animation for primary authorization clicks
                 const statusBox = document.getElementById('authStatus');
                 const authText = document.getElementById('authText');
                 const container = document.getElementById('loginContainer');
@@ -1395,76 +1416,6 @@
             }
         }
 
-        document.getElementById('customSignInBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-
-            const nameInput = document.getElementById('loginName').value.trim();
-            const emailInput = document.getElementById('loginEmail').value.trim();
-            const noonIdInput = document.getElementById('loginNoonId').value.trim();
-            const pass = document.getElementById('adminPassword').value;
-
-            if (currentLoginMode === 'admin') {
-                if(!nameInput || !emailInput || !pass) return alert("Please fill all fields to authorize access.");
-                if (pass !== 'admin123') return alert("Incorrect Administrator Password.");
-                executeLogin(nameInput, emailInput, '', 'admin', false);
-
-            } else if (currentLoginMode === 'ops') {
-                if(!nameInput || !emailInput) return alert("Please fill all fields to authorize access.");
-                if(!emailInput.toLowerCase().endsWith('noon.com')) return alert("Access Denied. Only valid noon.com accounts are permitted.");
-                
-                if (!window.hasFetchedLogs) {
-                    alert("Connecting to server... Please wait a few seconds and try again.");
-                    return;
-                }
-
-                let isApproved = false;
-                let isPending = false;
-
-                (window.globalSystemLogs || []).forEach(log => {
-                    if (log.noonId && log.noonId.toLowerCase() === emailInput.toLowerCase()) {
-                        if (log.accepted) {
-                            isApproved = true;
-                            isPending = false;
-                        } else if (log.denied) {
-                            isApproved = false;
-                            isPending = false;
-                        } else {
-                            isPending = true;
-                        }
-                    }
-                });
-
-                if (isApproved) {
-                    executeLogin(nameInput, emailInput, '', 'ops', false);
-                } else if (isPending) {
-                    alert("Your access request is currently pending Admin approval.");
-                } else {
-                    const payload = {
-                        action: "opsRequest",
-                        name: nameInput,
-                        noonId: emailInput.toLowerCase()
-                    };
-
-                    fetch(API_URL, { 
-                        method: 'POST', 
-                        headers: {'Content-Type':'text/plain;charset=utf-8'}, 
-                        body: JSON.stringify(payload) 
-                    }).catch(e => console.error("Access request transmission error", e));
-                    
-                    if(!window.globalSystemLogs) window.globalSystemLogs = [];
-                    window.globalSystemLogs.push({...payload, timestamp: new Date().toISOString()});
-                    
-                    alert("Access request sent to Admin. Please wait for approval.");
-                }
-
-            } else { 
-                if(!nameInput || !emailInput || !noonIdInput) return alert("Please fill all fields to authorize access.");
-                if (!allowedEmails.includes(emailInput.toLowerCase())) return alert("Access Denied. Unauthorized Security Email.");
-                executeLogin(nameInput, emailInput, noonIdInput, 'guard', false);
-            }
-        });
-
-        // --- EXPLICIT WINDOW BOUND SIGN OUT LOGIC ---
         window.logoutUser = function() {
             localStorage.removeItem('noonSlpUserSession');
             localStorage.removeItem('SLP_OVERRIDES');
@@ -1935,6 +1886,20 @@
         secSearchBoxEl.addEventListener('input', function() {
             renderSecuritySuggestions(this.value.toUpperCase().trim());
         });
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-input-wrapper')) {
+                driverSuggestionsListEl.classList.remove('open');
+            }
+            if (!e.target.closest('#securityDropdownWrapper')) {
+                secSuggestionsListEl.classList.remove('open');
+            }
+        });
+
+        function convertArabicNumeralsToDigits(str) {
+            const map = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' };
+            return str.replace(/[٠-٩]/g, match => map[match]);
+        }
 
         function isLikelyHeic(file) {
             const type = (file.type || '').toLowerCase();
@@ -2854,10 +2819,10 @@
                 let dateFormatted = fmtDate(driver.registered);
                 container.innerHTML += `
                     <div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${(driver.plate || '').toLowerCase()}">
-                        <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id.replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${driver.phone.replace(/'/g, "\\'")}', false)">✏️</button></div>
+                        <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${String(driver.id).replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${driver.phone.replace(/'/g, "\\'")}', false)">✏️</button></div>
                         <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">${tr('Verified')}</span><span class="tag-badge carrier">${tr('SLP')}</span></div></div></div>
                         <div class="driver-card-info-grid"><div class="info-block"><p>🆔 ${tr('Iqama/National ID')}</p><data>${driver.id}</data></div><div class="info-block"><p>📅 ${tr('Registered Date')}</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 ${tr('Mobile Number')}</p><data>${driver.phone}</data></div></div>
-                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${driver.id.replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${driver.phone.replace(/'/g, "\\'")}', false)">${tr('View Records')}</button>
+                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${String(driver.id).replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${driver.phone.replace(/'/g, "\\'")}', false)">${tr('View Records')}</button>
                     </div>`;
             });
         }
@@ -3169,12 +3134,12 @@
             e.preventDefault(); 
             
             const isNewDriverMode = document.getElementById('toggleNewDriverBtn').classList.contains('active');
-            if (isNewDriverMode && window.driversRegistryList) {
+            if (isNewDriverMode && driversRegistryList) {
                 const checkIqama = document.getElementById('iqamaNumber').value.trim().toLowerCase();
                 const checkPlate = document.getElementById('plateNumber').value.trim().replace(/\s+/g, '').toLowerCase();
 
-                let iqamaConflicted = driversRegistryList.some(d => d.id && d.id.trim().toLowerCase() === checkIqama && d.id !== 'N/A' && d.id !== '--');
-                let plateConflicted = driversRegistryList.some(d => d.plate && d.plate.trim().replace(/\s+/g, '').toLowerCase() === checkPlate && d.plate !== 'N/A' && d.plate !== '--');
+                let iqamaConflicted = driversRegistryList.some(d => d.id && String(d.id).trim().toLowerCase() === checkIqama && String(d.id) !== 'N/A' && String(d.id) !== '--');
+                let plateConflicted = driversRegistryList.some(d => d.plate && String(d.plate).trim().replace(/\s+/g, '').toLowerCase() === checkPlate && String(d.plate) !== 'N/A' && String(d.plate) !== '--');
 
                 if (iqamaConflicted || plateConflicted) {
                     if (currentLang === 'ar') {
@@ -3183,6 +3148,20 @@
                         alert("⚠️ Data Conflict: This Iqama Number or Truck Plate Number already exists inside the database.\n\nPlease switch to 'Existing Driver' mode.");
                     }
                     return; 
+                }
+            }
+
+            // --- DOUBLE CHECK DOCK OCCUPATION SECURITY GATEWAY ON SUBMIT ---
+            const dockVal = document.getElementById('dockNumber').value.trim().toUpperCase();
+            if (globalLogsCache) {
+                let dockOccupied = globalLogsCache.some(r => !r.checkOutTime && String(r.dockNumber).trim().toUpperCase() === dockVal);
+                if (dockOccupied) {
+                    if (currentLang === 'ar') {
+                        alert(`⚠️ عذراً: الرصيف رقم (${dockVal}) محجوز ومسجل به شاحنة بالداخل حالياً!`);
+                    } else {
+                        alert(`⚠️ Dock Occupied: Dock Number (${dockVal}) is already checked in with an active truck inside!`);
+                    }
+                    return;
                 }
             }
 
