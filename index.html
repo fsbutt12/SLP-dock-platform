@@ -1187,56 +1187,59 @@
             }
         }
 
-        // --- FIXED CASTING ENGINE: ROBUST LOOKUP SUPPORTS NUMBERS AND STRINGS ---
-        function runInstantConflictCheck(e) {
-            const isNewDriverMode = document.getElementById('toggleNewDriverBtn').classList.contains('active');
-            if (!isNewDriverMode || !driversRegistryList || driversRegistryList.length === 0) return;
+     // --- FIXED CASTING ENGINE: ROBUST LOOKUP SUPPORTS NUMBERS AND STRINGS ---
+function runInstantConflictCheck(e) {
+    const isNewDriverMode = document.getElementById('toggleNewDriverBtn').classList.contains('active');
+    if (!isNewDriverMode || !driversRegistryList || driversRegistryList.length === 0) return;
 
-            const targetField = e.target;
-            const val = targetField.value.trim().toLowerCase();
-            if (!val) return;
+    const targetField = e.target;
+    targetField.setCustomValidity(''); // Clear any previous error layouts
+    
+    const val = targetField.value.trim().toLowerCase();
+    if (!val) return;
 
-            if (targetField.id === 'iqamaNumber') {
-                let match = driversRegistryList.find(d => d.id && String(d.id).trim().toLowerCase() === val && String(d.id) !== 'N/A' && String(d.id) !== '--');
-                if (match) {
-                    if (currentLang === 'ar') {
-                        alert(`⚠️ عذراً: رقم الإقامة هذا (${targetField.value}) مسجل بالفعل في النظام!\n\nيرجى استخدام وضع 'سائق حالي' (Existing Driver).`);
-                    } else {
-                        alert(`⚠️ Duplicate Found: This Iqama Number (${targetField.value}) already exists inside the master driver database!\n\nPlease switch to 'Existing Driver' mode.`);
-                    }
-                }
-            }
-
-            if (targetField.id === 'plateNumber') {
-                const normalizedPlate = val.replace(/\s+/g, '').toLowerCase();
-                let match = driversRegistryList.find(d => d.plate && String(d.plate).trim().replace(/\s+/g, '').toLowerCase() === normalizedPlate && String(d.plate) !== 'N/A' && String(d.plate) !== '--');
-                if (match) {
-                    if (currentLang === 'ar') {
-                        alert(`⚠️ عذراً: رقم لوحة الشاحنة (${targetField.value}) مسجل بالفعل في النظام!\n\nيرجى استخدام وضع 'سائق حالي' (Existing Driver).`);
-                    } else {
-                        alert(`⚠️ Duplicate Found: This Truck Plate Number (${targetField.value}) already exists inside the master driver database!\n\nPlease switch to 'Existing Driver' mode.`);
-                    }
-                }
-            }
+    if (targetField.id === 'iqamaNumber') {
+        let match = driversRegistryList.find(d => d.id && String(d.id).trim().toLowerCase() === val && String(d.id) !== 'N/A' && String(d.id) !== '--');
+        if (match) {
+            const msg = currentLang === 'ar' ? 
+                `⚠️ عذراً: رقم الإقامة هذا (${targetField.value}) مسجل بالفعل في النظام! يرجى استخدام وضع 'سائق حالي'.` : 
+                `⚠️ Duplicate Found: This Iqama Number (${targetField.value}) already exists inside the master driver database!\n\nPlease switch to 'Existing Driver' mode.`;
+            targetField.setCustomValidity(msg);
+            targetField.reportValidity(); // Fire the native form popup bubble instantly
         }
+    }
 
-        // --- NEW REAL-TIME DOCK MONITORING VALVE ---
-        function checkDockOccupation() {
-            const dockField = document.getElementById('dockNumber');
-            const dockVal = dockField.value.trim().toUpperCase();
-            if (!dockVal || !globalLogsCache || globalLogsCache.length === 0) return;
-
-            // Detect if an active track row contains this target dock token space without checkOutTime
-            let match = globalLogsCache.find(r => !r.checkOutTime && String(r.dockNumber).trim().toUpperCase() === dockVal);
-            if (match) {
-                if (currentLang === 'ar') {
-                    alert(`⚠️ عذراً: الرصيف رقم (${dockVal}) محجوز ومسجل به شاحنة بالداخل حالياً!`);
-                } else {
-                    alert(`⚠️ Dock Occupied: Dock Number (${dockVal}) is already checked in with an active truck inside!`);
-                }
-                dockField.value = ''; // Safely clear parameter to protect warehouse space conflicts
-            }
+    if (targetField.id === 'plateNumber') {
+        const normalizedPlate = val.replace(/\s+/g, '').toLowerCase();
+        let match = driversRegistryList.find(d => d.plate && String(d.plate).trim().replace(/\s+/g, '').toLowerCase() === normalizedPlate && String(d.plate) !== 'N/A' && String(d.plate) !== '--');
+        if (match) {
+            const msg = currentLang === 'ar' ? 
+                `⚠️ عذراً: رقم لوحة الشاحنة (${targetField.value}) مسجل بالفعل في النظام! يرجى استخدام وضع 'سائق حالي'.` : 
+                `⚠️ Duplicate Found: This Truck Plate Number (${targetField.value}) already exists inside the master driver database!\n\nPlease switch to 'Existing Driver' mode.`;
+            targetField.setCustomValidity(msg);
+            targetField.reportValidity(); // Fire the native form popup bubble instantly
         }
+    }
+}
+
+// --- NEW REAL-TIME DOCK MONITORING VALVE ---
+function checkDockOccupation() {
+    const dockField = document.getElementById('dockNumber');
+    dockField.setCustomValidity(''); // Reset custom validation constraints
+    
+    const dockVal = dockField.value.trim().toUpperCase();
+    if (!dockVal || !globalLogsCache || globalLogsCache.length === 0) return;
+
+    let match = globalLogsCache.find(r => !r.checkOutTime && String(r.dockNumber).trim().toUpperCase() === dockVal);
+    if (match) {
+        const msg = currentLang === 'ar' ? 
+            `⚠️ عذراً: الرصيف رقم (${dockVal}) محجوز ومسجل به شاحنة بالداخل حالياً!` : 
+            `⚠️ Dock Occupied: Dock Number (${dockVal}) is already checked in with an active truck inside!`;
+        dockField.setCustomValidity(msg);
+        dockField.reportValidity(); // Display custom alert context natively on the target field
+        dockField.value = ''; // Clear parameter safely to shield active yard maps
+    }
+}
 
         function handlePurposeChange(selectEl) {
             const customInput = document.getElementById('directionCustom');
