@@ -51,6 +51,7 @@
         .auth-status { margin-top: 1.5rem; display: none; }
         .auth-status p { font-size: 0.75rem; color: var(--accent-color); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; }
         .auth-status p.pulsing { animation: authPulse 1.5s infinite; }
+        @media (max-width: 768px) { .auth-status p { font-size: 0.85rem; } }
         @keyframes authPulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
 
         /* Login Tabs */
@@ -381,7 +382,7 @@
         .camera-overlay.open { display: flex; }
         .camera-overlay video, .camera-overlay canvas { max-width: 100%; max-height: 65vh; border-radius: 8px; border: 2px solid var(--accent-color); }
         .camera-controls { display: flex; gap: 1rem; z-index: 100010; }
-        .camera-controls button { padding: 0.8rem 1.5rem; border-radius: 6px; border: none; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.8rem; }
+        .camera-controls button { padding: 0.8rem 1.5rem; border-radius: 6px; border: none; font-weight: 800; text-transform: uppercase; cursor: pointer; font-size: 0.8rem; min-width: 130px; }
         .btn-capture { background: var(--accent-color); color: #000; }
         .btn-cancel-cam { background: var(--danger-color); color: #fff; }
 
@@ -901,7 +902,7 @@
         </div>
     </div>
 
-    <!-- OPS ACCESS HISTORY MODAL -->
+    <!-- BOX ACCESS HISTORY MODAL -->
     <div class="modal-overlay" id="opsAccessHistoryModal">
         <div class="modal-window" style="max-width: 700px;">
             <div class="modal-header-container">
@@ -929,12 +930,12 @@
     <div class="camera-overlay" id="cameraOverlay">
         <div id="cameraFlash" class="camera-flash"></div>
         <div id="focusRing" class="focus-ring"></div>
-        <h3 id="cameraInstructionLabel" style="color:var(--accent-color); margin-bottom: 10px; z-index:100010;"></h3>
+        <h3 id="cameraInstructionLabel" style="color:var(--accent-color); margin-bottom: 10px; z-index:100010; text-align:center;"></h3>
         <video id="cameraVideo" autoplay playsinline muted></video>
         <canvas id="cameraCanvas" style="display:none;"></canvas>
         <div class="camera-controls">
             <button class="btn-capture" onclick="captureCameraFrame()">📸 <span data-i18n="Capture">Capture</span></button>
-            <button class="btn-cancel-cam" onclick="closeCamera()" data-i18n="Cancel">Cancel</button>
+            <button class="btn-cancel-cam" onclick="handleCameraCancel()" data-i18n="Cancel">Cancel</button>
         </div>
     </div>
 
@@ -966,6 +967,7 @@
         let loggedInUser = { name: "Guest User", email: "Not signed in", noonId: "", picture: "" };
         let userRole = 'guard'; // Default role is 'guard'. Admin unlocks special features.
         let isSidebarHidden = false; // Toggle tracker
+        let isConfirmingState = false; // Camera preview verification check state
 
         /* ---------------- TRANSLATIONS ---------------- */
         const translations = {
@@ -1021,7 +1023,6 @@
             "Uses": "استخدامات",
             "Truck Entry Form": "نموذج دخول الشاحنة",
             "Record arriving and departing vehicles": "تسجيل المركبات القادمة والمغادرة",
-            "Record arriving and departing vehicles": "تسجيل المركبات القادمة ومغادرة",
             "Driver Photo / Truck Photo": "صورة السائق / صورة الشاحنة",
             "Iqama (ID Card) Scanner": "ماسح الإقامة (بطاقة الهوية)",
             "Use Camera": "استخدام الكاميرا",
@@ -1323,7 +1324,6 @@
                 if(!nameInput || !emailInput) return alert("Please fill all fields to authorize access.");
                 if(!emailInput.toLowerCase().endsWith('noon.com')) return alert("Access Denied. Only valid noon.com accounts are permitted.");
                 
-                // If logs haven't fetched from Google Sheet yet, warn the user.
                 if (!window.hasFetchedLogs) {
                     alert("Connecting to server... Please wait a few seconds and try again.");
                     return;
@@ -1332,7 +1332,6 @@
                 let isApproved = false;
                 let isPending = false;
 
-                // Check access based on remote global system logs
                 (window.globalSystemLogs || []).forEach(log => {
                     if (log.noonId && log.noonId.toLowerCase() === emailInput.toLowerCase()) {
                         if (log.accepted) {
@@ -1364,7 +1363,6 @@
                         body: JSON.stringify(payload) 
                     }).catch(e => console.error("Access request transmission error", e));
                     
-                    // Optimistic update locally
                     if(!window.globalSystemLogs) window.globalSystemLogs = [];
                     window.globalSystemLogs.push({...payload, timestamp: new Date().toISOString()});
                     
@@ -1406,7 +1404,6 @@
                 if (!requestsMap[email]) {
                     requestsMap[email] = log;
                 } else {
-                    // Update to latest status
                     requestsMap[email] = log;
                 }
             });
@@ -1445,14 +1442,12 @@
                 drop.innerHTML = pendingHtml;
             }
             
-            // Add History Button to bottom
             drop.innerHTML += `<div style="padding:0.5rem; text-align:center; background:rgba(0,0,0,0.3); border-top:1px solid var(--border-color);"><button onclick="openOpsHistoryModal()" style="background:transparent; border:none; color:var(--accent-color); font-size:0.75rem; font-weight:bold; cursor:pointer; text-transform:uppercase;">View Access History</button></div>`;
         }
 
         function approveOpsRequest(name, email) {
             const payload = { action: "opsApprove", name: name, noonId: email };
             fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-            // Optimistic Update
             let log = window.globalSystemLogs.find(l => l.noonId === email);
             if(log) log.accepted = true;
             renderNotifications();
@@ -1461,7 +1456,6 @@
         function denyOpsRequest(name, email) {
             const payload = { action: "opsDeny", name: name, noonId: email };
             fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-            // Optimistic Update
             let log = window.globalSystemLogs.find(l => l.noonId === email);
             if(log) log.denied = true;
             renderNotifications();
@@ -1597,7 +1591,7 @@
         }
 
         function highlightActiveTruck(dockNum) {
-            if (userRole === 'ops') return; // Prevent Ops from clicking docks to switch views
+            if (userRole === 'ops') return; 
             switchView('active-trucks', document.getElementById('nav-active-trucks'));
 
             document.querySelectorAll('#activeYardTableBody tr').forEach(row => {
@@ -1632,7 +1626,6 @@
             let mobileCell = document.getElementById('modalDataMobileCell');
             const viewport = document.getElementById('modalMediaViewport');
 
-            // Fix image viewing size to prevent cropping
             viewport.style.backgroundSize = "contain";
             viewport.style.backgroundPosition = "center";
             viewport.style.backgroundRepeat = "no-repeat";
@@ -1653,23 +1646,19 @@
                 let segments = plate ? plate.split(' ') : ['--'];
                 segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
                 
-                // Show loading placeholder initially
                 viewport.style.backgroundImage = `none`;
                 viewport.innerHTML = `<div id="photoLoader" style="color:var(--accent-color); text-align:center; padding-top:80px; font-weight:bold;">Loading Photo...</div>`;
 
-                // Set up global callback to receive JSONP data
                 window.handlePhotoResponse = function(res) {
                     const loader = document.getElementById('photoLoader');
                     if(loader) loader.style.display = 'none';
                     if (res && res.image && res.image !== "") {
                         viewport.style.backgroundImage = `url("${res.image}")`;
                     } else {
-                        // Fallback image if no photo found in database
                         viewport.style.backgroundImage = `url('https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800')`;
                     }
                 };
 
-                // Fetch directly from the Google Sheet "Photos" database via JSONP
                 const old = document.getElementById('jsonp-photo-fetcher'); if(old) old.remove();
                 const s = document.createElement('script');
                 s.id = 'jsonp-photo-fetcher';
@@ -1687,7 +1676,6 @@
             document.getElementById('editOriginalName').value = name;
             document.getElementById('editName').value = name;
             document.getElementById('editIqama').value = iqama;
-            // Clear field if it was set to N/A so the user sees a blank input
             document.getElementById('editPhone').value = (phone === 'N/A' || phone === '--') ? '' : phone;
 
             let titleEl = document.getElementById('editModalTitle');
@@ -1727,11 +1715,9 @@
             const newName = document.getElementById('editName').value;
             const newIqama = document.getElementById('editIqama').value;
             const newPlate = document.getElementById('editPlate').value;
-            // Force N/A if left blank by user during an edit
             const newPhone = document.getElementById('editPhone').value.trim() || 'N/A';
             const recordType = document.getElementById('editRecordType').value;
 
-            // OVERRIDE ENGINE: Save this edit locally so it NEVER gets reverted by a server refresh
             let localOverrides = JSON.parse(localStorage.getItem('SLP_OVERRIDES')) || {};
             let originalKey = Object.keys(localOverrides).find(k => localOverrides[k].name === oldName && localOverrides[k].type === recordType) || oldName;
 
@@ -1744,24 +1730,21 @@
             };
             localStorage.setItem('SLP_OVERRIDES', JSON.stringify(localOverrides));
 
-            // Optional background push to sheet 
             fetch(API_URL, { 
                 method: 'POST', 
                 body: JSON.stringify({ action: "editDriver", recordType, oldName, driverName: newName, iqamaNumber: newIqama, plateNumber: newPlate, mobileNumber: newPhone, actionByEmail: loggedInUser.email }) 
             }).catch(e => console.log("Edit save queued."));
 
             closeEditDriverModal();
-            fetchLogs(); // Force immediate refresh to apply overrides
+            fetchLogs(); 
         }
 
         function deleteDriver() {
             const oldName = document.getElementById('editOriginalName').value;
             const recordType = document.getElementById('editRecordType').value;
-
             const confirmMsg = (recordType === 'guard') ? "Are you sure you want to delete this guard?" : "Are you sure you want to delete this driver?";
 
             if (confirm(tr(confirmMsg) || confirmMsg)) {
-                // OVERRIDE ENGINE: Save delete locally to prevent server reverting
                 let localDeletes = JSON.parse(localStorage.getItem('SLP_DELETES')) || [];
                 localDeletes.push({ name: oldName, type: recordType });
                 localStorage.setItem('SLP_DELETES', JSON.stringify(localDeletes));
@@ -1772,7 +1755,7 @@
                 }).catch(e => console.log("Delete save queued."));
 
                 closeEditDriverModal();
-                fetchLogs(); // Refresh immediately
+                fetchLogs(); 
             }
         }
 
@@ -1785,7 +1768,7 @@
                 document.getElementById('scanBoxIqama').style.display = 'none';
                 document.querySelector('.scanners-double-row').style.gridTemplateColumns = '1fr';
                 document.querySelectorAll('.new-driver-field').forEach(f => { f.style.display = "none"; f.querySelector('input').required = false; });
-                temporaryCapturedImage = null; // Clear image when switching to existing
+                temporaryCapturedImage = null; 
             } else {
                 document.getElementById('driverLookupGroup').style.display = "none";
                 document.getElementById('scanBoxDriver').style.display = 'block';
@@ -1859,7 +1842,7 @@
             if (value) {
                 matches = securityRegistryList.filter(g => g.name.toUpperCase().includes(value));
             }
-            matches = matches.slice(0, 20); // Prevent gigantic unscrollable lists
+            matches = matches.slice(0, 20); 
 
             if (matches.length === 0) { secSuggestionsListEl.classList.remove('open'); return; }
 
@@ -1887,7 +1870,6 @@
             renderSecuritySuggestions(this.value.toUpperCase().trim());
         });
 
-        // Global click listener to close custom dropdowns
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.search-input-wrapper')) {
                 driverSuggestionsListEl.classList.remove('open');
@@ -1928,10 +1910,9 @@
             });
         }
 
-        // Compress the image heavily for Google Sheets DB without gray scaling it
         async function compressImageForProfile(file) {
             const img = await loadImageRobust(file);
-            const maxDim = 350; // Compressed small enough to easily fit Google Sheets 50,000 char cell limit
+            const maxDim = 350; 
             let w = img.width, h = img.height;
             if (w > h) { if (w > maxDim) { h *= maxDim/w; w = maxDim; } }
             else { if (h > maxDim) { w *= maxDim/h; h = maxDim; } }
@@ -1946,9 +1927,6 @@
             const img = await loadImageRobust(file);
             let sx = 0, sy = 0, sw = img.width, sh = img.height;
             
-            // REMOVED AGGRESSIVE CROP. If they take a close photo, cropping 50% of the bottom ruins it.
-            // Let Google Vision handle the full image. We just compress it nicely.
-            
             const targetWidth = scanType === 'PLATE' ? 1100 : 1400;
             const scale = sw > targetWidth ? targetWidth / sw : 1; 
             const canvas = document.createElement('canvas');
@@ -1958,10 +1936,10 @@
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const d = imageData.data; const contrast = 50; const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
             for (let i = 0; i < d.length; i += 4) {
-                let gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-                gray = factor * (gray - 128) + 128;
-                gray = Math.min(255, Math.max(0, gray));
-                d[i] = d[i + 1] = d[i + 2] = gray;
+                let gay = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                gay = factor * (gay - 128) + 128;
+                gay = Math.min(255, Math.max(0, gay));
+                d[i] = d[i + 1] = d[i + 2] = gay;
             }
             ctx.putImageData(imageData, 0, 0);
             return new Promise((resolve, reject) => { canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('canvas toBlob failed')), 'image/jpeg', 0.85); });
@@ -1998,6 +1976,7 @@
             cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
             const overlay = document.getElementById('cameraOverlay'), video = document.getElementById('cameraVideo');
             overlay.classList.add('open');
+            isConfirmingState = false;
 
             document.getElementById('cameraInstructionLabel').innerText = getInstructionText(scanType);
 
@@ -2005,13 +1984,12 @@
                 cameraStream = await navigator.mediaDevices.getUserMedia({ 
                     video: { 
                         facingMode: 'environment', 
-                        width: { ideal: 1920 }, // High resolution for better OCR
+                        width: { ideal: 1920 }, 
                         height: { ideal: 1080 } 
                     } 
                 }); 
                 video.srcObject = cameraStream; 
 
-                // Attempt to apply continuous autofocus if the hardware supports it
                 try {
                     const track = cameraStream.getVideoTracks()[0];
                     const capabilities = track.getCapabilities();
@@ -2030,6 +2008,7 @@
             cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
             const overlay = document.getElementById('cameraOverlay'), video = document.getElementById('cameraVideo');
             overlay.classList.add('open');
+            isConfirmingState = false;
 
             document.getElementById('cameraInstructionLabel').innerText = getInstructionText(scanType);
 
@@ -2042,16 +2021,43 @@
         function closeCamera() {
             document.getElementById('cameraOverlay').classList.remove('open');
             if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+            isConfirmingState = false;
+            
+            // Restore capture controls defaults
+            document.querySelector('.btn-capture').innerHTML = `📸 <span data-i18n="Capture">Capture</span>`;
+            document.querySelector('.btn-cancel-cam').innerHTML = tr('Cancel');
+            document.querySelector('.btn-cancel-cam').removeAttribute('style');
+            
+            const video = document.getElementById('cameraVideo');
+            if(video && video.paused) video.play();
+            updateUIStrings();
         }
 
-        // Tap-to-Focus visual ring implementation
+        // Handle structural Cancel / Retake button behavior
+        function handleCameraCancel() {
+            if (isConfirmingState) {
+                // Treated as explicit Retake Action
+                isConfirmingState = false;
+                
+                const video = document.getElementById('cameraVideo');
+                if(video) video.play();
+                
+                document.getElementById('cameraInstructionLabel').innerText = getInstructionText(cameraTargetScanType);
+                document.querySelector('.btn-capture').innerHTML = `📸 <span data-i18n="Capture">Capture</span>`;
+                document.querySelector('.btn-cancel-cam').innerHTML = tr('Cancel');
+                document.querySelector('.btn-cancel-cam').removeAttribute('style');
+                updateUIStrings();
+            } else {
+                closeCamera();
+            }
+        }
+
         document.getElementById('cameraVideo').addEventListener('click', async (e) => {
             const ring = document.getElementById('focusRing');
             ring.style.left = e.clientX + 'px';
             ring.style.top = e.clientY + 'px';
             ring.style.display = 'block';
 
-            // Restart the animation for rapid tapping
             ring.style.animation = 'none';
             void ring.offsetWidth; 
             ring.style.animation = 'focusPulse 0.6s ease-out';
@@ -2061,7 +2067,6 @@
             if (cameraStream) {
                 const track = cameraStream.getVideoTracks()[0];
                 try {
-                    // Applying an advanced constraint forces many mobile browsers to re-evaluate hardware autofocus
                     await track.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
                 } catch(err) { console.log("Manual focus constraint failed"); }
             }
@@ -2070,6 +2075,34 @@
         function captureCameraFrame() {
             const video = document.getElementById('cameraVideo');
             const canvas = document.getElementById('cameraCanvas');
+
+            if (isConfirmingState) {
+                // If Done/Proceed state is clicked, execute layout chaining logic
+                isConfirmingState = false;
+                
+                document.querySelector('.btn-capture').innerHTML = `📸 <span data-i18n="Capture">Capture</span>`;
+                document.querySelector('.btn-cancel-cam').innerHTML = tr('Cancel');
+                document.querySelector('.btn-cancel-cam').removeAttribute('style');
+
+                if (video && video.paused) video.play();
+
+                if (cameraTargetScanType === 'PLATE') {
+                    cameraTargetStatusId = 'iqamaStatus';
+                    cameraTargetScanType = 'IQAMA';
+                    document.getElementById('cameraInstructionLabel').innerText = getInstructionText('IQAMA');
+                    updateUIStrings();
+                } else if (cameraTargetScanType === 'truck') {
+                    cameraTargetStatusId = 'checkoutItemStatus';
+                    cameraTargetScanType = 'item';
+                    document.getElementById('cameraInstructionLabel').innerText = getInstructionText('item');
+                    updateUIStrings();
+                } else {
+                    closeCamera();
+                }
+                return;
+            }
+
+            // Normal Frame Capture Mode
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
 
@@ -2086,26 +2119,29 @@
             }, 'image/jpeg', 0.85);
 
             triggerCameraFlash();
+            video.pause(); // Freeze stream to display preview capture
 
-            // CHAINING LOGIC FOR CAMERA
-            if (currentScanType === 'PLATE') {
-                cameraTargetStatusId = 'iqamaStatus';
-                cameraTargetScanType = 'IQAMA';
-                document.getElementById('cameraInstructionLabel').innerText = getInstructionText('IQAMA');
-            } else if (currentScanType === 'truck') {
-                cameraTargetStatusId = 'checkoutItemStatus';
-                cameraTargetScanType = 'item';
-                document.getElementById('cameraInstructionLabel').innerText = getInstructionText('item');
+            // Morph into verification overlay layout
+            isConfirmingState = true;
+            
+            if (currentLang === 'ar') {
+                document.getElementById('cameraInstructionLabel').innerHTML = `✅ تم الالتقاط بنجاح!<br><span style="font-size:0.85rem; color:#fff;">تحقق من الحقول الخلفية أو اضغط أدناه للمتابعة</span>`;
+                document.querySelector('.btn-capture').innerHTML = `👍 موافقة / التالي ✅`;
+                document.querySelector('.btn-cancel-cam').innerHTML = `🔄 إعادة المحاولة`;
             } else {
-                closeCamera();
+                document.getElementById('cameraInstructionLabel').innerHTML = `✅ Snap Completed!<br><span style="font-size:0.85rem; color:#fff;">Verify behind fields or click below to proceed.</span>`;
+                document.querySelector('.btn-capture').innerHTML = `👍 Proceed / Next ✅`;
+                document.querySelector('.btn-cancel-cam').innerHTML = `🔄 Retake`;
             }
+            document.querySelector('.btn-cancel-cam').style.backgroundColor = 'var(--text-muted)';
+            document.querySelector('.btn-cancel-cam').style.color = '#000';
         }
 
         async function handleCheckoutPhoto(inputEl, statusLabelId, scanType) {
             const file = inputEl.files[0];
             if (!file) return; 
             const status = document.getElementById(statusLabelId);
-            status.innerHTML = "🌀 Processing..."; status.style.color = "var(--accent-color)";
+            status.innerHTML = "Base processing..."; status.style.color = "var(--accent-color)";
             
             try {
                 const profileBlob = await compressImageForProfile(file);
@@ -2127,18 +2163,12 @@
             const file = inputEl.files[0];
             if (!file) return; 
 
-            // Push to background process immediately
             runLocalOcrEngine(file, statusLabelId, scanType);
-
-            // Clear the value so they can select the same file again if they cancel the next step
             inputEl.value = '';
 
-            // CHAINING LOGIC FOR FILE PICKER
             setTimeout(() => {
                 if (scanType === 'PLATE') {
                     document.getElementById('iqamaScanner').click();
-                } else if (scanType === 'IQAMA') {
-                    // document.getElementById('officerScanner').click(); // REMOVED PER USER REQUEST
                 }
             }, 300);
         }
@@ -2147,7 +2177,6 @@
             const status = document.getElementById(statusLabelId);
             status.innerHTML = "🌀 " + tr("Preparing image..."); status.style.color = "var(--accent-color)";
             try {
-                // CAPTURE IMAGE FOR MODAL (Color, Compressed)
                 if (statusLabelId === 'driverPhotoStatus' || (!temporaryCapturedImage && statusLabelId === 'iqamaStatus')) {
                     try {
                         const profileBlob = await compressImageForProfile(file);
@@ -2156,7 +2185,6 @@
                     } catch(e) { console.warn("Could not compress profile photo", e); }
                 }
 
-                // PROCESS FOR OCR (Grayscale, High Contrast)
                 const processedBlob = await preprocessImageForOcr(file, scanType);
                 const base64Data = await blobToBase64(processedBlob);
 
@@ -2176,15 +2204,10 @@
 
                     let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
                     let nameMatch = lines.find(line => {
-                        // Check for English Name (Iqama)
                         let isEnglishName = /^[A-Z][A-Z\s.']{7,45}$/.test(line) && !/KINGDOM|SAUDI|ARABIA|MINISTRY|INTERIOR|RESIDENCE|PERMIT|IDENTITY|NATIONALITY|GENDER|EXPIRY|BIRTH|OCCUPATION|EMPLOYER|RELIGION/.test(line);
-
-                        // Check for Arabic Name (Saudi National ID)
                         let isArabicName = /^[\u0600-\u06FF\s]{10,60}$/.test(line) && !/المملكة|العربية|السعودية|وزارة|الداخلية|بطاقة|الهوية|الوطنية|الرقم|تاريخ|الانتهاء|مكان|الميلاد|جهة|الإصدار|نسخة|تاريخه|الحفظ/.test(line);
-
                         if (idNum.startsWith('1')) return isArabicName;
                         if (idNum.startsWith('2')) return isEnglishName;
-
                         return isEnglishName || isArabicName;
                     });
 
@@ -2193,10 +2216,8 @@
                 else if (scanType === "PLATE") {
                     let finalDigits = null;
                     let finalLetters = null;
-
                     let lines = cleanText.split('\n');
 
-                    // 1. Try to find digits and letters on the same line (prioritizing the bottom/last ones)
                     for (let i = lines.length - 1; i >= 0; i--) {
                         let line = lines[i];
                         let dMatch = line.match(/\b\d{3,4}\b/);
@@ -2218,7 +2239,6 @@
                         }
                     }
 
-                    // 2. Fallback: If not on the same line, just take the bottom-most (last) matches in the whole text
                     if (!finalDigits || !finalLetters) {
                         let allDMatches = cleanText.match(/\b\d{3,4}\b/g);
                         let allLMatches = cleanText.match(/\b[A-Z]{3}\b/g);
@@ -2245,7 +2265,6 @@
                     let foundId = badgeMatch ? badgeMatch[0] : "";
                     let lines = cleanText.split('\n').map(l => l.trim()).filter(Boolean);
 
-                    // Specific fix: Ignore repeating artifacts like WWWWWW, NNNN, AAAAA
                     let nameMatch = lines.find(line => 
                         /^[A-Z][A-Z\s.']{2,25}$/i.test(line) && 
                         !/LP|ASSOCIATE|EVERY|DOORBELL|DAY|AL\s+ABEER|SAUDI|SECURITY|GATEWAY/i.test(line) &&
@@ -2287,7 +2306,6 @@
                 document.getElementById('checkoutSealContainer').style.display = 'block';
             }
             
-            // Reset photo states
             tempCheckoutTruckPhoto = null;
             tempCheckoutItemPhoto = null;
             document.getElementById('checkoutTruckStatus').innerText = "Truck Picture (with plate) *";
@@ -2319,12 +2337,11 @@
             btn.innerText = tr("Processing..."); btn.disabled = true;
 
             try {
-                // Send check out payload.
                 const payload = { 
                     action: "checkout",
                     driverName, 
                     plateNumber, 
-                    sealNumber: sealVal, // Will be empty for Receiving, preserving DB value 
+                    sealNumber: sealVal, 
                     truckPhoto: tempCheckoutTruckPhoto,
                     itemPhoto: tempCheckoutItemPhoto 
                 };
@@ -2332,11 +2349,10 @@
                 fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
                     .catch(e => console.error("Background save issue:", e));
 
-                // Optimistic UI update: Find the active truck and set checkOutTime
                 let activeLog = globalLogsCache.find(r => r.driverName === driverName && r.plateNumber === plateNumber && !r.checkOutTime);
                 if (activeLog) {
                     activeLog.checkOutTime = new Date().toISOString();
-                    if(!isReceiving) activeLog.sealNumber = sealVal; // Only overwrite optimistically if dispatching
+                    if(!isReceiving) activeLog.sealNumber = sealVal; 
                     activeLog.truckPhoto = tempCheckoutTruckPhoto;
                     activeLog.itemPhoto = tempCheckoutItemPhoto;
                 }
@@ -2424,17 +2440,17 @@
                 return refDate >= d; 
             }
             if (range === 'custom') {
-                if (!fromStr && !toStr) return true; // Show all if calendar is empty
+                if (!fromStr && !toStr) return true; 
                 
                 let isValid = true;
                 if (fromStr) {
                     const from = new Date(fromStr);
-                    from.setHours(0,0,0,0); // Start of selected day
+                    from.setHours(0,0,0,0); 
                     isValid = isValid && (refDate >= from);
                 }
                 if (toStr) {
                     const to = new Date(toStr);
-                    to.setHours(23,59,59,999); // End of selected day
+                    to.setHours(23,59,59,999); 
                     isValid = isValid && (refDate <= to);
                 }
                 return isValid;
@@ -2453,12 +2469,10 @@
 
             let filtered = globalHistoryListCache.filter(r => {
                 const checkInMatch = isDateInRange(r.checkInTime, range, now, fromStr, toStr);
-                // In new structure, check out time exists if they checked out.
                 const checkOutMatch = r.checkOutTime ? isDateInRange(r.checkOutTime, range, now, fromStr, toStr) : false;
 
                 if (timeFilter === 'in') return checkInMatch;
                 if (timeFilter === 'out') return checkOutMatch;
-                // Both: Valid if either the check-in OR check-out fell in the range
                 return checkInMatch || checkOutMatch;
             });
 
@@ -2471,10 +2485,9 @@
                 );
             }
             updateAnalyticsHub(filtered, range);
-            renderAnalyticsTable(filtered); // Renders the accordion!
+            renderAnalyticsTable(filtered); 
         }
 
-        // ACCORDION ANALYTICS TABLE FUNCTION (Restored)
         function renderAnalyticsTable(list) {
             const container = document.getElementById('analyticsGroupedTables');
             if(!container) return;
@@ -2551,7 +2564,6 @@
             applyAnalyticsFilters();
         }
 
-        // Horizontal Bar Chart
         function buildBarChart(dataObj, containerId, emptyLabel = "No Data") {
             let containerEl = document.getElementById(containerId);
             if (!containerEl) return;
@@ -2579,7 +2591,6 @@
             containerEl.innerHTML = html;
         }
 
-        // Vertical Column Chart
         function buildVerticalBarChart(dataObj, containerId, emptyLabel = "No Data") {
             let containerEl = document.getElementById(containerId);
             if (!containerEl) return;
@@ -2590,7 +2601,6 @@
             const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
             let max = Math.max(...dataObj.map(item => item.count));
 
-            // Adjusted height, padding, and borders
             let html = `<div style="display:flex; align-items:flex-end; justify-content:space-around; height:180px; padding-bottom:30px; border-bottom:2px solid rgba(255,255,255,0.05); border-left:2px solid rgba(255,255,255,0.05); position:relative; margin-top:1rem; padding-left: 10px;">`;
 
             dataObj.slice(0, 5).forEach((item, index) => {
@@ -2607,7 +2617,6 @@
             containerEl.innerHTML = html;
         }
 
-        // Line Chart (SVG)
         function buildLineChart(dataObj, containerId, emptyLabel = "No Data") {
             let containerEl = document.getElementById(containerId);
             if (!containerEl) return;
@@ -2616,7 +2625,6 @@
                 return;
             }
 
-            // Limit to 10 points to prevent overlapping
             let chartData = [...dataObj.slice(-10)];
             let max = Math.max(...chartData.map(item => item.count));
             if(max === 0) max = 1;
@@ -2630,16 +2638,13 @@
             }).join(' ');
 
             html += `<svg viewBox="0 0 1000 180" style="width:100%; height:100%; overflow:visible;">
-                    <!-- Grid line -->
                     <line x1="0" y1="150" x2="1000" y2="150" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
-                    <!-- Path -->
                     <polyline fill="none" stroke="var(--accent-color)" stroke-width="4" points="${svgPoints}" />`;
 
             chartData.forEach((item, i) => {
                 let x = chartData.length > 1 ? (i / (chartData.length - 1)) * 900 + 50 : 500;
                 let y = 140 - ((item.count / max) * 90);
                 html += `<circle cx="${x}" cy="${y}" r="8" fill="var(--card-bg)" stroke="var(--accent-color)" stroke-width="4" />`;
-
                 html += `<text x="${x}" y="${y - 20}" fill="#fff" font-size="22" font-weight="bold" text-anchor="middle">${item.count}</text>`;
                 html += `<text x="${x}" y="175" fill="var(--text-muted)" font-size="16" font-weight="bold" text-anchor="middle" letter-spacing="1">${tr(item.label)}</text>`;
             });
@@ -2648,7 +2653,6 @@
             containerEl.innerHTML = html;
         }
 
-        // Donut Chart
         function buildDonutChart(dataObj, donutId, legendId, emptyLabel = "No Data") {
             let total = dataObj.reduce((sum, item) => sum + item.count, 0);
             const colors = ['var(--accent-color)', 'var(--success-color)', '#79c0ff', '#a371f7', '#f85149'];
@@ -2705,7 +2709,6 @@
                     growthMap[dateLabel].count++;
                 }
             });
-            // Line Chart (Chronological order)
             let growthData = Object.keys(growthMap).map(k => ({ label: k, count: growthMap[k].count, ts: growthMap[k].ts })).sort((a,b) => a.ts - b.ts);
             buildLineChart(growthData, 'chartGrowthLine', 'No Data'); 
 
@@ -2714,7 +2717,6 @@
                 let dir = (log.direction || "Unknown").split(' - ')[0].trim().toUpperCase();
                 cohortMap[dir] = (cohortMap[dir] || 0) + 1;
             });
-            // Horizontal Bar Chart
             let cohortData = Object.keys(cohortMap).map(k => ({ label: k, count: cohortMap[k], suffix: 'Logs' })).sort((a,b) => b.count - a.count);
             buildBarChart(cohortData, 'chartCohortsBars', 'No Data'); 
 
@@ -2729,7 +2731,6 @@
                     hourMap[hourLabel].count++;
                 }
             });
-            // Vertical Column Chart (Chronological sort)
             let hourData = Object.keys(hourMap).map(k => ({ label: k, count: hourMap[k].count, rawHr: hourMap[k].rawHr })).sort((a,b) => a.rawHr - b.rawHr);
             buildVerticalBarChart(hourData, 'chartHoursColumns', 'No Data'); 
 
@@ -2738,7 +2739,6 @@
                 let dock = log.dockNumber;
                 if(dock) dockMap[dock] = (dockMap[dock] || 0) + 1;
             });
-            // Donut Chart
             let dockData = Object.keys(dockMap).map(k => ({ label: k, count: dockMap[k], suffix: 'Uses' })).sort((a,b) => b.count - a.count);
             buildDonutChart(dockData, 'chartDocksDonut', 'chartDocksLegend', 'No Data');
         }
@@ -2761,7 +2761,6 @@
 
             data.forEach(item => {
                 if(!item.driverName || item.driverName.trim() === "") return;
-                // If this driver was deleted locally, skip rendering them
                 if (deletes.some(d => d.type === 'driver' && d.name === item.driverName)) return; 
 
                 if(!uniqueDriversMap[item.driverName]) {
@@ -2810,7 +2809,6 @@
             let uniqueMap = {};
             data.forEach(item => {
                 if (!item.securityName || item.securityName.trim() === "" || item.securityName === "Unknown") return;
-                // If this guard was deleted locally, skip rendering them
                 if (deletes.some(d => d.type === 'guard' && d.name === item.securityName)) return; 
 
                 if (!uniqueMap[item.securityName]) {
@@ -2818,7 +2816,7 @@
                         name: item.securityName,
                         id: item.securityId || "N/A",
                         registered: item.checkInTime || item.timestamp,
-                        phone: "N/A" // Force "N/A" so it does not pull from the mobile string used for drivers
+                        phone: "N/A" 
                     };
                 } else {
                     if (item.securityId && item.securityId !== "N/A" && item.securityId !== "--") {
@@ -2976,15 +2974,12 @@
         /* ---------------- PAIRING ENGINE (BULLETPROOF UPDATES) ---------------- */
         window.handleLogsResponse = function(responsePayload) {
             window.hasFetchedLogs = true;
-            // New backend format returns { logs: [], ops: [] }
             let rawLogs = responsePayload.logs || [];
             window.globalSystemLogs = responsePayload.ops || [];
 
-            // --- 1. APPLY PERSISTENT LOCAL OVERRIDES ---
             let overrides = JSON.parse(localStorage.getItem('SLP_OVERRIDES')) || {};
             let processedData = rawLogs.map(row => {
 
-                // Driver Overrides
                 let dOrig = Object.keys(overrides).find(k => (k === row.driverName || overrides[k].name === row.driverName) && overrides[k].type === 'driver');
                 if (dOrig) {
                     row.driverName = overrides[dOrig].name;
@@ -2993,7 +2988,6 @@
                     row.mobileNumber = overrides[dOrig].phone;
                 }
 
-                // Guard Overrides
                 let gOrig = Object.keys(overrides).find(k => (k === row.securityName || overrides[k].name === row.securityName) && overrides[k].type === 'guard');
                 if (gOrig) {
                     row.securityName = overrides[gOrig].name;
@@ -3003,9 +2997,8 @@
                 return row;
             });
 
-            // Single Row Architecture! No more pairing Outbound rows.
             let chronData = processedData.sort((a,b) => new Date(a.checkInTime || a.timestamp) - new Date(b.checkInTime || b.timestamp)); 
-            globalHistoryListCache = chronData.slice().reverse(); // History is sorted newest first
+            globalHistoryListCache = chronData.slice().reverse(); 
             globalLogsCache = chronData;
 
             const activeBody = document.getElementById('activeYardTableBody');
@@ -3026,7 +3019,6 @@
             const completedTodayCount = chronData.filter(r => r.checkOutTime && new Date(r.checkOutTime).toDateString() === todayStr).length;
             document.getElementById('metric-completed-today').innerText = completedTodayCount;
 
-            // Extract Active Docks
             const occupiedDocksContainer = document.getElementById('occupiedDocksContainer');
             const occupiedDocksCount = document.getElementById('occupiedDocksCount');
             if (occupiedDocksContainer) {
@@ -3037,14 +3029,12 @@
 
                 if(occupiedDocksCount) occupiedDocksCount.innerText = `${activeDocksSet.size} ${tr('Docks In Use')}`;
 
-                // Build list of all docks to show (15 to 90, plus any outliers)
                 let allDocksToRender = new Set();
                 for (let i = 15; i <= 90; i++) {
                     allDocksToRender.add(String(i));
                 }
                 activeDocksRaw.forEach(d => allDocksToRender.add(d));
 
-                // Sort numerically
                 let sortedDocks = [...allDocksToRender].sort((a,b) => {
                     let numA = parseInt(a.replace(/\D/g, '')) || 0;
                     let numB = parseInt(b.replace(/\D/g, '')) || 0;
@@ -3099,11 +3089,10 @@
                 }
             }
 
-            applyHistoryFilters(); // Applies both date and search text filters
-            applyAnalyticsFilters(); // Initialize Analytics Charts
-            populateDatalists(globalHistoryListCache); // Dynamically update input dropdowns!
+            applyHistoryFilters(); 
+            applyAnalyticsFilters(); 
+            populateDatalists(globalHistoryListCache); 
             
-            // If admin, update the notification bell
             if(userRole === 'admin') renderNotifications();
         };
 
@@ -3128,23 +3117,19 @@
                     securityId: document.getElementById('securityNameId').value,
                     actionByEmail: loggedInUser.email,
                     actionByName: loggedInUser.name,
-                    driverPhoto: temporaryCapturedImage || "" // Send compressed photo payload!
+                    driverPhoto: temporaryCapturedImage || "" 
                 };
 
-                // Fire post request in background
                 fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
                     .catch(e => console.error("Background save issue:", e));
 
-                // Optimistic UI Update instantly
                 globalLogsCache.push({
                     ...payload,
                     checkInTime: new Date().toISOString()
                 });
                 
-                // Construct fake response format
                 window.handleLogsResponse({ logs: globalLogsCache, ops: window.globalSystemLogs });
 
-                // Reset the form but KEEP the guard details intact!
                 document.getElementById('entryForm').reset(); 
                 document.getElementById('securityNameField').value = loggedInUser.name;
                 document.getElementById('securityNameId').value = loggedInUser.noonId || '';
@@ -3153,10 +3138,9 @@
                 btn.innerText = tr("Check In Truck"); btn.disabled = false;
                 document.getElementById('sealNumberContainer').style.display = 'none'; document.getElementById('sealNumber').required = false;
 
-                // Switch exactly to Active Trucks Instead of Dashboard
                 switchView('active-trucks', document.getElementById('nav-active-trucks')); 
 
-                setTimeout(fetchLogs, 3500); // Verify background fetch worked
+                setTimeout(fetchLogs, 3500); 
             } catch (err) {
                 alert("Error saving log: " + err.message);
                 btn.innerText = tr("Check In Truck"); btn.disabled = false;
@@ -3183,7 +3167,6 @@
         }, {passive: true});
 
         function handleGesture(event) {
-            // Ignore swipe if the user is scrolling inside a table or a dropdown
             if (event.target.closest('table') || event.target.closest('.suggestions-dropdown')) {
                 return; 
             }
@@ -3192,21 +3175,20 @@
             const verticalThreshold = 50; 
 
             if (Math.abs(touchendY - touchstartY) > verticalThreshold) {
-                return; // Ignore vertical scrolling
+                return; 
             }
 
             if (touchendX < touchstartX - horizontalThreshold) {
-                swipeNext(); // Swipe Left -> Next Tab
+                swipeNext(); 
             }
 
             if (touchendX > touchstartX + horizontalThreshold) {
-                swipePrev(); // Swipe Right -> Prev Tab
+                swipePrev(); 
             }
         }
 
         function getAvailableViews() {
             let availableViews = [];
-            // Target only items inside the nav-links container to ignore footer buttons
             document.querySelectorAll('.nav-links .nav-item').forEach(item => {
                 if (window.getComputedStyle(item).display !== 'none' && item.id) {
                     availableViews.push(item.id.replace('nav-', ''));
@@ -3241,7 +3223,7 @@
             }
         }
 
-        fetchLogs(); // Run immediately on load so tablet has system logs ready!
+        fetchLogs(); 
         setInterval(fetchLogs, 15000);
         setInterval(checkSessionExpiry, 60000); 
     </script>
