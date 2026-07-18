@@ -2297,27 +2297,27 @@ function captureCameraFrame() {
     triggerCameraFlash();
     video.pause(); 
     isConfirmingState = true;
-    
-    if (currentLang === 'ar') {
-        document.getElementById('cameraInstructionLabel').innerHTML = `✅ تم الالتقاط بنجاح!<br><span style="font-size:0.85rem; color:#fff;">تحقق من الحقول الخلفية أو اضغط أدناه للمتابعة</span>`;
-        document.querySelector('.btn-capture').innerHTML = `👍 موافقة / التالي ✅`;
-        document.querySelector('.btn-cancel-cam').innerHTML = `🔄 إعادة المحاولة`;
-    } else {
-        document.getElementById('cameraInstructionLabel').innerHTML = `✅ Snap Completed!<br><span style="font-size:0.85rem; color:#fff;">Verify behind fields or click below to proceed.</span>`;
-        document.querySelector('.btn-capture').innerHTML = `👍 Proceed / Next ✅`;
-        document.querySelector('.btn-cancel-cam').innerHTML = `🔄 Retake`;
+ if (currentLang === 'ar') {
+    document.getElementById('cameraInstructionLabel').innerHTML = `✅ تم الالتقاط بنجاح<br><span style="font-size:0.85rem; color:#fff;">تحقق من الحقول التلقائية أو اضغط أدناه للمتابعة</span>`;
+    document.querySelector('.btn-capture').innerHTML = `👍 موافقة / التالي  ✅`;
+    document.querySelector('.btn-cancel-cam').innerHTML = `🔄 إعادة المحاولة`;
+} else {
+    document.getElementById('cameraInstructionLabel').innerHTML = `✅ Snap Completed!<br><span style="font-size:0.85rem; color:#fff;">Verify behind fields or click below to proceed.</span>`;
+    document.querySelector('.btn-capture').innerHTML = `👍 Proceed / Next  ✅`;
+    document.querySelector('.btn-cancel-cam').innerHTML = `🔄 Retake`;
 }
+
 document.querySelector('.btn-cancel-cam').style.backgroundColor = 'var(--text-muted)';
 document.querySelector('.btn-cancel-cam').style.color = '#000';
-}
+
 function handleFileSelected(inputEl, statusLabelId, scanType) {
     const file = inputEl.files[0];
-            if (!file) return; 
+    if (!file) return;
 
-            runLocalOcrEngine(file, statusLabelId, scanType);
-            inputEl.value = '';
+   runLocalOcrEngine(file, statusLabelId, scanType);
+    inputEl.value = '';
 
-           setTimeout(() => {
+    setTimeout(() => {
     if (scanType === 'PLATE') {
         const isReceiving = document.getElementById('dispatchSelect').value === 'Receiving';
         if (isReceiving) {
@@ -2329,6 +2329,7 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
         document.getElementById('iqamaScanner').click();
     }
 }, 300);
+}
 
         async function runLocalOcrEngine(file, statusLabelId, scanType) {
             const status = document.getElementById(statusLabelId);
