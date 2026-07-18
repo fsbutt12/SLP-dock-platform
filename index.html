@@ -2210,13 +2210,6 @@ function captureCameraFrame() {
     document.querySelector('.btn-cancel-cam').style.backgroundColor = 'var(--text-muted)';
     document.querySelector('.btn-cancel-cam').style.color = '#000';
 }
-                status.innerHTML = "✅ Photo Attached"; status.style.color = "var(--success-color)";
-            } catch(e) { 
-                status.innerHTML = "❌ Error attaching photo"; status.style.color = "var(--danger-color)"; 
-            }
-            if(inputEl.value) inputEl.value = '';
-        }
-
         function handleFileSelected(inputEl, statusLabelId, scanType) {
             const file = inputEl.files[0];
             if (!file) return; 
