@@ -2275,28 +2275,30 @@ function captureCameraFrame() {
         return;
     }
 
-    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
+   if (typeof video !== 'undefined' && video) {
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
 
-    const currentStatusId = cameraTargetStatusId;
-    const currentScanType = cameraTargetScanType;
+        const currentStatusId = cameraTargetStatusId;
+        const currentScanType = cameraTargetScanType;
 
-    canvas.toBlob(blob => {
-        let reader = new FileReader(); reader.readAsDataURL(blob);
-        reader.onloadend = () => {
-            if (currentScanType === 'truck' || currentScanType === 'item') {
-                handleCheckoutPhoto({files: [blob]}, currentStatusId, currentScanType);
-            } else {
-                if (currentScanType === 'ITEM_PHOTO') temporaryCapturedItemImage = reader.result;
-                else temporaryCapturedImage = reader.result;
-                runLocalOcrEngine(blob, currentStatusId, currentScanType);
-            }
-        };
-    }, 'image/jpeg', 0.85);
+        canvas.toBlob(blob => {
+            let reader = new FileReader(); reader.readAsDataURL(blob);
+            reader.onloadend = () => {
+                if (currentScanType === 'truck' || currentScanType === 'item') {
+                    handleCheckoutPhoto({files: [blob]}, currentStatusId, currentScanType);
+                } else {
+                    if (currentScanType === 'ITEM_PHOTO') temporaryCapturedItemImage = reader.result;
+                    else temporaryCapturedImage = reader.result;
+                    runLocalOcrEngine(blob, currentStatusId, currentScanType);
+                }
+            };
+   }, 'image/jpeg', 0.85);
 
-    triggerCameraFlash();
-    video.pause(); 
-    isConfirmingState = true;
+        triggerCameraFlash();
+        if (typeof video !== 'undefined' && video.pause) video.pause();
+        isConfirmingState = true;
+    }
  if (currentLang === 'ar') {
     document.getElementById('cameraInstructionLabel').innerHTML = `✅ تم الالتقاط بنجاح<br><span style="font-size:0.85rem; color:#fff;">تحقق من الحقول التلقائية أو اضغط أدناه للمتابعة</span>`;
     document.querySelector('.btn-capture').innerHTML = `👍 موافقة / التالي  ✅`;
@@ -2329,7 +2331,6 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
         document.getElementById('iqamaScanner').click();
     }
 }, 300);
-}
 
         async function runLocalOcrEngine(file, statusLabelId, scanType) {
             const status = document.getElementById(statusLabelId);
