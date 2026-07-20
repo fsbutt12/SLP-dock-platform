@@ -427,15 +427,15 @@
         <span style="color:var(--accent-color); font-size:1.2rem;">☰</span> <span data-i18n="Menu">Menu</span>
     </button>
 
-   <!-- ADMIN NOTIFICATION BELL -->
-<div id="adminBellContainer" class="admin-bell-container">
-    <div class="admin-bell-icon" onclick="toggleNotifications()">
-        🔔<span id="adminBellBadge" class="admin-bell-badge">0</span>
+    <!-- ADMIN NOTIFICATION BELL -->
+    <div id="adminBellContainer" class="admin-bell-container">
+        <div class="admin-bell-icon" onclick="toggleNotifications()">
+            🔔<span id="adminBellBadge" class="admin-bell-badge">0</span>
+        </div>
+        <div id="adminNotifDropdown" class="suggestions-dropdown admin-notif-dropdown">
+            <!-- Notifications will render here -->
+        </div>
     </div>
-    <div id="adminNotifDropdown" class="suggestions-dropdown admin-notif-dropdown">
-        <!-- Notifications will render here -->
-    </div>
-</div>
 
     <!-- CUSTOM INTRO SCREEN OVERLAY -->
     <div id="introOverlay" class="intro-overlay">
@@ -575,18 +575,6 @@
                     <div id="occupiedDocksContainer" class="docks-grid-container">
                         <div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); font-size:0.8rem; margin-top:2rem;" data-i18n="All docks are currently clear.">All docks are currently clear.</div>
                     </div>
-                </div>
-            </div>
-            <!-- OPERATIONS ACCESS REQUESTS CARD -->
-            <div class="card" id="opsApprovalsCard" style="display: none; margin-bottom: 2rem;">
-                <div class="card-header-flex">
-                    <h2>🔔 <span data-i18n="Operations Access Requests">Operations Access Requests</span></h2>
-                    <button onclick="openOpsHistoryModal()" class="btn-mini" style="color: var(--accent-color); border-color: var(--accent-color);">
-                        📜 ACCESS HISTORY
-                    </button>
-                </div>
-                <div id="dashboardOpsApprovalsContent" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <!-- Pending requests will render here -->
                 </div>
             </div>
         </div>
@@ -1643,6 +1631,114 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
             location.reload();
         };
 
+        function checkAdminNotifications() {
+            if (userRole !== 'admin') {
+                document.getElementById('adminBellContainer').style.display = 'none';
+                return;
+            }
+            document.getElementById('adminBellContainer').style.display = 'block';
+            renderNotifications();
+        }
+
+        function toggleNotifications() {
+            const drop = document.getElementById('adminNotifDropdown');
+            drop.classList.toggle('open');
+            if (drop.classList.contains('open')) {
+                renderNotifications();
+            }
+        }
+
+        function renderNotifications() {
+            if (userRole !== 'admin') return;
+            let requestsMap = {}; 
+            
+            (window.globalSystemLogs || []).forEach(log => {
+                let email = log.noonId;
+                if (!requestsMap[email]) {
+                    requestsMap[email] = log;
+                } else {
+                    requestsMap[email] = log;
+                }
+            });
+
+            let pendingHtml = '';
+            let pendingCount = 0;
+            
+            for (let email in requestsMap) {
+                if (!requestsMap[email].accepted && !requestsMap[email].denied) {
+                    pendingCount++;
+                    pendingHtml += `
+                    <div style="padding:0.75rem; border-bottom:1px solid var(--border-color); font-size:0.8rem;">
+                        <strong style="color:#fff; font-size:0.9rem;">${requestsMap[email].name}</strong><br>
+                        <span style="color:var(--text-muted); font-size:0.75rem;">${email}</span><br>
+                        <span style="color:var(--accent-color); font-size:0.75rem;">wants Operations access.</span>
+                        <div style="margin-top:8px; display:flex; gap:8px;">
+                   <button onclick="approveOpsRequest('${String(requestsMap[email].name || '').replace(/'/g, "\\'")}', '${String(email || '').replace(/'/g, "\\'")}')" style="background:var(--success-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Approve</button>
+        <button onclick="denyOpsRequest('${String(requestsMap[email].name || '').replace(/'/g, "\\'")}', '${String(email || '').replace(/'/g, "\\'")}')" style="background:var(--danger-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Deny</button>
+    </div>
+</div>`;
+                }
+            }
+            
+            const badge = document.getElementById('adminBellBadge');
+            if (pendingCount > 0) {
+                badge.style.display = 'block';
+                badge.innerText = pendingCount;
+            } else {
+                badge.style.display = 'none';
+            }
+
+            const drop = document.getElementById('adminNotifDropdown');
+            if (pendingCount === 0) {
+                drop.innerHTML = `<div style="padding:1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">No pending requests</div>`;
+            } else {
+                drop.innerHTML = pendingHtml;
+            }
+            
+            drop.innerHTML += `<div style="padding:0.5rem; text-align:center; background:rgba(0,0,0,0.3); border-top:1px solid var(--border-color);"><button onclick="openOpsHistoryModal()" style="background:transparent; border:none; color:var(--accent-color); font-size:0.75rem; font-weight:bold; cursor:pointer; text-transform:uppercase;">View Access History</button></div>`;
+        }
+
+        function approveOpsRequest(name, email) {
+            const payload = { action: "opsApprove", name: name, noonId: email };
+            fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            let log = window.globalSystemLogs.find(l => l.noonId === email);
+            if(log) log.accepted = true;
+            renderNotifications();
+        }
+
+        function denyOpsRequest(name, email) {
+            const payload = { action: "opsDeny", name: name, noonId: email };
+            fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            let log = window.globalSystemLogs.find(l => l.noonId === email);
+            if(log) log.denied = true;
+            renderNotifications();
+        }
+
+        window.openOpsHistoryModal = function() {
+            const tbody = document.getElementById('opsAccessHistoryBody');
+            tbody.innerHTML = '';
+            
+            let historyLogs = (window.globalSystemLogs || []).filter(l => l.accepted || l.denied);
+            
+            if (historyLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">No history found.</td></tr>`;
+            } else {
+                historyLogs.slice().reverse().forEach(log => {
+                    let statusColor = log.accepted ? 'var(--success-color)' : 'var(--danger-color)';
+                    let statusText = log.accepted ? 'APPROVED' : 'DENIED';
+                    
+                    tbody.innerHTML += `
+                    <tr>
+                        <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(log.timestamp)}</td>
+                        <td><strong>${log.name}</strong></td>
+                        <td style="font-size:0.8rem;">${log.noonId}</td>
+                        <td style="color:${statusColor}; font-weight:bold; font-size:0.8rem;">${statusText}</td>
+                        <td style="font-size:0.8rem; color:var(--text-muted);">Admin</td>
+                    </tr>`;
+                });
+            }
+            document.getElementById('opsAccessHistoryModal').classList.add('modal-active');
+            document.getElementById('adminNotifDropdown').classList.remove('open');
         };
 
         const canvas = document.getElementById('particleCanvas');
@@ -3399,4 +3495,3 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
     </script>
 </body>
 </html>
-
