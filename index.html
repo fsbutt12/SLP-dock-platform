@@ -999,16 +999,15 @@
             console.log("SUCCESS: Item photo saved to memory!");
         }
         
-        // Find the button and force it to turn green
-        let btn = inputEl.previousElementSibling;
-        if (!btn || btn.tagName !== 'BUTTON') {
-            btn = inputEl.parentElement ? inputEl.parentElement.querySelector('button') : null;
-        }
+      // Find the button inside the container or parent card
+        const parentContainer = inputEl.closest('div') || inputEl.parentElement;
+        const btn = parentContainer ? parentContainer.querySelector('button') : null;
+
         if (btn) {
             btn.style.backgroundColor = "#2ecc71";
-            btn.style.color = "#fff";
+            btn.style.color = "#ffffff";
             btn.style.border = "none";
-            btn.innerText = "✅ Attached";
+            btn.innerHTML = "✅ Attached";
         }
     };
     reader.readAsDataURL(file);
