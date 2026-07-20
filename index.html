@@ -999,23 +999,18 @@
             console.log("SUCCESS: Item photo saved to memory!");
         }
         
-    // Climb up the DOM tree until we find the box containing the button
-        let btn = null;
-        let curr = inputEl;
-        for (let i = 0; i < 6 && curr; i++) {
-            let foundBtn = curr.querySelector ? curr.querySelector('button') : null;
-            if (foundBtn) {
-                btn = foundBtn;
-                break;
+  // Target ONLY the individual card box (keeps CONFIRM CHECK OUT untouched)
+        const card = inputEl.closest('.photo-box') || inputEl.parentElement;
+        if (card) {
+            let statusEl = card.querySelector('.photo-status-msg');
+            if (!statusEl) {
+                statusEl = document.createElement('div');
+                statusEl.className = 'photo-status-msg';
+                statusEl.style.cssText = "color: #2ecc71; font-size: 0.8rem; font-weight: bold; margin: 6px 0; text-align: center;";
+                const refBtn = card.querySelector('button') || inputEl;
+                card.insertBefore(statusEl, refBtn);
             }
-            curr = curr.parentElement;
-        }
-
-        if (btn) {
-            btn.style.backgroundColor = "#2ecc71";
-            btn.style.color = "#ffffff";
-            btn.style.border = "none";
-            btn.innerHTML = "✅ Attached";
+            statusEl.innerHTML = "✅ Attached";
         }
     };
     reader.readAsDataURL(file);
