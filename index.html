@@ -960,8 +960,10 @@
         let tempCheckoutTruckPhoto = null;
         let tempCheckoutItemPhoto = null;
 
-        function handleCheckoutPhoto(event, type) {
-    const file = event.target.files[0];
+       function handleCheckoutPhoto(event, type) {
+    // This line makes it smart enough to handle either 'event' or 'this'
+    const input = event.target || event; 
+    const file = input.files ? input.files[0] : null;
     if (!file) return;
 
     const reader = new FileReader();
