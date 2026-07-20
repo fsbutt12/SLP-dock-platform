@@ -2954,10 +2954,10 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
                 let dateFormatted = fmtDate(driver.registered);
                 container.innerHTML += `
                     <div class="driver-registry-card" data-search-blob="${driver.name.toLowerCase()} ${(driver.plate || '').toLowerCase()}">
-                        <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${String(driver.id).replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${driver.phone.replace(/'/g, "\\'")}', false)">✏️</button></div>
+                        <div class="card-management-actions"><button class="btn-icon-manage" onclick="openEditDriverModal('${driver.name.replace(/'/g, "\\'")}', '${String(driver.id).replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${String(driver.phone || '').replace(/'/g, "\\'")}', false)">✏️</button></div>
                         <div class="driver-card-header"><div class="driver-avatar-img">👤</div><div class="driver-meta"><h3>${driver.name}</h3><div class="driver-badges"><span class="tag-badge verified">${tr('Verified')}</span><span class="tag-badge carrier">${tr('SLP')}</span></div></div></div>
                         <div class="driver-card-info-grid"><div class="info-block"><p>🆔 ${tr('Iqama/National ID')}</p><data>${driver.id}</data></div><div class="info-block"><p>📅 ${tr('Registered Date')}</p><data>${dateFormatted}</data></div><div class="info-block" style="grid-column: 1 / -1; margin-top: 4px;"><p>📞 ${tr('Mobile Number')}</p><data>${driver.phone}</data></div></div>
-                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${String(driver.id).replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${driver.phone.replace(/'/g, "\\'")}', false)">${tr('View Records')}</button>
+                        <button class="btn-card-action" onclick="openDriverProfileModal('${driver.name.replace(/'/g, "\\'")}', '${String(driver.id).replace(/'/g, "\\'")}', '${(driver.plate || '').replace(/'/g, "\\'")}', '${dateFormatted}', '${String(driver.phone || '').replace(/'/g, "\\'")}', false)">${tr('View Records')}</button>
                     </div>`;
             });
         }
