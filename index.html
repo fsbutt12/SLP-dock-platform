@@ -896,7 +896,7 @@
             <div class="modal-body-content" style="padding: 1.5rem 2rem;">
                 <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1.5rem;" id="signOutModalSubtext" data-i18n="Completing SLP cycle...">Completing SLP cycle...</p>
 
-                <div class="scanners-double-row" id="checkoutScannersRow" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="scanners-double-row" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
                     <div class="scan-box-dashed" onclick="document.getElementById('checkoutTruckPhotoInput').click()" style="padding: 1.5rem 1rem;">
                         <div><span class="icon" style="font-size:1.5rem; margin-bottom:0.4rem;">📷</span><span class="label-text" id="checkoutTruckStatus">Truck Picture (with plate) *</span></div>
                         <input type="file" id="checkoutTruckPhotoInput" accept="image/*" style="display:none;" onchange="handleCheckoutPhoto(this, 'checkoutTruckStatus', 'truck')">
@@ -969,7 +969,7 @@
 
         let globalLogsCache = [];
         let driversRegistryList = [];
-        let securityRegistryList = JSON.parse(JSON.stringify(megaWarehouseGuards)); 
+        let securityRegistryList = []; 
         let globalHistoryListCache = [];
         window.globalSystemLogs = []; 
         window.hasFetchedLogs = false; 
@@ -1043,88 +1043,6 @@
         let userRole = 'guard'; 
         let isSidebarHidden = false; 
         let isConfirmingState = false;
-        let accessRequests = JSON.parse(localStorage.getItem('SLP_ACCESS_REQUESTS')) || [];
-        let approvedOpsEmails = JSON.parse(localStorage.getItem('SLP_APPROVED_OPS_EMAILS')) || [];
-
-        const megaWarehouseGuards = [
-            { id: "RDS07221", name: "Mahmoud Abbas Al-Sayed" },
-            { id: "RDS604", name: "Inad Suleiman Abdo" },
-            { id: "RDS08328", name: "Rais Khairan Al Kathiri" },
-            { id: "RDM0143", name: "Karama Salem Bakhamis" },
-            { id: "RDS87880", name: "Muhammad Fayez Al-Kathiri" },
-            { id: "RDS706", name: "Abdul Qadir Abdullah Al Kathiri" },
-            { id: "RDS20013", name: "Riyad Saeed Al-Mahri" },
-            { id: "RDS012012", name: "Muhammad Hassan Majrashi" },
-            { id: "RDS012010", name: "Ayman Habib Hawsawi" },
-            { id: "RDS012000", name: "Abdul Rahman Ahmed Majrashi" },
-            { id: "RDM0146", name: "Khaled Ahmed Majrashi" },
-            { id: "RDS01170", name: "Youssef Salem Hassan" },
-            { id: "RDS20017", name: "Abdulsalam Ali Taleb" },
-            { id: "RDM0153", name: "Saeed Salem Al Tamimi" },
-            { id: "RDS090331", name: "Saeed Hizam Al-Dosari" },
-            { id: "RDM0130", name: "Saleh Abdul Rahman Al-Shuqairan" },
-            { id: "RDSM168", name: "Saud Aati" },
-            { id: "RDSM169", name: "Bader Bader" },
-            { id: "RDS0142", name: "Amer Abdullah Al-Sayari" },
-            { id: "RDS09116", name: "Karama Salmeen Al-Sayari" },
-            { id: "RDS10804", name: "Omar Salem Al-Kathiri" },
-            { id: "RDS20002", name: "Bakr Saeed Al Tamimi" },
-            { id: "RDM0147", name: "Yasser Muhammad Awad" },
-            { id: "RDS01260", name: "Ali Ahmed Awaji" },
-            { id: "RDS0141", name: "Omar Hussein Awaji" },
-            { id: "RDS01250", name: "Bandar Hussein Awaji" },
-            { id: "RDM0154", name: "Mohammed Saleh Al-Saadi" },
-            { id: "RDM0145", name: "Saleh Khaled Al-Kathiri" },
-            { id: "RDS012006", name: "Omar Abdel Nasser Ibrahim" },
-            { id: "RDS090330", name: "Youssef Hussein Awaji" },
-            { id: "RDM0155", name: "Imad Hashem Maashi" },
-            { id: "RDS09114", name: "Hassan Abdullah Majrashi" },
-            { id: "RDM0158", name: "Abdul Rahman Attia Al-Subaie" },
-            { id: "RDM0159", name: "Abdullah Hamid Al-Bishi" },
-            { id: "RDSM0010", name: "Bandar Hamad Hakami" },
-            { id: "RDS716", name: "Muhammad Abu Bakr Hassan" },
-            { id: "RDS00190", name: "Hassan Fawzi Al-Kathiri" },
-            { id: "RDSM109", name: "Ahmed Salman Abdo" },
-            { id: "RDS0767", name: "Osama Fayez Salama" },
-            { id: "RDSM0065", name: "Abdullah Saleh Al-Kathiri" },
-            { id: "RDS729855", name: "Saeed Khaled Al Kathiri" },
-            { id: "RDS09058", name: "Saree Muhammad Jumaan" },
-            { id: "RDS02001", name: "Muhammad Abdullah Al-Kathiri" },
-            { id: "RDSM0056", name: "Abdullah Khamis Al Kathiri" },
-            { id: "RDS0068", name: "Hamad Farhan Al-Subhi" },
-            { id: "RDSM0042", name: "Bashar Ayed Al-Tamimi" },
-            { id: "RDSM0024", name: "Fayez Abdullah Bawazir" },
-            { id: "RDS100", name: "Tanaf Saeed Al Kathiri" },
-            { id: "RDM0152", name: "Saeed Barak bin Musaad" },
-            { id: "RDS0381", name: "Hammoud Saad Al-Subaie" },
-            { id: "RDSM0053", name: "Mubarak Jarid Al-Dosari" },
-            { id: "RDSM0046", name: "Abdulaziz Jarid Al-Dosari" },
-            { id: "RDSM0025", name: "Essam Ahmed Al-Wadani" },
-            { id: "RDSM0060", name: "Nader Amoj Al-Otaibi" },
-            { id: "RDS09061", name: "Mahdi Saleh Al-Yafei" },
-            { id: "RDS016", name: "Bashar Faisal Al-Kathiri" },
-            { id: "RDSM165", name: "Munir Saeed Al-Kathiri" },
-            { id: "RDSM175", name: "Ahmed Musaed Abdali" },
-            { id: "RDSM0047", name: "Hussein Muhammad Al-Subaie" },
-            { id: "RDSM0066", name: "Raid Hamad Al-Jizani" },
-            { id: "RDSA003", name: "Farhan Hamad Al-Shammari" },
-            { id: "RDSM0013", name: "Muhammad Abdullah Bawazir" },
-            { id: "RDS0380", name: "Jari Saad Al-Subaie" },
-            { id: "RDM0148", name: "Mujahid Abdel-Ih Belajam" },
-            { id: "RDS0187", name: "Muhammad Ibrahim Al-Raffa" },
-            { id: "RDM0149", name: "Yahya Khaled Habash" },
-            { id: "RDM0150", name: "Majid Khaled Habash" },
-            { id: "RDS102", name: "Maher Malik Al Kathiri" },
-            { id: "RDS225", name: "Muhammad Issa Taher" },
-            { id: "RDS1204", name: "Hussein Ahmed Saleh" },
-            { id: "RDS546", name: "Riad Tanaf Al Kathiri" },
-            { id: "RDS07910", name: "Sayyaf Omar Al Jabri" },
-            { id: "RDS13056", name: "Muhammad Khamis Yaslam" },
-            { id: "RDS001005", name: "Saeed Fawzi Al Kathiri" },
-            { id: "RDSM0089", name: "Ali Ahmed Hazazi" },
-            { id: "RDS20678", name: "Abdullah Suleiman Ali" },
-            { id: "RDS710", name: "Saeed Rayes Al-Mahri" }
-        ];
         let accessRequests = JSON.parse(localStorage.getItem('SLP_ACCESS_REQUESTS')) || [];
         let approvedOpsEmails = JSON.parse(localStorage.getItem('SLP_APPROVED_OPS_EMAILS')) || []; 
 
@@ -1525,8 +1443,10 @@ function checkDockOccupation() {
         }
         driverBoxLabel.innerText = "Truck Picture (Check-In) *";
 
-        // Show a popup confirmation instead of auto-opening camera
-        showReceivingConfirmationPopup();
+        // Instantly force open the fullscreen camera loop targeting the truck bumper view
+        setTimeout(() => {
+            openCamera('driverPhotoStatus', 'PLATE');
+        }, 150);
 
     } else {
         // Standard baseline clean reset for Dispatching selections
@@ -1546,56 +1466,6 @@ function checkDockOccupation() {
             driverBoxLabel.innerText = tr("Driver Photo / Truck Photo");
         }
     }
-}
-
-function showReceivingConfirmationPopup() {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay modal-active';
-    modal.style.zIndex = '2000';
-    modal.innerHTML = `
-        <div class="modal-window" style="max-width: 500px; border: 1px solid rgba(252, 194, 0, 0.4);">
-            <div class="modal-header-container">
-                <h2 style="color: var(--accent-color); font-size: 1.25rem;">📥 RECEIVING MODE</h2>
-                <button class="btn-modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button>
-            </div>
-            <div class="modal-body-content" style="padding: 1.5rem 2rem;">
-                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">
-                    Receiving mode requires you to capture and attach:
-                </p>
-                <div style="display: flex; flex-direction: column; gap: 1rem; background: rgba(252,194,0,0.08); border: 1px solid rgba(252,194,0,0.2); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <span style="font-size: 1.5rem;">📷</span>
-                        <div>
-                            <div style="color: #fff; font-weight: 700; font-size: 0.9rem;">Truck Picture (Check-In)</div>
-                            <div style="color: var(--text-muted); font-size: 0.75rem;">Show truck with plate visible</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <span style="font-size: 1.5rem;">📦</span>
-                        <div>
-                            <div style="color: #fff; font-weight: 700; font-size: 0.9rem;">Item Picture</div>
-                            <div style="color: var(--text-muted); font-size: 0.75rem;">Capture incoming cargo/items</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <span style="font-size: 1.5rem;">🔐</span>
-                        <div>
-                            <div style="color: #fff; font-weight: 700; font-size: 0.9rem;">Incoming Seal Number</div>
-                            <div style="color: var(--text-muted); font-size: 0.75rem;">Enter the seal/reference number</div>
-                        </div>
-                    </div>
-                </div>
-                <p style="color: var(--accent-color); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1.5rem;">
-                    ✓ You will NOT be asked for these photos again during checkout
-                </p>
-                <div style="display: flex; gap: 1rem;">
-                    <button class="btn-modal-cancel" style="flex: 1;" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
-                    <button class="submit-btn-global" style="flex: 1; margin-top: 0; padding: 0.6rem 1rem;" onclick="this.closest('.modal-overlay').remove(); setTimeout(() => openCamera('driverPhotoStatus', 'PLATE'), 200);">Start Capture</button>
-                </div>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
 }
 
 function toggleAccordion(el) {
@@ -2183,22 +2053,13 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
             };
             localStorage.setItem('SLP_OVERRIDES', JSON.stringify(localOverrides));
 
-            if (recordType === 'guard') {
-                fetch(API_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: "addGuard", guardId: newIqama, guardName: newName, actionByEmail: loggedInUser.email }) 
-                }).catch(e => console.log("Guard add queued."));
-                
-                securityRegistryList.push({ id: newIqama, name: newName });
-            } else {
-                fetch(API_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: "editDriver", recordType, oldName, driverName: newName, iqamaNumber: newIqama, plateNumber: newPlate, mobileNumber: newPhone, actionByEmail: loggedInUser.email }) 
-                }).catch(e => console.log("Edit save queued."));
-            }
+            fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: "editDriver", recordType, oldName, driverName: newName, iqamaNumber: newIqama, plateNumber: newPlate, mobileNumber: newPhone, actionByEmail: loggedInUser.email }) 
+            }).catch(e => console.log("Edit save queued."));
 
             closeEditDriverModal();
-            if (recordType !== 'guard') fetchLogs(); 
+            fetchLogs(); 
         }
 
         function deleteDriver() {
@@ -2763,20 +2624,10 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
             document.getElementById('signOutModalSubtext').innerText = `${tr('Completing SLP cycle for vehicle')} ${plateNumber || '(' + tr('No Plate Provided') + ')'}`;
             document.getElementById('signOutSeal').value = '';
             
-            const isReceiving = dispatchType && dispatchType.toUpperCase() === 'RECEIVING';
-            const checkoutScannersRow = document.getElementById('checkoutScannersRow');
-            const sealContainer = document.getElementById('checkoutSealContainer');
-            
-            if (isReceiving) {
-                // Hide photo boxes and seal container for Receiving (photos already captured during check-in)
-                if (checkoutScannersRow) checkoutScannersRow.style.display = 'none';
-                if (sealContainer) sealContainer.style.display = 'none';
-                
-                document.getElementById('signOutModalSubtext').innerText = `${tr('Completing SLP cycle for vehicle')} ${plateNumber || '(' + tr('No Plate Provided') + ')'}\n✓ Photos already captured during check-in`;
+            if (dispatchType && dispatchType.toUpperCase() === 'RECEIVING') {
+                document.getElementById('checkoutSealContainer').style.display = 'none';
             } else {
-                // Show photo boxes for Dispatching (standard checkout)
-                if (checkoutScannersRow) checkoutScannersRow.style.display = 'grid';
-                if (sealContainer) sealContainer.style.display = 'block';
+                document.getElementById('checkoutSealContainer').style.display = 'block';
             }
             
             tempCheckoutTruckPhoto = null;
@@ -2801,13 +2652,8 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
             const sealVal = isReceiving ? "" : document.getElementById('signOutSeal').value.trim();
             
             if (!isReceiving && !sealVal) { alert('Please attach a departure seal number.'); return; }
-            
-            // For Dispatching (non-Receiving), require photos from checkout
-            if (!isReceiving) {
-                if (!tempCheckoutTruckPhoto) { alert('Please attach a Truck Picture.'); return; }
-                if (!tempCheckoutItemPhoto) { alert('Please attach an Item Picture.'); return; }
-            }
-            
+            if (!tempCheckoutTruckPhoto) { alert('Please attach a Truck Picture.'); return; }
+            if (!tempCheckoutItemPhoto) { alert('Please attach an Item Picture.'); return; }
             if (!currentSignOutContext) return;
 
             const { driverName, plateNumber, securityName, dockNumber } = currentSignOutContext;
@@ -2830,11 +2676,9 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
                 let activeLog = globalLogsCache.find(r => r.driverName === driverName && r.plateNumber === plateNumber && !r.checkOutTime);
                 if (activeLog) {
                     activeLog.checkOutTime = new Date().toISOString();
-                    // For Dispatching, add the checkout photos. For Receiving, photos were already captured at check-in
-                    if (!isReceiving) {
-                        activeLog.truckPhoto = tempCheckoutTruckPhoto;
-                        activeLog.itemPhoto = tempCheckoutItemPhoto;
-                    }
+                    if(!isReceiving) activeLog.sealNumber = sealVal; 
+                    activeLog.truckPhoto = tempCheckoutTruckPhoto;
+                    activeLog.itemPhoto = tempCheckoutItemPhoto;
                 }
                 
                 window.handleLogsResponse({ logs: globalLogsCache, ops: window.globalSystemLogs });
@@ -3279,17 +3123,6 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
             container.innerHTML = '';
 
             let uniqueMap = {};
-            
-            megaWarehouseGuards.forEach(guard => {
-                if (deletes.some(d => d.type === 'guard' && d.name === guard.name)) return;
-                uniqueMap[guard.name] = {
-                    name: guard.name,
-                    id: guard.id || "N/A",
-                    registered: new Date().toISOString(),
-                    phone: "N/A"
-                };
-            });
-
             data.forEach(item => {
                 if (!item.securityName || item.securityName.trim() === "" || item.securityName === "Unknown") return;
                 if (deletes.some(d => d.type === 'guard' && d.name === item.securityName)) return; 
@@ -3457,23 +3290,6 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
             window.hasFetchedLogs = true;
             let rawLogs = responsePayload.logs || [];
             window.globalSystemLogs = responsePayload.ops || [];
-
-            if (responsePayload.guards && responsePayload.guards.length > 0) {
-                let sheetsGuards = responsePayload.guards;
-                let mergedGuards = {};
-                
-                megaWarehouseGuards.forEach(g => {
-                    mergedGuards[g.name.toLowerCase()] = g;
-                });
-                
-                sheetsGuards.forEach(g => {
-                    if (g.name && g.id) {
-                        mergedGuards[g.name.toLowerCase()] = { name: g.name, id: g.id };
-                    }
-                });
-                
-                securityRegistryList = Object.values(mergedGuards);
-            }
 
             let overrides = JSON.parse(localStorage.getItem('SLP_OVERRIDES')) || {};
             let processedData = rawLogs.map(row => {
