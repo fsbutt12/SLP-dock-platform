@@ -578,7 +578,21 @@
                 </div>
             </div>
         </div>
-
+        <!-- Operations Access Requests (Dashboard Card) -->
+<div id="opsApprovalsCard" style="margin-top: 1.5rem; background: var(--card-bg, #1e232a); border: 1px solid var(--border-color, #2a303c); border-radius: 10px; padding: 1.25rem; display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color, #2a303c); padding-bottom: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1.05rem; color: #fff; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+            🔑 OPERATIONS ACCESS REQUESTS
+        </h3>
+        <button onclick="openOpsHistoryModal()" style="background: transparent; border: 1px solid var(--border-color, #2a303c); color: var(--accent-color, #f39c12); padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase;">
+            View Access History
+        </button>
+    </div>
+    <div id="dashboardOpsApprovalsContent">
+        <!-- Pending requests will render here -->
+    </div>
+</div>
+</div>
         <div id="view-analytics" class="app-view">
             <div class="view-header-row">
                 <div class="view-header-title">
@@ -1634,26 +1648,19 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
         function checkAdminNotifications() {
             if (userRole !== 'admin') {
                 document.getElementById('adminBellContainer').style.display = 'none';
-                return;
-            }
-            document.getElementById('adminBellContainer').style.display = 'block';
-            renderNotifications();
-        }
+             function renderNotifications() {
+    const approvalsCard = document.getElementById('opsApprovalsCard');
+    const approvalsContent = document.getElementById('dashboardOpsApprovalsContent');
 
-        function toggleNotifications() {
-            const drop = document.getElementById('adminNotifDropdown');
-            drop.classList.toggle('open');
-            if (drop.classList.contains('open')) {
-                renderNotifications();
-            }
-        }
+    // Only display on the dashboard for Admin users
+    if (userRole !== 'admin') {
+        if (approvalsCard) approvalsCard.style.display = 'none';
+        return;
+    }
 
-       function renderNotifications() {
-    if (userRole !== 'admin') return;
     let requestsMap = {};
 
     (window.globalSystemLogs || []).forEach(log => {
-        // Safe extraction for any email/ID format
         let email = log.noonId || log.email || log.userEmail || '';
         if (!email || email === 'undefined' || email === 'null') return;
 
@@ -1682,36 +1689,33 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
             let safeEmail = String(displayEmail).replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
             pendingHtml += `
-                <div style="padding:0.75rem; border-bottom:1px solid var(--border-color); font-size:0.8rem;">
-                    <strong style="color:#fff; font-size:0.9rem;">${displayName}</strong><br>
-                    <span style="color:var(--text-muted); font-size:0.75rem;">${displayEmail}</span><br>
-                    <span style="color:var(--accent-color); font-size:0.75rem;">wants Operations access.</span>
-                    <div style="margin-top:8px; display:flex; gap:8px;">
-                        <button onclick="approveOpsRequest('${safeName}', '${safeEmail}')" style="background:var(--success-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Approve</button>
-                        <button onclick="denyOpsRequest('${safeName}', '${safeEmail}')" style="background:var(--danger-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Deny</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color, #2a303c); border-radius: 8px; margin-bottom: 0.6rem;">
+                    <div>
+                        <strong style="color: #fff; font-size: 0.95rem;">${displayName}</strong> 
+                        <span style="color: var(--text-muted, #8b949e); font-size: 0.85rem; margin-left: 6px;">(${displayEmail})</span><br>
+                        <span style="color: var(--accent-color, #f39c12); font-size: 0.8rem; font-weight: 500;">Wants Operations Access</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="approveOpsRequest('${safeName}', '${safeEmail}')" style="background: #2ecc71; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">Approve</button>
+                        <button onclick="denyOpsRequest('${safeName}', '${safeEmail}')" style="background: #e74c3c; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">Deny</button>
                     </div>
                 </div>`;
         }
     }
 
-    const badge = document.getElementById('adminBellBadge');
-    if (badge) {
-        if (pendingCount > 0) {
-            badge.style.display = 'block';
-            badge.innerText = pendingCount;
+    if (approvalsCard) {
+        approvalsCard.style.display = 'block';
+        if (pendingCount === 0) {
+            approvalsContent.innerHTML = `<div style="padding: 1.25rem; text-align: center; color: var(--text-muted, #8b949e); font-size: 0.85rem; background: rgba(255,255,255,0.02); border-radius: 8px;">No pending operations access requests</div>`;
         } else {
-            badge.style.display = 'none';
+            approvalsContent.innerHTML = pendingHtml;
         }
     }
 
-    const drop = document.getElementById('adminNotifDropdown');
-    if (drop) {
-        if (pendingCount === 0) {
-            drop.innerHTML = '<div style="padding:1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">No pending requests</div>';
-        } else {
-            drop.innerHTML = pendingHtml;
-        }
-        drop.innerHTML += `<div style="padding:0.5rem; text-align:center; background:rgba(0,0,0,0.3); border-top:1px solid var(--border-color);"><button onclick="openOpsHistoryModal()" style="background:transparent; border:none; color:var(--accent-color); font-size:0.75rem; font-weight:bold; cursor:pointer; text-transform:uppercase;">View Access History</button></div>`;
+    const badge = document.getElementById('adminBellBadge');
+    if (badge) {
+        badge.style.display = pendingCount > 0 ? 'block' : 'none';
+        if (pendingCount > 0) badge.innerText = pendingCount;
     }
 }
 
@@ -1722,6 +1726,7 @@ function approveOpsRequest(name, email) {
     if (log) log.accepted = true;
     renderNotifications();
 }
+
 
 function denyOpsRequest(name, email) {
     const payload = { action: "opsDeny", name: name, noonId: email };
