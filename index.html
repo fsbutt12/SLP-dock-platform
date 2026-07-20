@@ -354,10 +354,10 @@
         .modal-header-container h2 { font-size: 1.1rem; color: #fff; font-weight: 700; text-transform: uppercase; }
         .btn-modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
         .modal-body-content { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; }
-
+        
         /* Fixed Viewport so images are never cropped */
         .modal-media-viewport { width: 100%; height: 210px; border-radius: 6px; border: 1px solid var(--border-color); display:flex; align-items:center; justify-content:center; background-color: #0b0e14; background-size: contain; background-position: center; background-repeat: no-repeat; }
-
+        
         .modal-data-blocks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .modal-slate-cell { background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.85rem 1rem; border-radius: 6px; }
         .modal-slate-cell span { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 6px; }
@@ -575,10 +575,23 @@
                     <div id="occupiedDocksContainer" class="docks-grid-container">
                         <div style="grid-column: 1 / -1; text-align:center; color:var(--text-muted); font-size:0.8rem; margin-top:2rem;" data-i18n="All docks are currently clear.">All docks are currently clear.</div>
                     </div>
-                </div>
+              </div>
+</div>
+        <!-- Operations Access Requests (Dashboard Card) -->
+        <div id="opsApprovalsCard" style="margin-top: 1.5rem; background: var(--card-bg, #1e232a); border: 1px solid var(--border-color, #2a303c); border-radius: 10px; padding: 1.25rem; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color, #2a303c); padding-bottom: 0.75rem;">
+                <h3 style="margin: 0; font-size: 1.05rem; color: #fff; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+                    🔑 OPERATIONS ACCESS REQUESTS
+                </h3>
+                <button onclick="openOpsHistoryModal()" style="background: transparent; border: 1px solid var(--border-color, #2a303c); color: var(--accent-color, #f39c12); padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; text-transform: uppercase;">
+                    View Access History
+                </button>
+            </div>
+            <div id="dashboardOpsApprovalsContent">
+                <!-- Pending requests will render here -->
             </div>
         </div>
-
+    </div>
         <div id="view-analytics" class="app-view">
             <div class="view-header-row">
                 <div class="view-header-title">
@@ -731,7 +744,7 @@
                                 </select>
                                 <input type="text" id="directionCustom" class="input-box-styled" placeholder="Please specify purpose..." style="display:none; margin-top:0.75rem;" autocomplete="off">
                             </div>
-
+                            
                             <div class="form-group" style="grid-column: 1 / -1;"><label class="badge-style" data-i18n="Dispatching / Receiving *">Dispatching / Receiving *</label>
                                 <select id="dispatchSelect" class="input-box-styled" required onchange="handleDispatchChange(this)">
                                     <option value="" data-i18n="Select...">Select...</option>
@@ -773,7 +786,7 @@
             <div class="card" style="padding: 1.5rem; background: transparent; border:none;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
                     <div class="header-search-box-container" style="width: 320px;"><span>🔍</span><input type="text" id="historySearchQuery" class="header-search-input" data-i18n="Filter by driver, plate, or security ID..." placeholder="Filter by driver, plate, or security ID..." oninput="applyHistoryFilters()"></div>
-
+                    
                     <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
                         <select id="historyTimeFilter" class="input-box-styled" style="width:auto; padding: 0.4rem; font-size: 0.75rem; font-weight: 700;" onchange="applyHistoryFilters()">
                             <option value="both" data-i18n="Both (In & Out)">Both (In & Out)</option>
@@ -953,10 +966,10 @@
 
         let currentHistoryDateRange = 'all';
         let currentAnalyticsDateRange = 'weekly';
-
+        
         let temporaryCapturedImage = null; 
         let temporaryCapturedItemImage = null; 
-
+        
         let tempCheckoutTruckPhoto = null;
         let tempCheckoutItemPhoto = null;
 
@@ -998,7 +1011,7 @@
             tempCheckoutItemPhoto = e.target.result;
             console.log("SUCCESS: Item photo saved to memory!");
         }
-
+        
   // Target ONLY the individual card box (keeps CONFIRM CHECK OUT untouched)
         const card = inputEl.closest('.photo-box') || inputEl.parentElement;
         if (card) {
@@ -1212,7 +1225,7 @@
             document.getElementById('iqamaNumber').addEventListener('input', runInstantConflictCheck);
             document.getElementById('iqamaNumber').addEventListener('change', runInstantConflictCheck);
             document.getElementById('iqamaNumber').addEventListener('blur', runInstantConflictCheck);
-
+            
             document.getElementById('plateNumber').addEventListener('input', runInstantConflictCheck);
             document.getElementById('plateNumber').addEventListener('change', runInstantConflictCheck);
             document.getElementById('plateNumber').addEventListener('blur', runInstantConflictCheck);
@@ -1261,7 +1274,7 @@
             loginEmailField.reportValidity();
             return;
         }
-
+        
         if (!window.hasFetchedLogs) {
             loginEmailField.setCustomValidity("Connecting to server... Please wait a few seconds and try again.");
             loginEmailField.reportValidity();
@@ -1302,10 +1315,10 @@
                 headers: {'Content-Type':'text/plain;charset=utf-8'}, 
                 body: JSON.stringify(payload) 
             }).catch(e => console.error("Access request transmission error", e));
-
+            
             if(!window.globalSystemLogs) window.globalSystemLogs = [];
             window.globalSystemLogs.push({...payload, timestamp: new Date().toISOString()});
-
+            
             loginEmailField.setCustomValidity("Access request sent to Admin. Please wait for approval.");
             loginEmailField.reportValidity();
         }
@@ -1350,7 +1363,7 @@ function runInstantConflictCheck(e) {
 
     const targetField = e.target;
     targetField.setCustomValidity(''); // Clear any previous error layouts
-
+    
     const val = targetField.value.trim().toLowerCase();
     if (!val) return;
 
@@ -1382,7 +1395,7 @@ function runInstantConflictCheck(e) {
 function checkDockOccupation() {
     const dockField = document.getElementById('dockNumber');
     dockField.setCustomValidity(''); // Reset custom validation constraints
-
+    
     const dockVal = dockField.value.trim().toUpperCase();
     if (!dockVal || !globalLogsCache || globalLogsCache.length === 0) return;
 
@@ -1622,7 +1635,7 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
         }, 1200); 
     }
 } // <--- THIS BRACE CLOSES EXECUTELOGIN CORRECTLY                introOverlay.classList.add('hidden');
-
+            
 
         window.logoutUser = function() {
             localStorage.removeItem('noonSlpUserSession');
@@ -1634,75 +1647,21 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
         function checkAdminNotifications() {
             if (userRole !== 'admin') {
                 document.getElementById('adminBellContainer').style.display = 'none';
-                return;
-            }
-            document.getElementById('adminBellContainer').style.display = 'block';
-            renderNotifications();
-        }
+function renderNotifications() {
+    const approvalsCard = document.getElementById('opsApprovalsCard');
+    const approvalsContent = document.getElementById('dashboardOpsApprovalsContent');
 
-        function toggleNotifications() {
-            const drop = document.getElementById('adminNotifDropdown');
-            drop.classList.toggle('open');
-            if (drop.classList.contains('open')) {
-                renderNotifications();
-            }
-        }
+    if (userRole !== 'admin') {
+        if (approvalsCard) approvalsCard.style.display = 'none';
+        return;
+    }
 
-        function renderNotifications() {
-            if (userRole !== 'admin') return;
-            let requestsMap = {}; 
-            
-            (window.globalSystemLogs || []).forEach(log => {
-                let email = log.noonId;
-                if (!requestsMap[email]) {
-                    requestsMap[email] = log;
-                } else {
-                    requestsMap[email] = log;
-                }
-            });
-       function renderNotifications() {
-    if (userRole !== 'admin') return;
     let requestsMap = {};
 
-            let pendingHtml = '';
-            let pendingCount = 0;
-            
-            for (let email in requestsMap) {
-                if (!requestsMap[email].accepted && !requestsMap[email].denied) {
-                    pendingCount++;
-                    pendingHtml += `
-                    <div style="padding:0.75rem; border-bottom:1px solid var(--border-color); font-size:0.8rem;">
-                        <strong style="color:#fff; font-size:0.9rem;">${requestsMap[email].name}</strong><br>
-                        <span style="color:var(--text-muted); font-size:0.75rem;">${email}</span><br>
-                        <span style="color:var(--accent-color); font-size:0.75rem;">wants Operations access.</span>
-                        <div style="margin-top:8px; display:flex; gap:8px;">
-                   <button onclick="approveOpsRequest('${String(requestsMap[email].name || '').replace(/'/g, "\\'")}', '${String(email || '').replace(/'/g, "\\'")}')" style="background:var(--success-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Approve</button>
-        <button onclick="denyOpsRequest('${String(requestsMap[email].name || '').replace(/'/g, "\\'")}', '${String(email || '').replace(/'/g, "\\'")}')" style="background:var(--danger-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Deny</button>
-    </div>
-</div>`;
-                }
-            }
-            
-            const badge = document.getElementById('adminBellBadge');
-            if (pendingCount > 0) {
-                badge.style.display = 'block';
-                badge.innerText = pendingCount;
-            } else {
-                badge.style.display = 'none';
-            }
     (window.globalSystemLogs || []).forEach(log => {
-        // Safe extraction for any email/ID format
         let email = log.noonId || log.email || log.userEmail || '';
         if (!email || email === 'undefined' || email === 'null') return;
 
-            const drop = document.getElementById('adminNotifDropdown');
-            if (pendingCount === 0) {
-                drop.innerHTML = `<div style="padding:1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">No pending requests</div>`;
-            } else {
-                drop.innerHTML = pendingHtml;
-            }
-            
-            drop.innerHTML += `<div style="padding:0.5rem; text-align:center; background:rgba(0,0,0,0.3); border-top:1px solid var(--border-color);"><button onclick="openOpsHistoryModal()" style="background:transparent; border:none; color:var(--accent-color); font-size:0.75rem; font-weight:bold; cursor:pointer; text-transform:uppercase;">View Access History</button></div>`;
         let name = log.name || log.userName || log.displayName || email;
 
         requestsMap[email] = {
@@ -1728,48 +1687,33 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
             let safeEmail = String(displayEmail).replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
             pendingHtml += `
-                <div style="padding:0.75rem; border-bottom:1px solid var(--border-color); font-size:0.8rem;">
-                    <strong style="color:#fff; font-size:0.9rem;">${displayName}</strong><br>
-                    <span style="color:var(--text-muted); font-size:0.75rem;">${displayEmail}</span><br>
-                    <span style="color:var(--accent-color); font-size:0.75rem;">wants Operations access.</span>
-                    <div style="margin-top:8px; display:flex; gap:8px;">
-                        <button onclick="approveOpsRequest('${safeName}', '${safeEmail}')" style="background:var(--success-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Approve</button>
-                        <button onclick="denyOpsRequest('${safeName}', '${safeEmail}')" style="background:var(--danger-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Deny</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color, #2a303c); border-radius: 8px; margin-bottom: 0.6rem;">
+                    <div>
+                        <strong style="color: #fff; font-size: 0.95rem;">${displayName}</strong> 
+                        <span style="color: var(--text-muted, #8b949e); font-size: 0.85rem; margin-left: 6px;">(${displayEmail})</span><br>
+                        <span style="color: var(--accent-color, #f39c12); font-size: 0.8rem; font-weight: 500;">Wants Operations Access</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="approveOpsRequest('${safeName}', '${safeEmail}')" style="background: #2ecc71; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">Approve</button>
+                        <button onclick="denyOpsRequest('${safeName}', '${safeEmail}')" style="background: #e74c3c; color: #fff; border: none; padding: 6px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">Deny</button>
                     </div>
                 </div>`;
         }
     }
 
-        function approveOpsRequest(name, email) {
-            const payload = { action: "opsApprove", name: name, noonId: email };
-            fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-            let log = window.globalSystemLogs.find(l => l.noonId === email);
-            if(log) log.accepted = true;
-            renderNotifications();
-    const badge = document.getElementById('adminBellBadge');
-    if (badge) {
-        if (pendingCount > 0) {
-            badge.style.display = 'block';
-            badge.innerText = pendingCount;
+    if (approvalsCard) {
+        approvalsCard.style.display = 'block';
+        if (pendingCount === 0) {
+            approvalsContent.innerHTML = `<div style="padding: 1.25rem; text-align: center; color: var(--text-muted, #8b949e); font-size: 0.85rem; background: rgba(255,255,255,0.02); border-radius: 8px;">No pending operations access requests</div>`;
         } else {
-            badge.style.display = 'none';
+            approvalsContent.innerHTML = pendingHtml;
         }
     }
 
-        function denyOpsRequest(name, email) {
-            const payload = { action: "opsDeny", name: name, noonId: email };
-            fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
-            let log = window.globalSystemLogs.find(l => l.noonId === email);
-            if(log) log.denied = true;
-            renderNotifications();
-    const drop = document.getElementById('adminNotifDropdown');
-    if (drop) {
-        if (pendingCount === 0) {
-            drop.innerHTML = '<div style="padding:1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">No pending requests</div>';
-        } else {
-            drop.innerHTML = pendingHtml;
-        }
-        drop.innerHTML += `<div style="padding:0.5rem; text-align:center; background:rgba(0,0,0,0.3); border-top:1px solid var(--border-color);"><button onclick="openOpsHistoryModal()" style="background:transparent; border:none; color:var(--accent-color); font-size:0.75rem; font-weight:bold; cursor:pointer; text-transform:uppercase;">View Access History</button></div>`;
+    const badge = document.getElementById('adminBellBadge');
+    if (badge) {
+        badge.style.display = pendingCount > 0 ? 'block' : 'none';
+        if (pendingCount > 0) badge.innerText = pendingCount;
     }
 }
 
@@ -1788,34 +1732,37 @@ function denyOpsRequest(name, email) {
     if (log) log.denied = true;
     renderNotifications();
 }
+ window.openOpsHistoryModal = function() {
+    const tbody = document.getElementById('opsAccessHistoryBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
-        window.openOpsHistoryModal = function() {
-            const tbody = document.getElementById('opsAccessHistoryBody');
-            tbody.innerHTML = '';
+    let historyLogs = (window.globalSystemLogs || []).filter(l => l.accepted || l.denied);
 
-            let historyLogs = (window.globalSystemLogs || []).filter(l => l.accepted || l.denied);
+    if (historyLogs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">No history found.</td></tr>';
+    } else {
+        historyLogs.slice().reverse().forEach(log => {
+            let statusColor = log.accepted ? 'var(--success-color)' : 'var(--danger-color)';
+            let statusText = log.accepted ? 'APPROVED' : 'DENIED';
 
-            if (historyLogs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">No history found.</td></tr>`;
-            } else {
-                historyLogs.slice().reverse().forEach(log => {
-                    let statusColor = log.accepted ? 'var(--success-color)' : 'var(--danger-color)';
-                    let statusText = log.accepted ? 'APPROVED' : 'DENIED';
+            tbody.innerHTML += `
+                <tr>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">${typeof formatTimeText !== 'undefined' ? formatTimeText(log.timestamp) : log.timestamp}</td>
+                    <td style="font-weight:bold; color:#fff;">${log.name || log.noonId}</td>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">${log.noonId || ''}</td>
+                    <td><span style="color:${statusColor}; font-weight:bold; font-size:0.75rem;">${statusText}</span></td>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">${log.processedBy || 'Admin'}</td>
+                </tr>`;
+        });
+    }
 
-                    tbody.innerHTML += `
-                    <tr>
-                        <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(log.timestamp)}</td>
-                        <td><strong>${log.name}</strong></td>
-                        <td style="font-size:0.8rem;">${log.noonId}</td>
-                        <td style="color:${statusColor}; font-weight:bold; font-size:0.8rem;">${statusText}</td>
-                        <td style="font-size:0.8rem; color:var(--text-muted);">Admin</td>
-                    </tr>`;
-                });
-            }
-            document.getElementById('opsAccessHistoryModal').classList.add('modal-active');
-            document.getElementById('adminNotifDropdown').classList.remove('open');
-        };
-
+    const modal = document.getElementById('opsAccessHistoryModal');
+    if (modal) modal.classList.add('modal-active');
+    const drop = document.getElementById('adminBellDropdown');
+    if (drop) drop.classList.remove('open');
+};
+  
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
         let width, height, particles;
@@ -1951,7 +1898,7 @@ function denyOpsRequest(name, email) {
                 let plateBox = document.getElementById('modalDataPlate'); plateBox.innerHTML = '';
                 let segments = plate ? plate.split(' ') : ['--'];
                 segments.forEach(seg => { let div = document.createElement('div'); div.className = 'modal-plate-tag'; div.innerText = seg; plateBox.appendChild(div); });
-
+                
                 viewport.style.backgroundImage = `none`;
                 viewport.innerHTML = `<div id="photoLoader" style="color:var(--accent-color); text-align:center; padding-top:80px; font-weight:bold;">Loading Photo...</div>`;
 
@@ -2080,7 +2027,7 @@ function denyOpsRequest(name, email) {
                 document.getElementById('driverLookupGroup').style.display = "none";
                 document.getElementById('scanBoxDriver').style.display = 'block';
                 document.getElementById('scanBoxIqama').style.display = 'block';
-
+                
                 const isReceiving = document.getElementById('dispatchSelect').value === 'Receiving';
                 if (isReceiving) {
                     document.getElementById('scanBoxItem').style.display = 'block';
@@ -2225,7 +2172,7 @@ function denyOpsRequest(name, email) {
         async function preprocessImageForOcr(file, scanType) {
             const img = await loadImageRobust(file);
             let sx = 0, sy = 0, sw = img.width, sh = img.height;
-
+            
             const targetWidth = scanType === 'PLATE' ? 1100 : 1400;
             const scale = sw > targetWidth ? targetWidth / sw : 1; 
             const canvas = document.createElement('canvas');
@@ -2303,7 +2250,7 @@ function denyOpsRequest(name, email) {
                 closeCamera(); 
             }
         }
-
+        
         async function openCheckoutCamera(statusLabelId, scanType) {
             cameraTargetStatusId = statusLabelId; cameraTargetScanType = scanType;
             const overlay = document.getElementById('cameraOverlay'), video = document.getElementById('cameraVideo');
@@ -2322,11 +2269,11 @@ function denyOpsRequest(name, email) {
             document.getElementById('cameraOverlay').classList.remove('open');
             if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
             isConfirmingState = false;
-
+            
             document.querySelector('.btn-capture').innerHTML = `📸 <span data-i18n="Capture">Capture</span>`;
             document.querySelector('.btn-cancel-cam').innerHTML = tr('Cancel');
             document.querySelector('.btn-cancel-cam').removeAttribute('style');
-
+            
             const video = document.getElementById('cameraVideo');
             if(video && video.paused) video.play();
             updateUIStrings();
@@ -2337,7 +2284,7 @@ function denyOpsRequest(name, email) {
                 isConfirmingState = false;
                 const video = document.getElementById('cameraVideo');
                 if(video) video.play();
-
+                
                 document.getElementById('cameraInstructionLabel').innerText = getInstructionText(cameraTargetScanType);
                 document.querySelector('.btn-capture').innerHTML = `📸 <span data-i18n="Capture">Capture</span>`;
                 document.querySelector('.btn-cancel-cam').innerHTML = tr('Cancel');
@@ -2605,20 +2552,20 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
             currentSignOutContext = { driverName, plateNumber, securityName, dockNumber, dispatchType };
             document.getElementById('signOutModalSubtext').innerText = `${tr('Completing SLP cycle for vehicle')} ${plateNumber || '(' + tr('No Plate Provided') + ')'}`;
             document.getElementById('signOutSeal').value = '';
-
+            
             if (dispatchType && dispatchType.toUpperCase() === 'RECEIVING') {
                 document.getElementById('checkoutSealContainer').style.display = 'none';
             } else {
                 document.getElementById('checkoutSealContainer').style.display = 'block';
             }
-
+            
             tempCheckoutTruckPhoto = null;
             tempCheckoutItemPhoto = null;
             document.getElementById('checkoutTruckStatus').innerText = "Truck Picture (with plate) *";
             document.getElementById('checkoutTruckStatus').style.color = "var(--text-muted)";
             document.getElementById('checkoutItemStatus').innerText = "Item Picture *";
             document.getElementById('checkoutItemStatus').style.color = "var(--text-muted)";
-
+            
             document.getElementById('signOutModal').classList.add('modal-active');
         }
 
@@ -2632,7 +2579,7 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
         document.getElementById('btnConfirmSignOut').addEventListener('click', async () => {
             const isReceiving = currentSignOutContext.dispatchType && currentSignOutContext.dispatchType.toUpperCase() === 'RECEIVING';
             const sealVal = isReceiving ? "" : document.getElementById('signOutSeal').value.trim();
-
+            
             if (!isReceiving && !sealVal) { alert('Please attach a departure seal number.'); return; }
             if (!tempCheckoutTruckPhoto) { alert('Please attach a Truck Picture.'); return; }
             if (!tempCheckoutItemPhoto) { alert('Please attach an Item Picture.'); return; }
@@ -2662,7 +2609,7 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
                     activeLog.truckPhoto = tempCheckoutTruckPhoto;
                     activeLog.itemPhoto = tempCheckoutItemPhoto;
                 }
-
+                
                 window.handleLogsResponse({ logs: globalLogsCache, ops: window.globalSystemLogs });
                 closeSignOutModal();
                 setTimeout(fetchLogs, 3000);
@@ -2713,7 +2660,7 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
             if (!dateValue) return false;
             const refDate = new Date(dateValue);
             if (isNaN(refDate.getTime())) return false;
-
+            
             if (range === 'all') return true;
             if (range === 'today') {
                 return refDate.toDateString() === now.toDateString();
@@ -2793,7 +2740,7 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
             const container = document.getElementById('analyticsGroupedTables');
             if(!container) return;
             container.innerHTML = '';
-
+            
             if (list.length === 0) {
                 container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 3rem; font-style: italic; font-size: 0.8rem; text-transform: uppercase;">${tr('No records match this filter.')}</div>`;
                 return;
@@ -3243,7 +3190,7 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
                 if (timeFilter === 'out') return checkOutMatch;
                 return checkInMatch || checkOutMatch;
             });
-
+            
             if (rows.length === 0) { alert(tr('No records match this filter.')); return; }
 
             const headers = [tr('Driver'), tr('Iqama Number'), tr('Plate'), tr('Direction'), tr('Dock'), tr('Seal Number'), tr('Check In Truck'), tr('Check Out'), tr('Duration'), tr('Security')];
@@ -3307,7 +3254,7 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
             document.getElementById('metric-total-checkins').innerText = chronData.length;
 
             let activeList = chronData.filter(r => !r.checkOutTime);
-
+            
             document.getElementById('metric-active-now').innerText = activeList.length;
             if (document.getElementById('activeYardCounter')) { document.getElementById('activeYardCounter').innerText = activeList.length; }
 
@@ -3398,7 +3345,7 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
 
         document.getElementById('entryForm').addEventListener('submit', async e => {
             e.preventDefault(); 
-
+            
             const isNewDriverMode = document.getElementById('toggleNewDriverBtn').classList.contains('active');
             if (isNewDriverMode && driversRegistryList) {
                 const checkIqama = document.getElementById('iqamaNumber').value.trim().toLowerCase();
@@ -3476,7 +3423,7 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
                     ...payload,
                     checkInTime: new Date().toISOString()
                 });
-
+                
                 window.handleLogsResponse({ logs: globalLogsCache, ops: window.globalSystemLogs });
 
                 document.getElementById('entryForm').reset(); 
@@ -3570,4 +3517,3 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
     </script>
 </body>
 </html>
-    
