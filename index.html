@@ -1647,7 +1647,7 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
         function checkAdminNotifications() {
             if (userRole !== 'admin') {
                 document.getElementById('adminBellContainer').style.display = 'none';
-         function renderNotifications() {
+    function renderNotifications() {
     const approvalsCard = document.getElementById('opsApprovalsCard');
     const approvalsContent = document.getElementById('dashboardOpsApprovalsContent');
 
@@ -1732,33 +1732,37 @@ function denyOpsRequest(name, email) {
     if (log) log.denied = true;
     renderNotifications();
 }
-        window.openOpsHistoryModal = function() {
-            const tbody = document.getElementById('opsAccessHistoryBody');
-            tbody.innerHTML = '';
-            
-            let historyLogs = (window.globalSystemLogs || []).filter(l => l.accepted || l.denied);
-            
-            if (historyLogs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">No history found.</td></tr>`;
-            } else {
-                historyLogs.slice().reverse().forEach(log => {
-                    let statusColor = log.accepted ? 'var(--success-color)' : 'var(--danger-color)';
-                    let statusText = log.accepted ? 'APPROVED' : 'DENIED';
-                    
-                    tbody.innerHTML += `
-                    <tr>
-                        <td style="font-size:0.8rem; color:var(--text-muted);">${formatTimeText(log.timestamp)}</td>
-                        <td><strong>${log.name}</strong></td>
-                        <td style="font-size:0.8rem;">${log.noonId}</td>
-                        <td style="color:${statusColor}; font-weight:bold; font-size:0.8rem;">${statusText}</td>
-                        <td style="font-size:0.8rem; color:var(--text-muted);">Admin</td>
-                    </tr>`;
-                });
-            }
-            document.getElementById('opsAccessHistoryModal').classList.add('modal-active');
-            document.getElementById('adminNotifDropdown').classList.remove('open');
-        };
 
+window.openOpsHistoryModal = function() {
+    const tbody = document.getElementById('opsAccessHistoryBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    let historyLogs = (window.globalSystemLogs || []).filter(l => l.accepted || l.denied);
+
+    if (historyLogs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">No history found.</td></tr>';
+    } else {
+        historyLogs.slice().reverse().forEach(log => {
+            let statusColor = log.accepted ? 'var(--success-color)' : 'var(--danger-color)';
+            let statusText = log.accepted ? 'APPROVED' : 'DENIED';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">${typeof formatTimeText !== 'undefined' ? formatTimeText(log.timestamp) : log.timestamp}</td>
+                    <td style="font-weight:bold; color:#fff;">${log.name || log.noonId}</td>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">${log.noonId || ''}</td>
+                    <td><span style="color:${statusColor}; font-weight:bold; font-size:0.75rem;">${statusText}</span></td>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">${log.processedBy || 'Admin'}</td>
+                </tr>`;
+        });
+    }
+
+    const modal = document.getElementById('opsAccessHistoryModal');
+    if (modal) modal.classList.add('modal-active');
+    const drop = document.getElementById('adminBellDropdown');
+    if (drop) drop.classList.remove('open');
+};
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
         let width, height, particles;
