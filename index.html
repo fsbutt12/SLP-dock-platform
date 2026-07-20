@@ -1617,10 +1617,8 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
                         <span style="color:var(--text-muted); font-size:0.75rem;">${email}</span><br>
                         <span style="color:var(--accent-color); font-size:0.75rem;">wants Operations access.</span>
                         <div style="margin-top:8px; display:flex; gap:8px;">
-                            <button onclick="approveOpsRequest('${requestsMap[email].name.replace(/'/g, "\\'")}', '${email.replace(/'/g, "\\'")}')" style="background:var(--success-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Approve</button>
-                            <button onclick="denyOpsRequest('${requestsMap[email].name.replace(/'/g, "\\'")}', '${email.replace(/'/g, "\\'")}')" style="background:var(--danger-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Deny</button>
-                        </div>
-                    </div>`;
+                          <button onclick="approveOpsRequest('${String(requestsMap[email].name || '').replace(/'/g, "\\'")}', '${String(email || '').replace(/'/g, "\\'")}')" style="background:var(--success-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Approve</button>
+        <button onclick="denyOpsRequest('${String(requestsMap[email].name || '').replace(/'/g, "\\'")}', '${String(email || '').replace(/'/g, "\\'")}')" style="background:var(--danger-color); color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Deny</button>
                 }
             }
             
