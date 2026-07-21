@@ -1412,63 +1412,53 @@ function checkDockOccupation() {
             }
         }
 
-      function handleDispatchChange(selectEl) {
-    const scannersRow = document.getElementById('checkinScannersRow');
-    const itemBox = document.getElementById('scanBoxItem');
-    const driverBox = document.getElementById('scanBoxDriver');
-    const driverBoxLabel = document.getElementById('driverPhotoStatus');
-    const iqamaBox = document.getElementById('scanBoxIqama');
-    const sealContainer = document.getElementById('sealNumberContainer');
-    const sealInput = document.getElementById('sealNumber');
-    const isExistingMode = document.getElementById('toggleExistingDriverBtn').classList.contains('active');
+   function handleDispatchChange(selectEl) {
+            if (!selectEl) return;
+            const scannersRow = document.getElementById('checkinScannersRow');
+            const itemBox = document.getElementById('scanBoxItem');
+            const driverBox = document.getElementById('scanBoxDriver');
+            const driverBoxLabel = document.getElementById('driverPhotoStatus');
+            const iqamaBox = document.getElementById('scanBoxIqama');
+            const sealContainer = document.getElementById('sealNumberContainer');
+            const sealInput = document.getElementById('sealNumber');
+            const toggleNew = document.getElementById('toggleNewDriverBtn');
+            const isExistingMode = toggleNew ? !toggleNew.classList.contains('active') : false;
 
-    if (selectEl.value === 'Receiving') {
-        sealContainer.style.display = 'block';
-        sealInput.required = true;
+            if (selectEl.value === 'Receiving') {
+                if (sealContainer) sealContainer.style.display = 'block';
+                if (sealInput) sealInput.required = true;
 
-        if (isExistingMode) {
-            // Existing Driver: Show only the Item Picture box slot
-            scannersRow.style.display = 'grid';
-            scannersRow.style.gridTemplateColumns = '1fr';
-            itemBox.style.display = 'block';
-            driverBox.style.display = 'none';
-            iqamaBox.style.display = 'none';
-        } else {
-            // New Driver: Show all 3 camera box slots side-by-side
-            scannersRow.style.display = 'grid';
-            scannersRow.style.gridTemplateColumns = 'repeat(3, 1fr)';
-            itemBox.style.display = 'block';
-            driverBox.style.display = 'block';
-            iqamaBox.style.display = 'block';
-        }
-        driverBoxLabel.innerText = "Truck Picture (Check-In) *";
+                if (isExistingMode) {
+                    if (scannersRow) { scannersRow.style.display = 'grid'; scannersRow.style.gridTemplateColumns = '1fr'; }
+                    if (itemBox) itemBox.style.display = 'block';
+                    if (driverBox) driverBox.style.display = 'none';
+                    if (iqamaBox) iqamaBox.style.display = 'none';
+                } else {
+                    if (scannersRow) { scannersRow.style.display = 'grid'; scannersRow.style.gridTemplateColumns = 'repeat(2, 1fr)'; }
+                    if (itemBox) itemBox.style.display = 'block';
+                    if (driverBox) driverBox.style.display = 'block';
+                    if (iqamaBox) iqamaBox.style.display = 'none'; // ❌ HIDES IQAMA SCANNER FOR RECEIVING
+                }
+                if (driverBoxLabel) driverBoxLabel.innerText = "Truck Picture (Check-In) *";
 
-        // Instantly force open the fullscreen camera loop targeting the truck bumper view
-        setTimeout(() => {
-            openCamera('driverPhotoStatus', 'PLATE');
-        }, 150);
+                // ❌ Instant camera popup removed completely!
 
-    } else {
-        // Standard baseline clean reset for Dispatching selections
-        temporaryCapturedItemImage = null; 
-        sealContainer.style.display = 'none';
-        sealInput.required = false;
-        sealInput.value = '';
+            } else {
+                temporaryCapturedItemImage = null; 
+                if (sealContainer) sealContainer.style.display = 'none';
+                if (sealInput) { sealInput.required = false; sealInput.value = ''; }
 
-        if (isExistingMode) {
-            scannersRow.style.display = 'none';
-        } else {
-            scannersRow.style.display = 'grid';
-            scannersRow.style.gridTemplateColumns = 'repeat(2, 1fr)';
-            itemBox.style.display = 'none';
-            driverBox.style.display = 'block';
-            iqamaBox.style.display = 'block';
-            driverBoxLabel.innerText = tr("Driver Photo / Truck Photo");
-        }
-    }
-}
-
-function toggleAccordion(el) {
+                if (isExistingMode) {
+                    if (scannersRow) scannersRow.style.display = 'none';
+                } else {
+                    if (scannersRow) { scannersRow.style.display = 'grid'; scannersRow.style.gridTemplateColumns = 'repeat(2, 1fr)'; }
+                    if (itemBox) itemBox.style.display = 'none';
+                    if (driverBox) driverBox.style.display = 'block';
+                    if (iqamaBox) iqamaBox.style.display = 'block';
+                    if (driverBoxLabel) driverBoxLabel.innerText = typeof tr !== 'undefined' ? tr("Driver Photo / Truck Photo") : "Driver Photo / Truck Photo";
+                }
+            }
+        }function toggleAccordion(el) {
     const content = el.nextElementSibling;
     const wrapper = el.parentElement;
     if (content.classList.contains('open')) {
@@ -2386,86 +2376,103 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
             }
         });
 function captureCameraFrame() {
-    const video = document.getElementById('cameraVideo');
-    const canvas = document.getElementById('cameraCanvas');
+            const video = document.getElementById('cameraVideo');
+            const canvas = document.getElementById('cameraCanvas');
 
-    if (isConfirmingState) {
-        isConfirmingState = false;
-        document.querySelector('.btn-capture').innerHTML = `📸 <span data-i18n="Capture">Capture</span>`;
-        document.querySelector('.btn-cancel-cam').innerHTML = tr('Cancel');
-        document.querySelector('.btn-cancel-cam').removeAttribute('style');
-
-        if (video && video.paused) video.play();
-
-        const isReceiving = document.getElementById('dispatchSelect').value === 'Receiving';
-
-        if (cameraTargetScanType === "PLATE") {
-            if (isReceiving) {
-                cameraTargetStatusId = "itemPhotoStatus";
-                cameraTargetScanType = "ITEM_PHOTO";
-                document.getElementById('cameraInstructionLabel').innerText = getInstructionText("ITEM_PHOTO");
-            } else {
-                cameraTargetStatusId = "iqamaStatus";
-                cameraTargetScanType = "IQAMA";
-                document.getElementById('cameraInstructionLabel').innerText = getInstructionText("IQAMA");
-            }
-        } else if (cameraTargetScanType === "ITEM_PHOTO") {
-            cameraTargetStatusId = "iqamaStatus";
-            cameraTargetScanType = "IQAMA";
-            document.getElementById('cameraInstructionLabel').innerText = getInstructionText("IQAMA");
-        } else if (cameraTargetScanType === "IQAMA") {
-            closeCamera();
-        } else if (cameraTargetScanType === 'truck') {
-            cameraTargetStatusId = 'checkoutItemStatus';
-            cameraTargetScanType = 'item';
-            document.getElementById('cameraInstructionLabel').innerText = getInstructionText('item');
-        } else {
-            closeCamera();
-        }
-        updateUIStrings();
-        return;
-    }
-
-    if (typeof video !== 'undefined' && video) {
-        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-
-        const currentStatusId = cameraTargetStatusId;
-        const currentScanType = cameraTargetScanType;
-
-        canvas.toBlob(blob => {
-            let reader = new FileReader(); reader.readAsDataURL(blob);
-            reader.onloadend = () => {
-                if (currentScanType === 'truck' || currentScanType === 'item') {
-                    handleCheckoutPhoto({files: [blob]}, currentStatusId, currentScanType);
-                } else {
-                    if (currentScanType === 'ITEM_PHOTO') temporaryCapturedItemImage = reader.result;
-                    else temporaryCapturedImage = reader.result;
-                    runLocalOcrEngine(blob, currentStatusId, currentScanType);
+            if (isConfirmingState) {
+                isConfirmingState = false;
+                const capBtn = document.querySelector('.btn-capture');
+                if (capBtn) capBtn.innerHTML = `📸 <span data-i18n="Capture">Capture</span>`;
+                const canBtn = document.querySelector('.btn-cancel-cam');
+                if (canBtn) {
+                    canBtn.innerHTML = tr('Cancel');
+                    canBtn.removeAttribute('style');
                 }
-            };
-        }, 'image/jpeg', 0.85);
 
-        triggerCameraFlash();
-        if (video.pause) video.pause();
-        isConfirmingState = true;
+                if (video && video.paused) video.play();
 
-        if (currentLang === 'ar') {
-            document.getElementById('cameraInstructionLabel').innerText = 'تم الالتقاط بنجاح';
-            document.querySelector('.btn-capture').innerText = 'موافقة / التالي';
-            document.querySelector('.btn-cancel-cam').innerText = 'إعادة المحاولة';
-        } else {
-            document.getElementById('cameraInstructionLabel').innerText = 'Snap Completed!';
-            document.querySelector('.btn-capture').innerText = 'Proceed / Next';
-            document.querySelector('.btn-cancel-cam').innerText = 'Retake';
+                const dispatchSelect = document.getElementById('dispatchSelect');
+                const isReceiving = dispatchSelect && dispatchSelect.value === 'Receiving';
+
+                if (cameraTargetScanType === "PLATE") {
+                    if (isReceiving) {
+                        cameraTargetStatusId = "itemPhotoStatus";
+                        cameraTargetScanType = "ITEM_PHOTO";
+                        const instructionLabel = document.getElementById('cameraInstructionLabel');
+                        if (instructionLabel) instructionLabel.innerText = getInstructionText("ITEM_PHOTO");
+                    } else {
+                        cameraTargetStatusId = "iqamaStatus";
+                        cameraTargetScanType = "IQAMA";
+                        const instructionLabel = document.getElementById('cameraInstructionLabel');
+                        if (instructionLabel) instructionLabel.innerText = getInstructionText("IQAMA");
+                    }
+                } else if (cameraTargetScanType === "ITEM_PHOTO") {
+                    if (isReceiving) {
+                        closeCamera();
+                    } else {
+                        cameraTargetStatusId = "iqamaStatus";
+                        cameraTargetScanType = "IQAMA";
+                        const instructionLabel = document.getElementById('cameraInstructionLabel');
+                        if (instructionLabel) instructionLabel.innerText = getInstructionText("IQAMA");
+                    }
+                } else if (cameraTargetScanType === "IQAMA") {
+                    closeCamera();
+                } else if (cameraTargetScanType === 'truck') {
+                    cameraTargetStatusId = 'checkoutItemStatus';
+                    cameraTargetScanType = 'item';
+                    const instructionLabel = document.getElementById('cameraInstructionLabel');
+                    if (instructionLabel) instructionLabel.innerText = getInstructionText('item');
+                } else {
+                    closeCamera();
+                }
+                updateUIStrings();
+                return;
+            }
+
+            if (typeof video !== 'undefined' && video) {
+                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+
+                const currentStatusId = cameraTargetStatusId;
+                const currentScanType = cameraTargetScanType;
+
+                canvas.toBlob(blob => {
+                    let reader = new FileReader(); reader.readAsDataURL(blob);
+                    reader.onloadend = () => {
+                        if (currentScanType === 'truck' || currentScanType === 'item') {
+                            handleCheckoutPhoto({files: [blob]}, currentStatusId, currentScanType);
+                        } else {
+                            if (currentScanType === 'ITEM_PHOTO') temporaryCapturedItemImage = reader.result;
+                            else temporaryCapturedImage = reader.result;
+                            runLocalOcrEngine(blob, currentStatusId, currentScanType);
+                        }
+                    };
+                }, 'image/jpeg', 0.85);
+
+                triggerCameraFlash();
+                if (video.pause) video.pause();
+                isConfirmingState = true;
+
+                const instructionLabel = document.getElementById('cameraInstructionLabel');
+                const capBtn = document.querySelector('.btn-capture');
+                const canBtn = document.querySelector('.btn-cancel-cam');
+
+                if (currentLang === 'ar') {
+                    if (instructionLabel) instructionLabel.innerText = 'تم الالتقاط بنجاح';
+                    if (capBtn) capBtn.innerText = 'موافقة / التالي';
+                    if (canBtn) canBtn.innerText = 'إعادة المحاولة';
+                } else {
+                    if (instructionLabel) instructionLabel.innerText = 'Snap Completed!';
+                    if (capBtn) capBtn.innerText = 'Proceed / Next';
+                    if (canBtn) canBtn.innerText = 'Retake';
+                }
+
+                if (canBtn) {
+                    canBtn.style.backgroundColor = 'var(--text-muted)';
+                    canBtn.style.color = '#000';
+                }
+            }
         }
-
-        document.querySelector('.btn-cancel-cam').style.backgroundColor = 'var(--text-muted)';
-        document.querySelector('.btn-cancel-cam').style.color = '#000';
-    }
-}
-
-function handleFileSelected(inputEl, statusLabelId, scanType) {
     const file = inputEl.files[0];
     if (!file) return;
 
@@ -2651,8 +2658,7 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
             tempCheckoutTruckPhoto = null;
             tempCheckoutItemPhoto = null;
         }
-
-        document.getElementById('btnConfirmSignOut').addEventListener('click', async () => {
+document.getElementById('btnConfirmSignOut').addEventListener('click', async () => {
             const isReceiving = currentSignOutContext.dispatchType && currentSignOutContext.dispatchType.toUpperCase() === 'RECEIVING';
             const sealVal = isReceiving ? "" : document.getElementById('signOutSeal').value.trim();
             
@@ -2690,6 +2696,10 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
                 }
                 
                 window.handleLogsResponse({ logs: globalLogsCache, ops: window.globalSystemLogs });
+                
+                // 🟢 DISPLAY SUCCESS TOAST ANIMATION
+                showCheckoutSuccessToast(plateNumber || driverName);
+
                 closeSignOutModal();
                 setTimeout(fetchLogs, 3000);
             } finally {
@@ -2697,6 +2707,39 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
                 btn.disabled = false;
             }
         });
+
+        // 🟢 ANIMATED SUCCESS TOAST FUNCTION
+        function showCheckoutSuccessToast(identifier) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 25px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #2ea643;
+                color: #ffffff;
+                padding: 1rem 2rem;
+                border-radius: 10px;
+                font-weight: 800;
+                font-size: 1rem;
+                letter-spacing: 0.5px;
+                z-index: 99999;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                border: 1px solid rgba(255,255,255,0.2);
+                transition: all 0.3s ease;
+            `;
+            toast.innerHTML = `<span style="font-size: 1.3rem;">✅</span> CHECK OUT COMPLETE — ${identifier || 'Vehicle'}`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, -20px)';
+                setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+            }, 2500);
+        }
           function fmtDate(s) {
             if(!s) return "May 10, 2026"; let d = new Date(s); if(isNaN(d.getTime())) return s;
             const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
