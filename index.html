@@ -3593,8 +3593,17 @@ function closeSignOutModal() {
                 if (!temporaryCapturedItemImage) { alert(currentLang === 'ar' ? 'يرجى التقاط صورة البضاعة الواردة.' : 'Please capture the incoming Check-In Item Picture.'); return; }
             }
 
-            const btn = document.querySelector('.submit-btn-global'); btn.innerText = tr("Processing Check In..."); btn.disabled = true;
-            try {
+// 🟢 1. FOOLPROOF DOUBLE-CLICK LOCK
+        if (window.isCheckInLocked) { console.warn("Blocked double check-in attempt!"); return; }
+        window.isCheckInLocked = true;
+        setTimeout(() => { window.isCheckInLocked = false; }, 5000); // Auto-unlocks after 5s just in case
+
+        const btn = document.querySelector('.submit-btn-global') || document.querySelector('button[type="submit"]');
+        if (btn) { 
+            btn.innerText = "⏳ Processing..."; 
+            btn.disabled = true; 
+            btn.style.pointerEvents = 'none'; 
+        }            try {
                 const payload = { 
                     driverName: document.getElementById('driverName').value, 
                     iqamaNumber: document.getElementById('iqamaNumber').value, 
@@ -3647,28 +3656,23 @@ const dirCustom = document.getElementById('directionCustom');
                     btn.disabled = false;
                 }
 
-              // 🟢 1. BULLETPROOF VISIBLE BANNER (MAX Z-INDEX)
-                const toast = document.createElement('div');
-                toast.style.cssText = 'position:fixed; top:30px; left:50%; transform:translateX(-50%); background:#2ea643; color:#ffffff; padding:16px 32px; border-radius:12px; font-weight:800; font-size:1.1rem; letter-spacing:0.5px; z-index:2147483647; box-shadow:0 10px 30px rgba(0,0,0,0.8); display:flex; align-items:center; gap:12px; border:2px solid #ffffff; transition:opacity 0.5s ease;';
-                toast.innerHTML = `<span style="font-size: 1.4rem;">✅</span> CHECK-IN COMPLETED SUCCESSFULLY!`;
-                document.body.appendChild(toast);
-                
-                setTimeout(() => {
-                    toast.style.opacity = '0';
-                    setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 500);
-                }, 4000);
+            // 🟢 1. NATIVE ALERT (100% GUARANTEED TO SHOW)
+                alert("✅ TRUCK CHECKED IN SUCCESSFULLY!");
 
-                // 🟢 2. AUTO-SWITCH TAB TO ACTIVE TRUCKS
-                const activeTab = document.getElementById('nav-active-trucks') || document.querySelector('[data-view="active-trucks"]');
-                if (activeTab) {
-                    activeTab.click();
-                } else if (typeof switchView === 'function') {
-                    switchView('active-trucks');
+                // 🟢 2. BRUTE-FORCE REDIRECT TO ACTIVE TRUCKS
+                document.querySelectorAll('.app-view').forEach(view => {
+                    view.classList.remove('active-view');
+                    view.style.display = 'none';
+                });
+                const targetView = document.getElementById('view-active-trucks');
+                if (targetView) {
+                    targetView.classList.add('active-view');
+                    targetView.style.display = 'block';
                 }
 
-                // 🟢 3. FIX DISAPPEARING TRUCK (Wait 4 seconds for Google Sheets to save before fetching)
+                // 🟢 3. WAIT FOR GOOGLE SHEETS BEFORE REFRESHING
                 setTimeout(() => { if (typeof fetchLogs === 'function') fetchLogs(); }, 4000);
-            } catch (err) {
+                } catch (err) {
                 console.error("Check-in save notification issue:", err);
                 if (err && err.message && !err.message.includes('style') && !err.message.includes('null')) {
                     alert("Error saving log: " + err.message);
