@@ -1470,8 +1470,8 @@ function toggleAccordion(el) {
                 if (content) content.classList.add('open');
                 if (wrapper) wrapper.classList.add('open');
             }
-
-function checkSessionExpiry() {
+        }
+        function checkSessionExpiry() {
     const sessionStr = localStorage.getItem('noonSlpUserSession');
     if (sessionStr) {
         const sessionData = JSON.parse(sessionStr);
