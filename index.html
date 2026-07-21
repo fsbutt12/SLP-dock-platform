@@ -1412,7 +1412,7 @@ function checkDockOccupation() {
             }
         }
 
-   function handleDispatchChange(selectEl) {
+  function handleDispatchChange(selectEl) {
             if (!selectEl) return;
             const scannersRow = document.getElementById('checkinScannersRow');
             const itemBox = document.getElementById('scanBoxItem');
@@ -1421,44 +1421,44 @@ function checkDockOccupation() {
             const iqamaBox = document.getElementById('scanBoxIqama');
             const sealContainer = document.getElementById('sealNumberContainer');
             const sealInput = document.getElementById('sealNumber');
-            const toggleNew = document.getElementById('toggleNewDriverBtn');
-            const isExistingMode = toggleNew ? !toggleNew.classList.contains('active') : false;
 
             if (selectEl.value === 'Receiving') {
                 if (sealContainer) sealContainer.style.display = 'block';
                 if (sealInput) sealInput.required = true;
 
-                if (isExistingMode) {
-                    if (scannersRow) { scannersRow.style.display = 'grid'; scannersRow.style.gridTemplateColumns = '1fr'; }
-                    if (itemBox) itemBox.style.display = 'block';
-                    if (driverBox) driverBox.style.display = 'none';
-                    if (iqamaBox) iqamaBox.style.display = 'none';
-                } else {
-                    if (scannersRow) { scannersRow.style.display = 'grid'; scannersRow.style.gridTemplateColumns = 'repeat(2, 1fr)'; }
-                    if (itemBox) itemBox.style.display = 'block';
-                    if (driverBox) driverBox.style.display = 'block';
-                    if (iqamaBox) iqamaBox.style.display = 'none'; // ❌ HIDES IQAMA SCANNER FOR RECEIVING
+                // 🟢 ALWAYS SHOW 2 SLOTS FOR RECEIVING: Truck Picture + Item Picture
+                if (scannersRow) { 
+                    scannersRow.style.display = 'grid'; 
+                    scannersRow.style.gridTemplateColumns = 'repeat(2, 1fr)'; 
                 }
-                if (driverBoxLabel) driverBoxLabel.innerText = "Truck Picture (Check-In) *";
+                if (driverBox) driverBox.style.display = 'block'; // 🚚 Truck Picture with number plate
+                if (itemBox) itemBox.style.display = 'block';     // 📦 Item Picture
+                if (iqamaBox) iqamaBox.style.display = 'none';    // ❌ Hide Iqama
 
-                // ❌ Instant camera popup removed completely!
+                if (driverBoxLabel) driverBoxLabel.innerText = "Truck Picture (Check-In) *";
 
             } else {
                 temporaryCapturedItemImage = null; 
                 if (sealContainer) sealContainer.style.display = 'none';
                 if (sealInput) { sealInput.required = false; sealInput.value = ''; }
 
+                const toggleNew = document.getElementById('toggleNewDriverBtn');
+                const isExistingMode = toggleNew ? !toggleNew.classList.contains('active') : false;
+
                 if (isExistingMode) {
                     if (scannersRow) scannersRow.style.display = 'none';
                 } else {
-                    if (scannersRow) { scannersRow.style.display = 'grid'; scannersRow.style.gridTemplateColumns = 'repeat(2, 1fr)'; }
+                    if (scannersRow) { 
+                        scannersRow.style.display = 'grid'; 
+                        scannersRow.style.gridTemplateColumns = 'repeat(2, 1fr)'; 
+                    }
                     if (itemBox) itemBox.style.display = 'none';
                     if (driverBox) driverBox.style.display = 'block';
                     if (iqamaBox) iqamaBox.style.display = 'block';
                     if (driverBoxLabel) driverBoxLabel.innerText = typeof tr !== 'undefined' ? tr("Driver Photo / Truck Photo") : "Driver Photo / Truck Photo";
                 }
             }
-        }function toggleAccordion(el) {
+        }        }function toggleAccordion(el) {
     const content = el.nextElementSibling;
     const wrapper = el.parentElement;
     if (content.classList.contains('open')) {
@@ -2658,63 +2658,94 @@ function handleFileSelected(inputEl, statusContainerId, scanType) {
             
             document.getElementById('signOutModal').classList.add('modal-active');
         }
-
-        function closeSignOutModal() {
-            document.getElementById('signOutModal').classList.remove('modal-active');
+function closeSignOutModal() {
+            const modal = document.getElementById('signOutModal');
+            if (modal) {
+                modal.classList.remove('modal-active', 'active', 'open', 'show');
+                modal.style.display = 'none'; // 🟢 FORCE HIDE/MINIMIZE MODAL IMMEDIATELY
+            }
             currentSignOutContext = null;
             tempCheckoutTruckPhoto = null;
             tempCheckoutItemPhoto = null;
+            const sealInput = document.getElementById('signOutSeal');
+            if (sealInput) sealInput.value = '';
         }
-document.getElementById('btnConfirmSignOut').addEventListener('click', async () => {
-            const isReceiving = currentSignOutContext.dispatchType && currentSignOutContext.dispatchType.toUpperCase() === 'RECEIVING';
-            const sealVal = isReceiving ? "" : document.getElementById('signOutSeal').value.trim();
-            
-            // Bypass photo & seal requirements for RECEIVING trucks at checkout
+
+        document.getElementById('btnConfirmSignOut').addEventListener('click', async () => {
+            const btn = document.getElementById('btnConfirmSignOut');
+            if (!currentSignOutContext) {
+                closeSignOutModal();
+                return;
+            }
+
+            // 🟢 Robust Receiving / Inbound Detection
+            const typeStr = String(currentSignOutContext.dispatchType || '').toUpperCase();
+            const purpStr = String(currentSignOutContext.purpose || '').toUpperCase();
+            const isReceiving = typeStr.includes('RECEIV') || typeStr.includes('INBOUND') || purpStr.includes('INBOUND') || purpStr.includes('تنزيل');
+
+            const sealInput = document.getElementById('signOutSeal');
+            const sealVal = sealInput ? sealInput.value.trim() : "";
+
+            // Photo/Seal checks only applied if Outbound/Dispatch
             if (!isReceiving) {
                 if (!sealVal) { alert('Please attach a departure seal number.'); return; }
                 if (!tempCheckoutTruckPhoto) { alert('Please attach a Truck Picture.'); return; }
                 if (!tempCheckoutItemPhoto) { alert('Please attach an Item Picture.'); return; }
             }
-            if (!currentSignOutContext) return;
 
-            const { driverName, plateNumber, securityName, dockNumber } = currentSignOutContext;
-            const btn = document.getElementById('btnConfirmSignOut');
-            btn.innerText = tr("Processing..."); btn.disabled = true;
+            const { driverName, plateNumber } = currentSignOutContext;
+            if (btn) { btn.innerText = typeof tr !== 'undefined' ? tr("Processing...") : "Processing..."; btn.disabled = true; }
 
             try {
                 const payload = { 
                     action: "checkout",
-                    driverName, 
-                    plateNumber, 
+                    driverName: driverName || "", 
+                    plateNumber: plateNumber || "", 
                     sealNumber: sealVal, 
                     truckPhoto: tempCheckoutTruckPhoto || "",
                     itemPhoto: tempCheckoutItemPhoto || ""
                 };
 
-                fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
-                    .catch(e => console.error("Background save issue:", e));
+                if (typeof API_URL !== 'undefined') {
+                    fetch(API_URL, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                        body: JSON.stringify(payload) 
+                    }).catch(e => console.error("Background checkout save issue:", e));
+                }
 
-                let activeLog = globalLogsCache.find(r => r.driverName === driverName && r.plateNumber === plateNumber && !r.checkOutTime);
-                if (activeLog) {
-                    activeLog.checkOutTime = new Date().toISOString();
-                    if(!isReceiving) activeLog.sealNumber = sealVal; 
-                    activeLog.truckPhoto = tempCheckoutTruckPhoto || "";
-                    activeLog.itemPhoto = tempCheckoutItemPhoto || "";
+                if (typeof globalLogsCache !== 'undefined' && Array.isArray(globalLogsCache)) {
+                    let activeLog = globalLogsCache.find(r => 
+                        (r.driverName === driverName || r.plateNumber === plateNumber) && !r.checkOutTime
+                    );
+                    if (activeLog) {
+                        activeLog.checkOutTime = new Date().toISOString();
+                        if (!isReceiving) activeLog.sealNumber = sealVal; 
+                        activeLog.truckPhoto = tempCheckoutTruckPhoto || "";
+                        activeLog.itemPhoto = tempCheckoutItemPhoto || "";
+                    }
                 }
                 
-                window.handleLogsResponse({ logs: globalLogsCache, ops: window.globalSystemLogs });
-                
-                // 🟢 DISPLAY SUCCESS TOAST ANIMATION
-                showCheckoutSuccessToast(plateNumber || driverName);
+                if (typeof window.handleLogsResponse === 'function') {
+                    window.handleLogsResponse({ 
+                        logs: typeof globalLogsCache !== 'undefined' ? globalLogsCache : [], 
+                        ops: window.globalSystemLogs || [] 
+                    });
+                }
+            } catch (err) {
+                console.error("Checkout execution error:", err);
+            } finally {
+                // 🟢 SHOW SUCCESS BANNER & AUTO-CLOSE MODAL IMMEDIATELY
+                if (typeof showCheckoutSuccessToast === 'function') {
+                    showCheckoutSuccessToast(plateNumber || driverName || "Vehicle");
+                }
 
                 closeSignOutModal();
-                setTimeout(fetchLogs, 3000);
-            } finally {
-                btn.innerText = "CONFIRM CHECK OUT";
-                btn.disabled = false;
+
+                if (btn) { btn.innerText = "CONFIRM CHECK OUT"; btn.disabled = false; }
+                if (typeof fetchLogs === 'function') setTimeout(fetchLogs, 1500);
             }
         });
-
         // 🟢 ANIMATED SUCCESS TOAST FUNCTION
         function showCheckoutSuccessToast(identifier) {
             const toast = document.createElement('div');
