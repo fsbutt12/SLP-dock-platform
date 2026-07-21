@@ -2697,6 +2697,7 @@ function handleFileSelected(inputEl, statusLabelId, scanType) {
                 btn.disabled = false;
             }
         });
+          function fmtDate(s) {
             if(!s) return "May 10, 2026"; let d = new Date(s); if(isNaN(d.getTime())) return s;
             const monthsEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             const monthsAr = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
