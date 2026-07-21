@@ -2634,43 +2634,83 @@ function handleFileSelected(inputEl, statusContainerId, scanType) {
 
         let currentSignOutContext = null;
 
-      function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
-            currentSignOutContext = { driverName, plateNumber, securityName, dockNumber, dispatchType };
-            document.getElementById('signOutModalSubtext').innerText = `${tr('Completing SLP cycle for vehicle')} ${plateNumber || '(' + tr('No Plate Provided') + ')'}`;
-            document.getElementById('signOutSeal').value = '';
-            
-            const isReceiving = dispatchType && dispatchType.toUpperCase() === 'RECEIVING';
-            const checkoutScanners = document.querySelector('#signOutModal .scanners-double-row');
+function promptSignOut(driverName, plateNumber, securityName, dockNumber, dispatchType) {
+    try {
+        currentSignOutContext = { driverName, plateNumber, securityName, dockNumber, dispatchType };
+        
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val || '';
+        };
+        const setTxt = (id, txt) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = txt || '';
+        };
 
-            if (isReceiving) {
-                document.getElementById('checkoutSealContainer').style.display = 'none';
-                if (checkoutScanners) checkoutScanners.style.display = 'none';
-            } else {
-                document.getElementById('checkoutSealContainer').style.display = 'block';
-                if (checkoutScanners) checkoutScanners.style.display = 'grid';
-            }
-            
-            tempCheckoutTruckPhoto = null;
-            tempCheckoutItemPhoto = null;
-            document.getElementById('checkoutTruckStatus').innerText = "Truck Picture (with plate) *";
-            document.getElementById('checkoutTruckStatus').style.color = "var(--text-muted)";
-            document.getElementById('checkoutItemStatus').innerText = "Item Picture *";
-            document.getElementById('checkoutItemStatus').style.color = "var(--text-muted)";
-            
-            document.getElementById('signOutModal').classList.add('modal-active');
+        setTxt('signOutModalSubtext', `${tr('Completing SLP cycle for vehicle')} ${plateNumber || ('(' + tr('No Plate Provided') + ')')}`);
+        setVal('signOutSeal', '');
+
+        const isReceiving = dispatchType && dispatchType.toUpperCase() === 'RECEIVING';
+        const checkoutScanners = document.querySelector('#signOutModal .scanners-double-row');
+        const checkoutSealContainer = document.getElementById('checkoutSealContainer');
+
+        if (isReceiving) {
+            if (checkoutSealContainer) checkoutSealContainer.style.display = 'none';
+            if (checkoutScanners) checkoutScanners.style.display = 'none';
+        } else {
+            if (checkoutSealContainer) checkoutSealContainer.style.display = 'block';
+            if (checkoutScanners) checkoutScanners.style.display = 'grid';
         }
+
+        tempCheckoutTruckPhoto = null;
+        tempCheckoutItemPhoto = null;
+
+        const truckStatus = document.getElementById('checkoutTruckStatus');
+        if (truckStatus) {
+            truckStatus.innerText = "Truck Picture (with plate) *";
+            truckStatus.style.color = "var(--text-muted)";
+        }
+
+        const itemStatus = document.getElementById('checkoutItemStatus');
+        if (itemStatus) {
+            itemStatus.innerText = "Item Picture *";
+            itemStatus.style.color = "var(--text-muted)";
+        }
+
+        const modal = document.getElementById('signOutModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.style.opacity = '1';
+            modal.style.pointerEvents = 'auto';
+            modal.style.zIndex = '999999';
+            modal.classList.add('modal-active', 'active', 'show');
+        }
+    } catch (err) {
+        console.error("Error opening sign-out modal:", err);
+        const modal = document.getElementById('signOutModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.style.pointerEvents = 'auto';
+            modal.style.zIndex = '999999';
+            modal.classList.add('modal-active');
+        }
+    }
+}
+
 function closeSignOutModal() {
-            const modal = document.getElementById('signOutModal');
-            if (modal) {
-                modal.classList.remove('modal-active', 'active', 'open', 'show');
-                modal.style.display = 'none'; // 🟢 FORCE HIDE/MINIMIZE MODAL IMMEDIATELY
-            }
-            currentSignOutContext = null;
-            tempCheckoutTruckPhoto = null;
-            tempCheckoutItemPhoto = null;
-            const sealInput = document.getElementById('signOutSeal');
-            if (sealInput) sealInput.value = '';
-        }
+    const modal = document.getElementById('signOutModal');
+    if (modal) {
+        modal.classList.remove('modal-active', 'active', 'open', 'show');
+        modal.style.display = 'none';
+        modal.style.pointerEvents = 'none';
+    }
+    currentSignOutContext = null;
+    tempCheckoutTruckPhoto = null;
+    tempCheckoutItemPhoto = null;
+
+    const sealInput = document.getElementById('signOutSeal');
+    if (sealInput) sealInput.value = '';
+}
 
         document.getElementById('btnConfirmSignOut').addEventListener('click', async () => {
             const btn = document.getElementById('btnConfirmSignOut');
