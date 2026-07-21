@@ -3607,6 +3607,18 @@ const dirCustom = document.getElementById('directionCustom');
                     btn.disabled = false;
                 }
 
+                // 🟢 ANIMATED GREEN CHECK-IN SUCCESS TOAST
+                const toast = document.createElement('div');
+                toast.style.cssText = 'position:fixed; top:25px; left:50%; transform:translateX(-50%); background:#2ea643; color:#ffffff; padding:1rem 2rem; border-radius:10px; font-weight:800; font-size:1rem; letter-spacing:0.5px; z-index:99999; box-shadow:0 8px 24px rgba(0,0,0,0.4); display:flex; align-items:center; gap:12px; border:1px solid rgba(255,255,255,0.2); transition:all 0.3s ease;';
+                const successMsg = (typeof plateNumber !== 'undefined' && plateNumber) ? plateNumber : ((typeof driverName !== 'undefined' && driverName) ? driverName : 'Truck');
+                toast.innerHTML = `<span style="font-size: 1.3rem;">✅</span> CHECK IN COMPLETE — ${successMsg}`;
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translate(-50%, -20px)';
+                    setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+                }, 3000);
+
                 const navBtn = document.getElementById('nav-active-trucks');
                 if (typeof switchView === 'function') {
                     switchView('active-trucks', navBtn);
@@ -3623,8 +3635,6 @@ const dirCustom = document.getElementById('directionCustom');
                     btn.disabled = false;
                 }
             }
-        });
-
         let touchstartX = 0;
         let touchstartY = 0;
         let touchendX = 0;
