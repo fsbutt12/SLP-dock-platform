@@ -2473,26 +2473,33 @@ function captureCameraFrame() {
                 }
             }
         }
-    const file = inputEl.files[0];
-    if (!file) return;
+function handleFileSelected(inputEl, statusContainerId, scanType) {
+            const file = inputEl.files[0];
+            if (!file) return;
 
-    runLocalOcrEngine(file, statusLabelId, scanType);
-    inputEl.value = '';
+            runLocalOcrEngine(file, statusContainerId, scanType);
+            inputEl.value = '';
 
-    setTimeout(() => {
-        if (scanType === 'PLATE') {
-            const isReceiving = document.getElementById('dispatchSelect').value === 'Receiving';
-            if (isReceiving) {
-                document.getElementById('itemPhotoInput').click();
-            } else {
-                document.getElementById('iqamaScanner').click();
-            }
-        } else if (scanType === 'ITEM_PHOTO') {
-            document.getElementById('iqamaScanner').click();
-        }
-    }, 300);
-}
-        async function runLocalOcrEngine(file, statusLabelId, scanType) {
+            setTimeout(() => {
+                const dispSel = document.getElementById('dispatchSelect');
+                const isReceiving = dispSel && dispSel.value === 'Receiving';
+
+                if (scanType === 'PLATE') {
+                    if (isReceiving) {
+                        const itemInput = document.getElementById('itemPhotoInput');
+                        if (itemInput) itemInput.click();
+                    } else {
+                        const iqamaInput = document.getElementById('iqamaScanner') || document.getElementById('iqamaPhotoInput');
+                        if (iqamaInput) iqamaInput.click();
+                    }
+                } else if (scanType === 'ITEM_PHOTO') {
+                    if (!isReceiving) {
+                        const iqamaInput = document.getElementById('iqamaScanner') || document.getElementById('iqamaPhotoInput');
+                        if (iqamaInput) iqamaInput.click();
+                    }
+                }
+            }, 300);
+        }        async function runLocalOcrEngine(file, statusLabelId, scanType) {
             const status = document.getElementById(statusLabelId);
             status.innerHTML = "🌀 " + tr("Preparing image..."); status.style.color = "var(--accent-color)";
             try {
