@@ -1715,22 +1715,27 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
             alert('✅ Your access request has been sent to the admin. Please wait for approval.');
         }
 
-        function checkAdminNotifications() {
-            if (userRole !== 'admin') {
-                document.getElementById('adminBellContainer').style.display = 'none';
-                return;
-            }
-            document.getElementById('adminBellContainer').style.display = 'block';
-            renderNotifications();
-        }
+  function checkAdminNotifications() {
+    const bell = document.getElementById('adminBellContainer');
+    if (!bell) return; // 🟢 SAFETY CHECK: If the bell doesn't exist, stop safely!
 
-        function toggleNotifications() {
-            const drop = document.getElementById('adminNotifDropdown');
-            drop.classList.toggle('open');
-            if (drop.classList.contains('open')) {
-                renderNotifications();
-            }
-        }
+    if (userRole !== 'admin') {
+        bell.style.display = 'none';
+        return;
+    }
+    bell.style.display = 'block';
+    if (typeof renderNotifications === 'function') renderNotifications();
+}
+
+function toggleNotifications() {
+    const drop = document.getElementById('adminNotifDropdown');
+    if (!drop) return; // 🟢 SAFETY CHECK: If the dropdown doesn't exist, stop safely!
+    
+    drop.classList.toggle('open');
+    if (drop.classList.contains('open')) {
+        if (typeof renderNotifications === 'function') renderNotifications();
+    }
+}
 
         function renderNotifications() {
             if (userRole !== 'admin') return;
@@ -1764,24 +1769,27 @@ function executeLogin(name, email, noonId, role, isInitialLoad = false) {
                 }
             }
             
-            const badge = document.getElementById('adminBellBadge');
-            if (pendingCount > 0) {
-                badge.style.display = 'block';
-                badge.innerText = pendingCount;
-            } else {
-                badge.style.display = 'none';
-            }
-
-            const drop = document.getElementById('adminNotifDropdown');
-            if (pendingCount === 0) {
-                drop.innerHTML = `<div style="padding:1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">No pending requests</div>`;
-            } else {
-                drop.innerHTML = pendingHtml;
-            }
-            
-            drop.innerHTML += `<div style="padding:0.5rem; text-align:center; background:rgba(0,0,0,0.3); border-top:1px solid var(--border-color);"><button onclick="openOpsHistoryModal()" style="background:transparent; border:none; color:var(--accent-color); font-size:0.75rem; font-weight:bold; cursor:pointer; text-transform:uppercase;">View Access History</button></div>`;
+const badge = document.getElementById('adminBellBadge');
+    if (badge) { // 🟢 SAFETY CHECK: Only change style if badge exists!
+        if (pendingCount > 0) {
+            badge.style.display = 'block';
+            badge.innerText = pendingCount;
+        } else {
+            badge.style.display = 'none';
         }
+    }
 
+    const drop = document.getElementById('adminNotifDropdown');
+    if (drop) { // 🟢 SAFETY CHECK: Only change HTML if dropdown exists!
+        if (pendingCount === 0) {
+            drop.innerHTML = '<div style="padding:1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">No pending requests</div>';
+        } else {
+            drop.innerHTML = pendingHtml;
+        }
+        
+        drop.innerHTML += `<div style="padding:0.5rem; text-align:center; background:rgba(0,0,0,0.3); border-top:1px solid var(--border-color);"><button onclick="openOpsHistoryModal()" style="background:transparent; border:none; color:var(--accent-color); font-size:0.75rem; font-weight:bold; cursor:pointer; text-transform:uppercase;">View Access History</button></div>`;
+    }
+            }
         function approveOpsRequest(name, email) {
             const payload = { action: "opsApprove", name: name, noonId: email };
             fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
