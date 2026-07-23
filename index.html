@@ -18,6 +18,13 @@
             --danger-color: #f85149;
             --nav-hover: rgba(252, 194, 0, 0.1);
         }
+        /* Force camera modal overlay to always sit on top of check-out popup */
+#cameraModal, 
+.camera-modal, 
+.camera-overlay, 
+[id*="camera"] {
+    z-index: 999999 !important;
+}
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
 
         body {
